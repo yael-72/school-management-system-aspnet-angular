@@ -1,3 +1,5 @@
+using System.Net.Http.Headers;
+using System.Net.Http.Json;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -6,6 +8,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
+using SchoolManagement.Application.Auth;
 using SchoolManagement.Application.Common.Interfaces;
 using SchoolManagement.Domain.Constants;
 using SchoolManagement.Domain.Entities;
@@ -15,7 +18,8 @@ namespace SchoolManagement.IntegrationTests.Infrastructure;
 
 /// <summary>
 /// Starts the real API in memory (real routing, auth, validation and error handling),
-/// with an in-memory database instead of SQL Server and a few known test users.
+/// with an in-memory database instead of SQL Server and a small known school:
+/// an admin, a teacher who teaches only in <see cref="TeacherClassName"/>, and a disabled user.
 /// </summary>
 public class ApiFactory : WebApplicationFactory<Program>
 {
@@ -23,6 +27,10 @@ public class ApiFactory : WebApplicationFactory<Program>
     public const string AdminEmail = "admin@test.local";
     public const string TeacherEmail = "teacher@test.local";
     public const string InactiveEmail = "inactive@test.local";
+
+    /// <summary>The class the test teacher teaches in. She has no access to <see cref="OtherClassName"/>.</summary>
+    public const string TeacherClassName = "ז'1";
+    public const string OtherClassName = "ח'1";
 
     private readonly string _databaseName = $"api-tests-{Guid.NewGuid()}";
 
@@ -70,11 +78,43 @@ public class ApiFactory : WebApplicationFactory<Program>
             IsActive = isActive
         };
 
+        var teacher = NewUser("מורה בדיקות", TeacherEmail, RoleIds.Teacher);
         db.Users.AddRange(
             NewUser("מנהל בדיקות", AdminEmail, RoleIds.Admin),
-            NewUser("מורה בדיקות", TeacherEmail, RoleIds.Teacher),
+            teacher,
             NewUser("משתמש מושבת", InactiveEmail, RoleIds.Teacher, isActive: false));
+
+        var teacherClass = new SchoolClass { Name = TeacherClassName, GradeLevel = 7, SchoolYear = "2026-2027" };
+        var otherClass = new SchoolClass { Name = OtherClassName, GradeLevel = 8, SchoolYear = "2026-2027" };
+        var math = new Subject { Name = "מתמטיקה" };
+        db.TeacherAssignments.Add(new TeacherAssignment { Teacher = teacher, Class = teacherClass, Subject = math });
+
+        db.Students.AddRange(
+            new Student { FirstName = "יוסף", LastName = "לוי", Class = teacherClass },
+            new Student { FirstName = "דוד", LastName = "כהן", Class = teacherClass },
+            new Student { FirstName = "משה", LastName = "פרץ", Class = otherClass });
 
         db.SaveChanges();
     }
+
+    /// <summary>An HTTP client that is already logged in as the given user.</summary>
+    public async Task<HttpClient> CreateClientForAsync(string email)
+    {
+        var client = CreateClient();
+        var response = await client.PostAsJsonAsync("/api/auth/login", new LoginRequest { Email = email, Password = Password });
+        response.EnsureSuccessStatusCode();
+
+        var login = await response.Content.ReadFromJsonAsync<LoginResponse>();
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", login!.AccessToken);
+        return client;
+    }
+
+    /// <summary>Reads data straight from the test database (to find ids or check what an endpoint saved).</summary>
+    public T QueryDatabase<T>(Func<AppDbContext, T> query)
+    {
+        using var scope = Services.CreateScope();
+        return query(scope.ServiceProvider.GetRequiredService<AppDbContext>());
+    }
+
+    public int ClassId(string name) => QueryDatabase(db => db.Classes.Single(c => c.Name == name).Id);
 }
