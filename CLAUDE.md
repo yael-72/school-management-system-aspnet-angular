@@ -230,3 +230,44 @@ Each milestone should end in a working, committed state.
 - Run `dotnet build`, `dotnet test` and `ng build` before saying something is done.
 - Ask before major decisions not covered here (new libraries, structural changes).
 - Commit after each meaningful step with a clear message.
+## Project status (keep this section up to date at the end of every milestone)
+
+Work happens on branch `claude/gifted-keller-p6dfi2`. Start each new session by reading this section.
+
+### Done
+- **Milestone 1 – Foundation**: .NET 10 solution (Api / Application / Domain / Infrastructure + 2 test
+  projects), EF Core entities aligned with `database/school_db.sql`, `InitialCreate` migration,
+  development seed data, Angular 22 shell (sidebar, navbar, design tokens, RTL, dark mode, lazy routes).
+- **Milestone 2 – Auth**: `POST /api/auth/login`, `GET /api/auth/me`, JWT bearer, PBKDF2 hashing,
+  global exception handler → ProblemDetails, authenticated-by-default fallback policy, Swagger
+  Authorize button. Angular: AuthService (signals), auth + 401 interceptors, `authGuard`,
+  `guestGuard`, `roleGuard(...)`, sign-in page from Figma, user menu with logout.
+
+### Next
+- **Milestone 3 – Students & Classes** (see "Build order" above).
+
+### Decisions already made (do not re-ask)
+- **Design source**: Horizon UI Figma file `YH394Y7LXSOwGdQuhrKoLU` (Figma connector). Match it
+  exactly (measurements, colors, typography) except: RTL mirror, Hebrew font fallback Heebo,
+  initials avatars, and template-only items removed (Google sign-in, "Upgrade to PRO", marketing links).
+  Light pages are on canvas `0:1`, dark pages on `1:18051`. Key frames: Main Dashboard `201:1804`,
+  NFT Marketplace `101:10012`, Tables `101:9569`, Profile `101:9076`, Sign In `101:9004`.
+  figma.com downloads are blocked by the network: export images with `get_screenshot`.
+- **Demo data**: male names only (students, teachers, admin). Demo login: `admin@school.demo` /
+  `teacher@school.demo`, password `Demo123!`. Dev database name: `SchoolManagementDev`.
+- **Naming**: entity `SchoolClass` → table `Classes`; `SchoolEvent` → `Events`; `Score.Value` → column `Score`.
+- **Layering**: services in Application use `IApplicationDbContext`; Infrastructure implements
+  `IPasswordHasher`, `ITokenService`; Api implements `ICurrentUser`. Services throw
+  `NotFoundException` / `ForbiddenException` / `BusinessRuleException` / `AuthenticationFailedException`;
+  `GlobalExceptionHandler` maps them to 404 / 403 / 400 / 401.
+- **Validation**: DataAnnotations on request DTOs (no FluentValidation). API messages in English,
+  the Angular app translates them to Hebrew.
+- **Testing**: xUnit + FluentAssertions **7.2** (v8 needs a paid license). EF InMemory for unit tests
+  and for `ApiFactory` integration tests (Testcontainers was not chosen yet – ask first).
+  Angular uses Vitest (`ng test`).
+- **Frontend conventions**: Angular 22 file naming (`login-page.ts`, class `LoginPage`), signals,
+  standalone components, logical CSS properties only (RTL), every color from `styles/_tokens.scss`,
+  shared form classes in `styles/_forms.scss`. `/api` is proxied to `http://localhost:5097`
+  (`proxy.conf.json`). JWT stored in localStorage ("keep me logged in") or sessionStorage.
+- **Security**: no secrets in the repo; in Development a random JWT key is generated when
+  `Jwt:SigningKey` is missing.
