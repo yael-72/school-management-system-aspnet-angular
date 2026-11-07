@@ -1,8 +1,8 @@
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using SchoolManagement.Domain.Entities;
+using SchoolManagement.Application.Common.Interfaces;
+using SchoolManagement.Infrastructure.Identity;
 using SchoolManagement.Infrastructure.Persistence;
 using SchoolManagement.Infrastructure.Persistence.Seed;
 
@@ -22,9 +22,17 @@ public static class DependencyInjection
                 "ConnectionStrings__DefaultConnection environment variable.");
 
         services.AddDbContext<AppDbContext>(options => options.UseSqlServer(connectionString));
+        services.AddScoped<IApplicationDbContext>(provider => provider.GetRequiredService<AppDbContext>());
 
-        // PBKDF2 password hashing from ASP.NET Core Identity, without pulling in the full Identity system.
-        services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
+        // ValidateOnStart: the app refuses to start with a missing or too short signing key,
+        // instead of failing later on the first login.
+        services.AddOptions<JwtOptions>()
+            .Bind(configuration.GetSection(JwtOptions.SectionName))
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
+
+        services.AddSingleton<IPasswordHasher, PasswordHasher>();
+        services.AddSingleton<ITokenService, JwtTokenService>();
 
         services.AddSingleton(TimeProvider.System);
         services.AddScoped<DbSeeder>();

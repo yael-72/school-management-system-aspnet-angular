@@ -1,6 +1,6 @@
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using SchoolManagement.Application.Common.Interfaces;
 using SchoolManagement.Domain.Constants;
 using SchoolManagement.Domain.Entities;
 using SchoolManagement.Domain.Enums;
@@ -18,7 +18,7 @@ namespace SchoolManagement.Infrastructure.Persistence.Seed;
 /// </summary>
 public class DbSeeder(
     AppDbContext context,
-    IPasswordHasher<User> passwordHasher,
+    IPasswordHasher passwordHasher,
     TimeProvider timeProvider,
     ILogger<DbSeeder> logger)
 {
@@ -102,7 +102,7 @@ public class DbSeeder(
             CreatedAt = _now.AddDays(-365),
             NotificationSettings = new NotificationSettings()
         };
-        user.PasswordHash = passwordHasher.HashPassword(user, DemoPassword);
+        user.PasswordHash = passwordHasher.Hash(DemoPassword);
         return user;
     }
 

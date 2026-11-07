@@ -1,9 +1,10 @@
 using Microsoft.EntityFrameworkCore;
+using SchoolManagement.Application.Common.Interfaces;
 using SchoolManagement.Domain.Entities;
 
 namespace SchoolManagement.Infrastructure.Persistence;
 
-public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
+public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options), IApplicationDbContext
 {
     public DbSet<Role> Roles => Set<Role>();
     public DbSet<User> Users => Set<User>();
