@@ -232,7 +232,8 @@ Each milestone should end in a working, committed state.
 - Commit after each meaningful step with a clear message.
 ## Project status (keep this section up to date at the end of every milestone)
 
-Work happens on branch `claude/gifted-keller-p6dfi2`. Start each new session by reading this section.
+Latest work is on branch `claude/ecstatic-knuth-hgil1o` (milestones 1–2 were on `claude/gifted-keller-p6dfi2`).
+Start each new session by reading this section.
 
 ### Done
 - **Milestone 1 – Foundation**: .NET 10 solution (Api / Application / Domain / Infrastructure + 2 test
@@ -242,9 +243,21 @@ Work happens on branch `claude/gifted-keller-p6dfi2`. Start each new session by 
   global exception handler → ProblemDetails, authenticated-by-default fallback policy, Swagger
   Authorize button. Angular: AuthService (signals), auth + 401 interceptors, `authGuard`,
   `guestGuard`, `roleGuard(...)`, sign-in page from Figma, user menu with logout.
+- **Milestone 3 – Students & Classes**: `GET/POST/PUT/DELETE /api/classes`, `GET /api/classes/{id}/students`,
+  `GET/POST/PUT/DELETE /api/students` (soft delete), `GET /api/students/{id}/summary`, read-only
+  `GET /api/users` (admin, feeds the homeroom teacher picker). Shared `ListQuery` / `PagedResult<T>` /
+  `ToPagedResultAsync`. Angular: classes card grid (grade tabs, search, admin dialogs), students table
+  (debounced search, sortable headers, paging, `?classId=` filter), student details page (`/students/:id`).
+  Shared: `Paginator`, `Dialog` (native `<dialog>`), `Skeleton`, `ScoreBadge`, `toErrorMessage()`.
 
 ### Next
-- **Milestone 3 – Students & Classes** (see "Build order" above).
+- **Milestone 4 – Attendance** (see "Build order" above).
+
+### Open items
+- Classes and Students screens were built from the design tokens without opening their Figma frames
+  (`101:10012`, `101:9569`): the Figma MCP Starter-plan call limit was reached. Compare and fine-tune.
+- Classes page side panel (top students + recent activity) is deferred to milestone 6, where the
+  dashboard endpoints that provide this data are built.
 
 ### Decisions already made (do not re-ask)
 - **Design source**: Horizon UI Figma file `YH394Y7LXSOwGdQuhrKoLU` (Figma connector). Match it
@@ -260,6 +273,17 @@ Work happens on branch `claude/gifted-keller-p6dfi2`. Start each new session by 
   `IPasswordHasher`, `ITokenService`; Api implements `ICurrentUser`. Services throw
   `NotFoundException` / `ForbiddenException` / `BusinessRuleException` / `AuthenticationFailedException`;
   `GlobalExceptionHandler` maps them to 404 / 403 / 400 / 401.
+- **Permissions**: `IClassAccessService` is the single place for the teacher rule (TeacherAssignments ∪
+  homeroom class). Every service touching class data uses it: filter lists with `AccessibleClassIds()`
+  (null = admin), and call `EnsureCanAccessClassAsync` for a single item (404 is checked before 403).
+  Class and student create/update/delete are Admin-only (`[Authorize(Roles = Admin)]`); teachers read only.
+- **List endpoints**: query class inherits `ListQuery` (page, pageSize ≤ 100, search, sortBy, sortDir);
+  unknown `sortBy` falls back to the default order; always end with a unique key (Id) for stable pages.
+  DTOs that a query sorts on must be init-property records built with an object initializer – EF Core
+  cannot translate ORDER BY on a constructor-built DTO. EF InMemory does NOT catch this; check new
+  queries with `ToQueryString()` against the SQL Server provider.
+- **Averages** are percentages: `Score.Value * 100 / Assessment.MaxScore`, ungraded (null) scores and
+  inactive students excluded, rounded to 1 decimal in C#. Attendance rate = (Present + Late) / recorded days.
 - **Validation**: DataAnnotations on request DTOs (no FluentValidation). API messages in English,
   the Angular app translates them to Hebrew.
 - **Testing**: xUnit + FluentAssertions **7.2** (v8 needs a paid license). EF InMemory for unit tests
@@ -269,5 +293,12 @@ Work happens on branch `claude/gifted-keller-p6dfi2`. Start each new session by 
   standalone components, logical CSS properties only (RTL), every color from `styles/_tokens.scss`,
   shared form classes in `styles/_forms.scss`. `/api` is proxied to `http://localhost:5097`
   (`proxy.conf.json`). JWT stored in localStorage ("keep me logged in") or sessionStorage.
+  Data loading: feature services return Observables; pages use `rxResource({ params, stream })` driven by
+  signals, with search debounced via `toSignal(toObservable(...).pipe(debounceTime(300)))`. Global styles:
+  `_buttons.scss` (`.button`, `.icon-button`), `_tables.scss` (`.data-table`, `.sort-button`, `.list-toolbar`).
+  Grade bands (ScoreBadge): ≥90 excellent, ≥75 good, ≥55 fair, else low.
+- **Cloud sessions**: the .NET SDK is not preinstalled and dot.net is blocked; install it with
+  `apt-get install -y dotnet-sdk-10.0`. There is no SQL Server, so check UI changes with Playwright and
+  mocked `/api` responses (the backend is covered by the integration tests).
 - **Security**: no secrets in the repo; in Development a random JWT key is generated when
   `Jwt:SigningKey` is missing.
