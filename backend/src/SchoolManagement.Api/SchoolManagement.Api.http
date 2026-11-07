@@ -14,3 +14,40 @@ Content-Type: application/json
 ### Current user (uses the token from the login request above)
 GET {{baseUrl}}/api/auth/me
 Authorization: Bearer {{login.response.body.$.accessToken}}
+
+### Classes (a teacher only gets her own classes)
+GET {{baseUrl}}/api/classes?gradeLevel=7&sortBy=averageScore&sortDir=desc
+Authorization: Bearer {{login.response.body.$.accessToken}}
+
+### One class with its subjects and teachers
+GET {{baseUrl}}/api/classes/1
+Authorization: Bearer {{login.response.body.$.accessToken}}
+
+### Students of a class
+GET {{baseUrl}}/api/classes/1/students?pageSize=10
+Authorization: Bearer {{login.response.body.$.accessToken}}
+
+### Search students
+GET {{baseUrl}}/api/students?search=כהן&page=1&pageSize=20&sortBy=lastName&sortDir=asc
+Authorization: Bearer {{login.response.body.$.accessToken}}
+
+### Student summary (average, attendance rate, recent scores)
+GET {{baseUrl}}/api/students/1/summary
+Authorization: Bearer {{login.response.body.$.accessToken}}
+
+### Enrol a student (admin only)
+POST {{baseUrl}}/api/students
+Authorization: Bearer {{login.response.body.$.accessToken}}
+Content-Type: application/json
+
+{
+  "firstName": "אליהו",
+  "lastName": "שמש",
+  "classId": 1,
+  "birthDate": "2013-03-14",
+  "parentPhone": "050-1234567"
+}
+
+### Teachers for the homeroom teacher picker (admin only)
+GET {{baseUrl}}/api/users?role=Teacher&isActive=true&pageSize=100
+Authorization: Bearer {{login.response.body.$.accessToken}}
