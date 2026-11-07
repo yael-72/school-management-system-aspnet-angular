@@ -30,7 +30,15 @@ public class UserService(IApplicationDbContext db) : IUserService
             users = users.Where(u => u.FullName.Contains(search) || u.Email.Contains(search));
         }
 
-        var projected = users.Select(u => new UserListItemDto(u.Id, u.FullName, u.Email, u.Role.Name, u.Phone, u.IsActive));
+        var projected = users.Select(u => new UserListItemDto
+        {
+            Id = u.Id,
+            FullName = u.FullName,
+            Email = u.Email,
+            Role = u.Role.Name,
+            Phone = u.Phone,
+            IsActive = u.IsActive
+        });
 
         var sorted = query.SortBy?.ToLowerInvariant() switch
         {

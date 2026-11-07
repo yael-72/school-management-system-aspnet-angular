@@ -44,19 +44,21 @@ public class ClassService(
         }
 
         // Project first, then sort, so we can also sort by computed values (student count, average).
-        var projected = classes.Select(c => new ClassSummaryDto(
-            c.Id,
-            c.Name,
-            c.GradeLevel,
-            c.SchoolYear,
-            c.HomeroomTeacherId,
-            c.HomeroomTeacher != null ? c.HomeroomTeacher.FullName : null,
-            c.Students.Count(s => s.IsActive),
-            c.Students
+        var projected = classes.Select(c => new ClassSummaryDto
+        {
+            Id = c.Id,
+            Name = c.Name,
+            GradeLevel = c.GradeLevel,
+            SchoolYear = c.SchoolYear,
+            HomeroomTeacherId = c.HomeroomTeacherId,
+            HomeroomTeacherName = c.HomeroomTeacher != null ? c.HomeroomTeacher.FullName : null,
+            StudentCount = c.Students.Count(s => s.IsActive),
+            AverageScore = c.Students
                 .Where(s => s.IsActive)
                 .SelectMany(s => s.Scores)
                 .Where(s => s.Value != null)
-                .Average(s => s.Value * 100 / s.Assessment.MaxScore)));
+                .Average(s => s.Value * 100 / s.Assessment.MaxScore)
+        });
 
         var sorted = query.SortBy?.ToLowerInvariant() switch
         {

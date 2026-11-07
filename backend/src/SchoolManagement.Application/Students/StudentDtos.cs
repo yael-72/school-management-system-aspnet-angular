@@ -11,16 +11,24 @@ public class StudentListQuery : ListQuery
 }
 
 /// <summary>One row of the students table.</summary>
-/// <param name="AverageScore">Average of the student's graded scores, as a percentage (0–100).</param>
-public record StudentListItemDto(
-    int Id,
-    string FirstName,
-    string LastName,
-    int ClassId,
-    string ClassName,
-    DateOnly? BirthDate,
-    string? ParentPhone,
-    decimal? AverageScore);
+/// <remarks>
+/// Uses init properties (not a positional record) because list queries sort on these properties:
+/// EF Core can translate ORDER BY on a DTO built with an object initializer, but not on one built
+/// through a constructor.
+/// </remarks>
+public record StudentListItemDto
+{
+    public int Id { get; init; }
+    public string FirstName { get; init; } = string.Empty;
+    public string LastName { get; init; } = string.Empty;
+    public int ClassId { get; init; }
+    public string ClassName { get; init; } = string.Empty;
+    public DateOnly? BirthDate { get; init; }
+    public string? ParentPhone { get; init; }
+
+    /// <summary>Average of the student's graded scores, as a percentage (0–100).</summary>
+    public decimal? AverageScore { get; init; }
+}
 
 public record StudentDto(
     int Id,

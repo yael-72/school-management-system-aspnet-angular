@@ -12,4 +12,18 @@ public class UserListQuery : ListQuery
     public bool? IsActive { get; init; }
 }
 
-public record UserListItemDto(int Id, string FullName, string Email, string Role, string? Phone, bool IsActive);
+/// <summary>One staff member in the users list.</summary>
+/// <remarks>
+/// Uses init properties (not a positional record) because list queries sort on these properties:
+/// EF Core can translate ORDER BY on a DTO built with an object initializer, but not on one built
+/// through a constructor.
+/// </remarks>
+public record UserListItemDto
+{
+    public int Id { get; init; }
+    public string FullName { get; init; } = string.Empty;
+    public string Email { get; init; } = string.Empty;
+    public string Role { get; init; } = string.Empty;
+    public string? Phone { get; init; }
+    public bool IsActive { get; init; }
+}

@@ -47,17 +47,19 @@ public class StudentService(
             students = students.Where(s => (s.FirstName + " " + s.LastName).Contains(search));
         }
 
-        var projected = students.Select(s => new StudentListItemDto(
-            s.Id,
-            s.FirstName,
-            s.LastName,
-            s.ClassId,
-            s.Class.Name,
-            s.BirthDate,
-            s.ParentPhone,
-            s.Scores
+        var projected = students.Select(s => new StudentListItemDto
+        {
+            Id = s.Id,
+            FirstName = s.FirstName,
+            LastName = s.LastName,
+            ClassId = s.ClassId,
+            ClassName = s.Class.Name,
+            BirthDate = s.BirthDate,
+            ParentPhone = s.ParentPhone,
+            AverageScore = s.Scores
                 .Where(sc => sc.Value != null)
-                .Average(sc => sc.Value * 100 / sc.Assessment.MaxScore)));
+                .Average(sc => sc.Value * 100 / sc.Assessment.MaxScore)
+        });
 
         var sorted = query.SortBy?.ToLowerInvariant() switch
         {
