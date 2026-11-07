@@ -1,0 +1,103 @@
+<div class="auth">
+  <div class="auth__container">
+    <main class="auth__main">
+      <h1 class="auth__title">התחברות</h1>
+      <p class="auth__subtitle">הזינו אימייל וסיסמה כדי להתחבר</p>
+
+      <form class="auth__form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+        @if (errorMessage(); as message) {
+          <div class="form-alert" role="alert">{{ message }}</div>
+        }
+
+        <div class="form-field">
+          <label class="form-label" for="email">אימייל<span class="form-label__required">*</span></label>
+          <input
+            id="email"
+            class="form-input"
+            type="email"
+            dir="ltr"
+            autocomplete="username"
+            placeholder="name@school.demo"
+            formControlName="email"
+            [class.is-invalid]="isInvalid('email')"
+            [attr.aria-invalid]="isInvalid('email')"
+            aria-describedby="email-error"
+          />
+          @if (isInvalid('email')) {
+            <span id="email-error" class="form-error">
+              {{ form.controls.email.hasError('required') ? 'יש להזין אימייל' : 'כתובת האימייל אינה תקינה' }}
+            </span>
+          }
+        </div>
+
+        <div class="form-field">
+          <label class="form-label" for="password">סיסמה<span class="form-label__required">*</span></label>
+          <div class="form-input-group">
+            <input
+              id="password"
+              class="form-input"
+              [type]="showPassword() ? 'text' : 'password'"
+              autocomplete="current-password"
+              placeholder="הזינו סיסמה"
+              formControlName="password"
+              [class.is-invalid]="isInvalid('password')"
+              [attr.aria-invalid]="isInvalid('password')"
+              aria-describedby="password-error"
+            />
+            <button
+              type="button"
+              class="form-input-group__button"
+              (click)="showPassword.set(!showPassword())"
+              [attr.aria-label]="showPassword() ? 'הסתרת הסיסמה' : 'הצגת הסיסמה'"
+              [attr.aria-pressed]="showPassword()"
+            >
+              <span class="icon" aria-hidden="true">{{ showPassword() ? 'visibility_off' : 'visibility' }}</span>
+            </button>
+          </div>
+          @if (isInvalid('password')) {
+            <span id="password-error" class="form-error">יש להזין סיסמה</span>
+          }
+        </div>
+
+        <label class="checkbox auth__remember">
+          <input type="checkbox" formControlName="rememberMe" />
+          השאר אותי מחובר
+        </label>
+
+        <button type="submit" class="button-primary auth__submit" [disabled]="submitting()">
+          {{ submitting() ? 'מתחבר...' : 'התחברות' }}
+        </button>
+      </form>
+
+      <p class="auth__hint">אין לכם משתמש? <strong>פנו להנהלת בית הספר</strong></p>
+
+      <!-- On small screens the image panel (with the demo box) is hidden, so offer the demo account here. -->
+      <button type="button" class="auth__demo-link" (click)="fillDemoAccount()">מילוי פרטי חשבון ההדגמה</button>
+    </main>
+
+    <footer class="auth__footer">© {{ currentYear }} ניהול בית ספר. כל הזכויות שמורות.</footer>
+  </div>
+
+  <aside class="auth__panel">
+    <div class="auth__logo" aria-hidden="true">
+      <span class="icon icon--filled">school</span>
+    </div>
+    <p class="auth__wordmark">ניהול בית ספר</p>
+
+    <button type="button" class="auth__demo" (click)="fillDemoAccount()" aria-label="מילוי פרטי חשבון ההדגמה בטופס">
+      <span class="auth__demo-caption">חשבון הדגמה · סיסמה: <span dir="ltr">{{ demoAccount.password }}</span></span>
+      <span class="auth__demo-email" dir="ltr">{{ demoAccount.email }}</span>
+    </button>
+  </aside>
+
+  <button
+    type="button"
+    class="auth__theme-toggle"
+    (click)="themeService.toggle()"
+    [attr.aria-label]="themeService.theme() === 'dark' ? 'מעבר למצב בהיר' : 'מעבר למצב כהה'"
+  >
+    <span class="icon icon--filled" aria-hidden="true">
+      {{ themeService.theme() === 'dark' ? 'light_mode' : 'dark_mode' }}
+    </span>
+  </button>
+</div>

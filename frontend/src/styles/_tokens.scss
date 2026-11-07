@@ -21,6 +21,8 @@
   --color-surface-muted: #f4f7fe; // search box, icon circles
   --color-border: #e9edf7; // Secondary/Grey/400
   --color-divider: #f4f7fe; // line under the sidebar logo
+  --color-input-border: #e0e5f2; // Secondary/Grey/500
+  --color-auth-background: #ffffff; // the sign-in page is white, not light blue
 
   // Sidebar and navbar
   --color-nav-item: #a3aed0;
@@ -43,6 +45,7 @@
   --shadow-card: none; // cards in the design are flat white on the light-blue background
   --shadow-navbar: 14px 17px 40px 4px rgba(112, 144, 176, 0.08);
   --shadow-soft: 0 18px 40px rgba(112, 144, 176, 0.12); // Shadows/Soft Shadow - Style 1
+  --gradient-brand: linear-gradient(140deg, #868cff 0%, #4318ff 100%); // Gradients/Gradient Style 1
 
   // Typography. DM Sans and Poppins have no Hebrew letters, so Hebrew text falls back to Heebo.
   --font-family: 'DM Sans', 'Heebo', system-ui, sans-serif;
@@ -85,6 +88,8 @@
   --color-surface-muted: #0b1437;
   --color-border: rgba(255, 255, 255, 0.1);
   --color-divider: rgba(255, 255, 255, 0.05);
+  --color-input-border: rgba(255, 255, 255, 0.1);
+  --color-auth-background: #0b1437;
 
   --color-nav-item: #ffffff;
   --color-nav-item-active: #ffffff;

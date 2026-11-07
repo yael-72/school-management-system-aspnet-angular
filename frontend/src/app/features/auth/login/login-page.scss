@@ -1,0 +1,204 @@
+// Built from the Horizon UI Figma "Sign In" frame (1920 × 1152).
+// Desktop: form on one half and the gradient image panel on the other half.
+
+:host {
+  display: block;
+  background: var(--color-auth-background);
+}
+
+.auth {
+  position: relative;
+  min-block-size: 100vh;
+}
+
+// The design's content is a centered 1313px column; the form sits at its start.
+.auth__container {
+  display: flex;
+  flex-direction: column;
+  min-block-size: 100vh;
+  max-inline-size: 1313px;
+  margin-inline: auto;
+  padding-inline: var(--space-4);
+}
+
+.auth__main {
+  flex: 1;
+  max-inline-size: 426px; // 410px form + the design's 8px offset on each side
+  padding-block-start: min(271px, 23.5vh);
+  padding-inline: 8px;
+}
+
+.auth__title {
+  font-size: 36px;
+  font-weight: 700;
+  line-height: 56px;
+  color: var(--color-text);
+}
+
+.auth__subtitle {
+  margin-block-start: 8px;
+  font-size: var(--font-size-md);
+  line-height: 1;
+  color: var(--color-text-secondary);
+}
+
+.auth__form {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  margin-block-start: 36px;
+}
+
+.auth__remember {
+  margin-block-start: 7px;
+}
+
+.auth__submit {
+  margin-block-start: 9px;
+}
+
+.auth__hint {
+  margin-block-start: 26px;
+  font-size: var(--font-size-sm);
+  line-height: 26px;
+  color: var(--color-text);
+
+  strong {
+    color: var(--color-primary);
+  }
+}
+
+.auth__footer {
+  padding-block: 40px;
+  padding-inline: 9px;
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  line-height: 24px;
+  color: var(--color-text-secondary);
+}
+
+.auth__demo-link {
+  display: none;
+  margin-block-start: var(--space-3);
+  padding: 0;
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  color: var(--color-primary);
+  background: none;
+  border: 0;
+  text-decoration: underline;
+}
+
+// Image panel: the other half of the screen (965px at the 1920px design width), rounded on the
+// bottom corner that faces the form.
+.auth__panel {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-end: 0;
+  inline-size: calc(50% + 5px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding-block-end: 120px;
+  color: #ffffff;
+  background: url('/images/auth-background.jpg') center / cover no-repeat;
+  border-end-start-radius: 200px;
+}
+
+.auth__logo {
+  display: grid;
+  place-items: center;
+  inline-size: 280px;
+  block-size: 280px;
+  background: #ffffff;
+  border-radius: 50%;
+
+  .icon {
+    font-size: 150px;
+    color: #4318ff;
+  }
+}
+
+.auth__wordmark {
+  margin-block-start: 45px;
+  font-size: 56px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: normal;
+}
+
+// The glass box from the design ("Learn more about Horizon UI on ..."), used here for the demo account.
+.auth__demo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  inline-size: 471px;
+  max-inline-size: 90%;
+  block-size: 134px;
+  margin-block-start: 100px;
+  color: #ffffff;
+  background: transparent;
+  border: 2.2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 26px;
+  transition: background-color var(--transition-fast);
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.08);
+  }
+}
+
+.auth__demo-caption {
+  font-size: 17.5px;
+  line-height: 1;
+}
+
+.auth__demo-email {
+  font-size: 29px;
+  font-weight: 700;
+  line-height: 45px;
+}
+
+// Round button in the bottom corner (Figma "dark/light").
+.auth__theme-toggle {
+  position: fixed;
+  inset-block-end: 30px;
+  inset-inline-end: 30px;
+  display: grid;
+  place-items: center;
+  inline-size: 60px;
+  block-size: 60px;
+  color: #ffffff;
+  background: var(--gradient-brand);
+  border: 0;
+  border-radius: 50%;
+
+  .icon {
+    font-size: 22px;
+  }
+}
+
+// Below 1200px the image panel is hidden and the form is centered, as in the Horizon template.
+@media (max-width: 1199px) {
+  .auth__panel {
+    display: none;
+  }
+
+  .auth__main {
+    margin-inline: auto;
+    inline-size: 100%;
+    padding-block-start: 12vh;
+  }
+
+  .auth__demo-link {
+    display: inline-block;
+  }
+
+  // Leave room for the round theme button in the corner.
+  .auth__footer {
+    padding-block-end: 110px;
+    text-align: center;
+  }
+}
