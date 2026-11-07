@@ -1,3 +1,5 @@
+// Measurements from the Horizon UI Figma "SideBar" frame (290px wide).
+
 :host {
   position: fixed;
   inset-block: 0;
@@ -7,21 +9,24 @@
   display: flex;
   flex-direction: column;
   background: var(--color-surface);
-  box-shadow: var(--shadow-card);
   transition: transform var(--transition-fast);
 }
 
+// Logo area: 130px high, with a 1px divider underneath.
 .sidebar__header {
   display: flex;
-  align-items: center;
   justify-content: center;
-  padding: var(--space-8) var(--space-6);
-  border-block-end: 1px solid var(--color-border);
+  block-size: 131px;
+  padding-block-start: 56px;
+  border-block-end: 1px solid var(--color-divider);
 }
 
 .sidebar__logo {
-  font-size: 1.6rem;
-  letter-spacing: 0.02em;
+  font-family: var(--font-family-logo);
+  font-size: 26px;
+  line-height: 1;
+  letter-spacing: normal;
+  color: var(--color-text);
 
   strong {
     font-weight: 700;
@@ -31,56 +36,69 @@
 .sidebar__close {
   display: none;
   position: absolute;
+  inset-block-start: 56px;
   inset-inline-end: var(--space-4);
   background: none;
   border: 0;
-  color: var(--color-text-secondary);
+  color: var(--color-nav-item);
 }
 
+// Menu: starts 38px below the divider; items are 36px high with 20px between them.
 .sidebar__nav ul {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
   list-style: none;
   margin: 0;
-  padding: var(--space-6) 0;
+  padding: 37px 0 0;
 }
 
 .sidebar__link {
   position: relative;
   display: flex;
   align-items: center;
-  gap: var(--space-4);
-  padding: var(--space-3) var(--space-8);
-  color: var(--color-text-secondary);
+  gap: 12px;
+  block-size: 36px;
+  padding-inline-start: 33px;
+  font-size: var(--font-size-md);
   font-weight: 500;
+  line-height: 30px;
+  color: var(--color-nav-item);
   transition: color var(--transition-fast);
 
   &:hover {
-    color: var(--color-text);
+    color: var(--color-nav-item-active);
   }
 
-  // Active link: brand-colored icon and a small bar on the outer edge, as in the Horizon design.
+  // Active item: bold navy text, brand-colored icon and a 4px bar on the outer edge.
   &.is-active {
-    color: var(--color-text);
     font-weight: 700;
+    color: var(--color-nav-item-active);
 
-    .icon {
-      color: var(--color-primary);
+    .sidebar__icon {
+      color: var(--color-nav-icon-active);
     }
 
     &::after {
       content: '';
       position: absolute;
+      inset-block: 0;
       inset-inline-end: 0;
-      inset-block: 6px;
       inline-size: 4px;
-      border-radius: var(--radius-pill);
-      background: var(--color-primary);
+      border-radius: 25px;
+      background: var(--color-nav-indicator);
     }
   }
+}
+
+.sidebar__icon {
+  font-size: 24px;
 }
 
 // Small screens: the sidebar is hidden off-screen and slides in when opened.
 @media (max-width: 1199px) {
   :host {
+    box-shadow: var(--shadow-navbar);
     transform: translateX(100%); // RTL: the sidebar sits on the right, so it slides out to the right
   }
 

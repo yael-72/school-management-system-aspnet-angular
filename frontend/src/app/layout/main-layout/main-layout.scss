@@ -3,13 +3,20 @@
   min-block-size: 100vh;
 }
 
+// Main area next to the sidebar. Header text starts 30px from the sidebar and 49px from the top;
+// the content grid starts 20px below the navbar pill, with 20px side padding (Figma "Main Dashboard" frame).
 .layout__main {
   margin-inline-start: var(--sidebar-width);
-  padding: var(--space-5) var(--space-6);
+  padding-block: 49px var(--space-5);
+  padding-inline: var(--space-5);
+}
+
+app-navbar {
+  padding-inline-start: 10px;
 }
 
 .layout__content {
-  margin-block-start: var(--space-6);
+  margin-block-start: 20px;
 }
 
 .layout__overlay {
@@ -23,5 +30,9 @@
   .layout__main {
     margin-inline-start: 0;
     padding: var(--space-4);
+  }
+
+  app-navbar {
+    padding-inline-start: 0;
   }
 }

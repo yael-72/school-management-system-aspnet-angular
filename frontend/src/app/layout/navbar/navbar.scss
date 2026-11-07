@@ -1,70 +1,90 @@
+// Measurements from the Horizon UI Figma navbar ("Misc" frame and page titles).
+
 :host {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   gap: var(--space-4);
 }
 
 .navbar__breadcrumb {
+  display: block;
   font-size: var(--font-size-sm);
-  color: var(--color-text);
-  opacity: 0.8;
+  font-weight: 500;
+  line-height: 24px;
+  color: var(--color-text-muted);
 }
 
 .navbar__title {
   font-size: var(--font-size-xl);
   font-weight: 700;
+  line-height: 42px;
+  color: var(--color-text);
 }
 
-// The white "pill" with search, buttons and avatar, as in the Horizon navbar.
+// The 61px-high "pill" with search, icons and avatar; it sits 16px lower than the breadcrumb.
 .navbar__actions {
   display: flex;
   align-items: center;
-  gap: var(--space-2);
-  padding: var(--space-2);
+  gap: 20px;
+  margin-block-start: 16px;
+  padding-block: 10px;
+  padding-inline: 10px 11px;
   background: var(--color-surface);
-  border-radius: var(--radius-pill);
+  border-radius: 30px;
   box-shadow: var(--shadow-navbar);
 }
 
 .navbar__search {
   display: flex;
   align-items: center;
-  gap: var(--space-2);
-  padding: var(--space-2) var(--space-4);
+  gap: 11px;
+  inline-size: 214px;
+  block-size: 41px;
+  padding-inline-start: 20px;
   background: var(--color-surface-muted);
   border-radius: var(--radius-pill);
-  color: var(--color-text);
-
-  .icon {
-    font-size: 20px;
-  }
 
   input {
+    flex: 1;
+    min-inline-size: 0;
     border: 0;
     outline: 0;
     background: transparent;
-    inline-size: 160px;
     font-size: var(--font-size-sm);
+    line-height: 20px;
+    color: var(--color-text);
 
     &::placeholder {
-      color: var(--color-text-secondary);
+      color: var(--color-text-placeholder);
     }
   }
 }
 
+.navbar__search-icon {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--color-search-icon);
+}
+
+// Icon buttons are 24px icons with 20px between them; the moon icon is 18px.
 .navbar__icon-button {
   display: inline-flex;
-  padding: var(--space-2);
+  padding: 0;
   background: none;
   border: 0;
-  border-radius: 50%;
-  color: var(--color-text-secondary);
+  color: var(--color-navbar-icon);
 
   &:hover {
     color: var(--color-primary);
   }
+}
+
+.navbar__theme-icon {
+  font-size: 20px;
+  inline-size: 24px;
+  text-align: center;
 }
 
 .navbar__menu {
@@ -78,6 +98,15 @@
 }
 
 @media (max-width: 600px) {
+  .navbar__titles {
+    inline-size: 100%;
+  }
+
+  .navbar__actions {
+    margin-block-start: 0;
+    gap: var(--space-4);
+  }
+
   .navbar__search {
     display: none;
   }
