@@ -1,0 +1,4 @@
+@baseUrl = http://localhost:5097
+
+### Swagger document
+GET {{baseUrl}}/swagger/v1/swagger.json
