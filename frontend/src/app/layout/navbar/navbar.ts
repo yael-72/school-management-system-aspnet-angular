@@ -15,5 +15,5 @@ export class Navbar {
   protected readonly themeService = inject(ThemeService);
 
   // Placeholder until login is implemented (milestone 2).
-  protected readonly userName = 'רחל אברמסון';
+  protected readonly userName = 'אהרן אברמסון';
 }

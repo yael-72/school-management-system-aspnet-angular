@@ -1,22 +1,16 @@
 namespace SchoolManagement.Infrastructure.Persistence.Seed;
 
 /// <summary>
-/// Hebrew names used to generate realistic demo students and staff.
+/// Hebrew names used to generate realistic demo students and staff (a boys' school).
 /// </summary>
 internal static class DemoNames
 {
-    public static readonly string[] BoyFirstNames =
+    public static readonly string[] FirstNames =
     [
         "אברהם", "יצחק", "יעקב", "משה", "אהרן", "דוד", "שלמה", "יוסף", "בנימין", "שמואל",
         "אליהו", "נתנאל", "אריאל", "יהודה", "מנחם", "חיים", "מרדכי", "עזריאל", "אלחנן", "נחמיה",
-        "שמעון", "ראובן", "יהונתן", "אליעזר", "צבי"
-    ];
-
-    public static readonly string[] GirlFirstNames =
-    [
-        "שרה", "רבקה", "רחל", "לאה", "מרים", "חנה", "אסתר", "דבורה", "יעל", "רות",
-        "נעמי", "תמר", "אביגיל", "הדסה", "שושנה", "בתיה", "צפורה", "מיכל", "אילה", "חוה",
-        "טובה", "פנינה", "אפרת", "שלומית", "נחמה"
+        "שמעון", "ראובן", "יהונתן", "אליעזר", "צבי", "פנחס", "גבריאל", "רפאל", "עמרם", "ישראל",
+        "נפתלי", "זאב", "אשר", "דניאל", "עובדיה", "יחזקאל", "ברוך", "שלום", "מאיר", "אליקים"
     ];
 
     public static readonly string[] LastNames =

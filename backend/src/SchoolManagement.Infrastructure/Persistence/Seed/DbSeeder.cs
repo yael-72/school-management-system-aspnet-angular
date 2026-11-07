@@ -74,10 +74,10 @@ public class DbSeeder(
 
     private (User Admin, List<User> Teachers) CreateStaff()
     {
-        var admin = CreateUser("רחל אברמסון", AdminEmail, RoleIds.Admin);
+        var admin = CreateUser("אהרן אברמסון", AdminEmail, RoleIds.Admin);
 
         string[] teacherNames =
-            ["מרים לוינסון", "דוד הירש", "אסתר גרינפלד", "יוסף ברקוביץ", "חנה רוזנטל", "שמואל אורנשטיין"];
+            ["משה לוינסון", "דוד הירש", "אברהם גרינפלד", "יוסף ברקוביץ", "חיים רוזנטל", "שמואל אורנשטיין"];
 
         // The first teacher gets the easy-to-remember demo email.
         var teachers = teacherNames
@@ -172,8 +172,7 @@ public class DbSeeder(
         {
             for (var i = 0; i < StudentsPerClass; i++)
             {
-                var isBoy = _random.Next(2) == 0;
-                var firstName = Pick(isBoy ? DemoNames.BoyFirstNames : DemoNames.GirlFirstNames);
+                var firstName = Pick(DemoNames.FirstNames);
                 var lastName = Pick(DemoNames.LastNames);
 
                 // A 7th grader is about 12 years old at the start of the school year.
