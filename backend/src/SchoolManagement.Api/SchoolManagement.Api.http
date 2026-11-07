@@ -1,4 +1,16 @@
 @baseUrl = http://localhost:5097
 
-### Swagger document
-GET {{baseUrl}}/swagger/v1/swagger.json
+### Log in with the demo admin account
+# @name login
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@school.demo",
+  "password": "Demo123!",
+  "rememberMe": false
+}
+
+### Current user (uses the token from the login request above)
+GET {{baseUrl}}/api/auth/me
+Authorization: Bearer {{login.response.body.$.accessToken}}
