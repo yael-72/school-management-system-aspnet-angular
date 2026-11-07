@@ -7,6 +7,6 @@ describe('Avatar', () => {
     fixture.componentRef.setInput('name', 'אהרן אברמסון');
     await fixture.whenStable();
 
-    expect((fixture.nativeElement as HTMLElement).textContent?.trim()).toBe('רא');
+    expect((fixture.nativeElement as HTMLElement).textContent?.trim()).toBe('אא');
   });
 });

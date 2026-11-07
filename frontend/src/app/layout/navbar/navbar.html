@@ -33,5 +33,28 @@
     <span class="icon" aria-hidden="true">info</span>
   </button>
 
-  <app-avatar [name]="userName" [size]="41" />
+  <div class="navbar__user">
+    <button
+      type="button"
+      class="navbar__avatar-button"
+      (click)="userMenuOpen.set(!userMenuOpen())"
+      aria-haspopup="menu"
+      [attr.aria-expanded]="userMenuOpen()"
+      aria-label="תפריט משתמש"
+    >
+      <app-avatar [name]="userName()" [size]="41" />
+    </button>
+
+    @if (userMenuOpen()) {
+      <div class="navbar__user-menu" role="menu">
+        <p class="navbar__user-greeting">👋&nbsp; שלום, {{ userName() }}</p>
+        <a role="menuitem" routerLink="/profile" class="navbar__user-menu-item" (click)="userMenuOpen.set(false)">
+          הגדרות פרופיל
+        </a>
+        <button type="button" role="menuitem" class="navbar__user-menu-item navbar__logout" (click)="logout()">
+          התנתקות
+        </button>
+      </div>
+    }
+  </div>
 </div>

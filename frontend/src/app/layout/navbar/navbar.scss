@@ -91,6 +91,58 @@
   display: none;
 }
 
+.navbar__user {
+  position: relative;
+}
+
+.navbar__avatar-button {
+  display: inline-flex;
+  padding: 0;
+  background: none;
+  border: 0;
+  border-radius: 50%;
+}
+
+// User dropdown (Horizon UI avatar menu): greeting, divider and actions.
+.navbar__user-menu {
+  position: absolute;
+  inset-block-start: calc(100% + 20px);
+  inset-inline-end: 0;
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  min-inline-size: 220px;
+  padding-block-end: var(--space-2);
+  background: var(--color-surface);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-navbar);
+}
+
+.navbar__user-greeting {
+  padding: var(--space-4) var(--space-5) var(--space-3);
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  border-block-end: 1px solid var(--color-border);
+  margin-block-end: var(--space-2);
+}
+
+.navbar__user-menu-item {
+  padding: var(--space-2) var(--space-5);
+  font-size: var(--font-size-sm);
+  text-align: start;
+  color: var(--color-text);
+  background: none;
+  border: 0;
+
+  &:hover {
+    color: var(--color-primary);
+  }
+}
+
+.navbar__logout {
+  color: var(--color-danger);
+}
+
 @media (max-width: 1199px) {
   .navbar__menu {
     display: inline-flex;
