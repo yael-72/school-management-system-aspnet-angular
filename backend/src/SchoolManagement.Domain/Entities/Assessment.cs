@@ -13,13 +13,12 @@ public class Assessment
     public int ClassId { get; set; }
     public int SubjectId { get; set; }
     public DateOnly Date { get; set; }
-    public decimal MaxScore { get; set; }
-    public string? Description { get; set; }
-    public int? CreatedById { get; set; }
+    public decimal MaxScore { get; set; } = 100;
+    public int CreatedByUserId { get; set; }
     public DateTime CreatedAt { get; set; }
 
     public SchoolClass Class { get; set; } = null!;
     public Subject Subject { get; set; } = null!;
-    public User? CreatedBy { get; set; }
+    public User CreatedByUser { get; set; } = null!;
     public ICollection<Score> Scores { get; set; } = new List<Score>();
 }

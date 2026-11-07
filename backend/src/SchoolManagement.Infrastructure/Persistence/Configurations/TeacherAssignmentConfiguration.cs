@@ -11,7 +11,9 @@ public class TeacherAssignmentConfiguration : IEntityTypeConfiguration<TeacherAs
         builder.ToTable("TeacherAssignments");
 
         // The same teacher cannot be assigned twice to the same subject in the same class.
-        builder.HasIndex(a => new { a.TeacherId, a.ClassId, a.SubjectId }).IsUnique();
+        builder.HasIndex(a => new { a.TeacherId, a.ClassId, a.SubjectId })
+            .IsUnique()
+            .HasDatabaseName("UQ_TeacherAssignment");
 
         // Deleting a class or subject removes its assignments; deleting a teacher who still
         // has assignments is blocked so it is a deliberate action.

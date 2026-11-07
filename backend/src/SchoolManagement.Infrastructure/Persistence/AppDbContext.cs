@@ -30,6 +30,6 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     {
         // A sensible default for every decimal column (scores, max scores), instead of
         // repeating HasPrecision on each property.
-        configurationBuilder.Properties<decimal>().HavePrecision(6, 2);
+        configurationBuilder.Properties<decimal>().HavePrecision(5, 2);
     }
 }

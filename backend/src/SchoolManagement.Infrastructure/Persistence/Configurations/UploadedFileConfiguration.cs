@@ -9,10 +9,9 @@ public class UploadedFileConfiguration : IEntityTypeConfiguration<UploadedFile>
     public void Configure(EntityTypeBuilder<UploadedFile> builder)
     {
         builder.ToTable("UploadedFiles");
-        builder.Property(f => f.OriginalFileName).HasMaxLength(255).IsRequired();
-        builder.Property(f => f.StoredFileName).HasMaxLength(100).IsRequired();
-        builder.Property(f => f.ContentType).HasMaxLength(100).IsRequired();
-        builder.HasIndex(f => f.StoredFileName).IsUnique();
+        builder.Property(f => f.FileName).HasMaxLength(200).IsRequired();
+        builder.Property(f => f.StoredPath).HasMaxLength(400).IsRequired();
+        builder.Property(f => f.UploadedAt).HasDefaultValueSql("SYSDATETIME()");
 
         builder.HasOne(f => f.User)
             .WithMany(u => u.UploadedFiles)

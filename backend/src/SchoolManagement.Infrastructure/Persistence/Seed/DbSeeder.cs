@@ -51,13 +51,13 @@ public class DbSeeder(
         var (admin, teachers) = CreateStaff();
         var subjects = CreateSubjects();
         var classes = CreateClasses(teachers);
-        CreateTeacherAssignments(classes, subjects, teachers);
+        var assignments = CreateTeacherAssignments(classes, subjects, teachers);
         await context.SaveChangesAsync(cancellationToken);
 
         var students = CreateStudents(classes);
         await context.SaveChangesAsync(cancellationToken);
 
-        CreateAssessmentsAndScores(classes, subjects, students);
+        CreateAssessmentsAndScores(assignments, students);
         await context.SaveChangesAsync(cancellationToken);
 
         CreateAttendance(students, teachers);
@@ -74,18 +74,15 @@ public class DbSeeder(
 
     private (User Admin, List<User> Teachers) CreateStaff()
     {
-        var admin = CreateUser("רחל", "אברמסון", AdminEmail, RoleIds.Admin);
+        var admin = CreateUser("רחל אברמסון", AdminEmail, RoleIds.Admin);
 
-        (string First, string Last)[] teacherNames =
-        [
-            ("מרים", "לוינסון"), ("דוד", "הירש"), ("אסתר", "גרינפלד"),
-            ("יוסף", "ברקוביץ"), ("חנה", "רוזנטל"), ("שמואל", "אורנשטיין")
-        ];
+        string[] teacherNames =
+            ["מרים לוינסון", "דוד הירש", "אסתר גרינפלד", "יוסף ברקוביץ", "חנה רוזנטל", "שמואל אורנשטיין"];
 
         // The first teacher gets the easy-to-remember demo email.
         var teachers = teacherNames
             .Select((name, i) => CreateUser(
-                name.First, name.Last, i == 0 ? TeacherEmail : $"teacher{i + 1}@school.demo", RoleIds.Teacher))
+                name, i == 0 ? TeacherEmail : $"teacher{i + 1}@school.demo", RoleIds.Teacher))
             .ToList();
 
         context.Users.Add(admin);
@@ -93,12 +90,11 @@ public class DbSeeder(
         return (admin, teachers);
     }
 
-    private User CreateUser(string firstName, string lastName, string email, int roleId)
+    private User CreateUser(string fullName, string email, int roleId)
     {
         var user = new User
         {
-            FirstName = firstName,
-            LastName = lastName,
+            FullName = fullName,
             Email = email,
             Phone = RandomPhone(),
             RoleId = roleId,
@@ -120,7 +116,7 @@ public class DbSeeder(
 
     private List<SchoolClass> CreateClasses(List<User> teachers)
     {
-        (string Name, int Grade)[] definitions =
+        (string Name, byte Grade)[] definitions =
         [
             ("ז'1", 7), ("ז'2", 7), ("ח'1", 8), ("ט'1", 9),
             ("י'1", 10), ("י\"א1", 11), ("י\"א2", 11), ("י\"ב1", 12)
@@ -146,14 +142,15 @@ public class DbSeeder(
     /// the older classes (10–12). This gives every teacher a realistic, limited set of classes,
     /// which makes the "teachers only see their own classes" rule visible in the demo.
     /// </summary>
-    private void CreateTeacherAssignments(List<SchoolClass> classes, List<Subject> subjects, List<User> teachers)
+    private List<TeacherAssignment> CreateTeacherAssignments(List<SchoolClass> classes, List<Subject> subjects, List<User> teachers)
     {
+        var assignments = new List<TeacherAssignment>();
         foreach (var schoolClass in classes)
         {
             var offset = schoolClass.GradeLevel <= 9 ? 0 : teachers.Count / 2;
             for (var s = 0; s < subjects.Count; s++)
             {
-                context.TeacherAssignments.Add(new TeacherAssignment
+                assignments.Add(new TeacherAssignment
                 {
                     Class = schoolClass,
                     Subject = subjects[s],
@@ -161,6 +158,9 @@ public class DbSeeder(
                 });
             }
         }
+
+        context.TeacherAssignments.AddRange(assignments);
+        return assignments;
     }
 
     private List<Student> CreateStudents(List<SchoolClass> classes)
@@ -178,17 +178,16 @@ public class DbSeeder(
 
                 // A 7th grader is about 12 years old at the start of the school year.
                 var birthYear = schoolYearStart - (schoolClass.GradeLevel + 5);
-                var dateOfBirth = new DateOnly(birthYear, 1, 1).AddDays(_random.Next(365));
+                var birthDate = new DateOnly(birthYear, 1, 1).AddDays(_random.Next(365));
 
                 students.Add(new Student
                 {
                     FirstName = firstName,
                     LastName = lastName,
-                    DateOfBirth = dateOfBirth,
-                    ParentName = $"{Pick(isBoy ? DemoNames.GirlFirstNames : DemoNames.BoyFirstNames)} {lastName}",
+                    BirthDate = birthDate,
                     ParentPhone = RandomPhone(),
+                    Address = $"{Pick(DemoNames.Streets)} {_random.Next(1, 60)}, {Pick(DemoNames.Cities)}",
                     Class = schoolClass,
-                    EnrolledAt = new DateTime(schoolYearStart, 9, 1, 0, 0, 0, DateTimeKind.Utc),
                     IsActive = true
                 });
             }
@@ -204,56 +203,62 @@ public class DbSeeder(
         return students;
     }
 
-    private void CreateAssessmentsAndScores(List<SchoolClass> classes, List<Subject> subjects, List<Student> students)
+    /// <summary>
+    /// Creates assessments for every class + subject (one per teacher assignment), created by the
+    /// teacher who teaches that subject in that class.
+    /// </summary>
+    private void CreateAssessmentsAndScores(List<TeacherAssignment> assignments, List<Student> students)
     {
         // Each student gets a stable "ability" so their grades are consistent across subjects,
         // which makes the top-students list and grade distribution look realistic.
         var ability = students.ToDictionary(s => s, _ => Math.Clamp(NextGaussian(80, 9), 55, 98));
         var studentsByClass = students.Where(s => s.IsActive).ToLookup(s => s.Class);
 
-        foreach (var schoolClass in classes)
+        foreach (var (schoolClass, subject, teacher) in assignments.Select(a => (a.Class, a.Subject, a.Teacher)))
         {
-            foreach (var subject in subjects)
+            // Spread the first assessment of each class+subject so not everything falls on the same day.
+            var date = _today.AddDays(-AssessmentHistoryDays + _random.Next(0, 14));
+            var number = 1;
+
+            // Past assessments with scores, plus a few upcoming ones (next ~2 weeks) without scores.
+            while (date <= _today.AddDays(14))
             {
-                // Spread the first assessment of each class+subject so not everything falls on the same day.
-                var date = _today.AddDays(-AssessmentHistoryDays + _random.Next(0, 14));
-                var number = 1;
-
-                // Past assessments with scores, plus a few upcoming ones (next ~2 weeks) without scores.
-                while (date <= _today.AddDays(14))
+                date = NextSchoolDay(date);
+                var isQuiz = number % 3 == 0;
+                var assessment = new Assessment
                 {
-                    date = NextSchoolDay(date);
-                    var isQuiz = number % 3 == 0;
-                    var assessment = new Assessment
-                    {
-                        Title = isQuiz ? $"בוחן {subject.Name} {number}" : $"מבחן {subject.Name} {number}",
-                        Type = isQuiz ? AssessmentType.Quiz : AssessmentType.Exam,
-                        Class = schoolClass,
-                        Subject = subject,
-                        Date = date,
-                        MaxScore = isQuiz ? 20 : 100,
-                        CreatedAt = date.AddDays(-7).ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc)
-                    };
-                    context.Assessments.Add(assessment);
+                    Title = isQuiz ? $"בוחן {subject.Name} {number}" : $"מבחן {subject.Name} {number}",
+                    Type = isQuiz ? AssessmentType.Quiz : AssessmentType.Exam,
+                    Class = schoolClass,
+                    Subject = subject,
+                    Date = date,
+                    MaxScore = isQuiz ? 20 : 100,
+                    CreatedByUser = teacher,
+                    CreatedAt = date.AddDays(-7).ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc)
+                };
+                context.Assessments.Add(assessment);
 
-                    if (date < _today)
+                if (date < _today)
+                {
+                    foreach (var student in studentsByClass[schoolClass])
                     {
-                        foreach (var student in studentsByClass[schoolClass])
+                        var percent = Math.Clamp(NextGaussian(ability[student], 7), 35, 100);
+
+                        // About 2% of students missed the assessment and have no score yet (null).
+                        var missed = _random.NextDouble() < 0.02;
+
+                        context.Scores.Add(new Score
                         {
-                            var percent = Math.Clamp(NextGaussian(ability[student], 7), 35, 100);
-                            context.Scores.Add(new Score
-                            {
-                                Assessment = assessment,
-                                Student = student,
-                                Value = Math.Round((decimal)percent * assessment.MaxScore / 100m),
-                                UpdatedAt = date.AddDays(3).ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc)
-                            });
-                        }
+                            Assessment = assessment,
+                            Student = student,
+                            Value = missed ? null : Math.Round((decimal)percent * assessment.MaxScore / 100m),
+                            UpdatedAt = date.AddDays(3).ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc)
+                        });
                     }
-
-                    date = date.AddDays(_random.Next(14, 25));
-                    number++;
                 }
+
+                date = date.AddDays(_random.Next(14, 25));
+                number++;
             }
         }
     }
@@ -285,8 +290,7 @@ public class DbSeeder(
                     Student = student,
                     Date = date,
                     Status = status,
-                    RecordedBy = student.Class.HomeroomTeacher ?? teachers[0],
-                    UpdatedAt = date.ToDateTime(new TimeOnly(8, 30), DateTimeKind.Utc)
+                    RecordedByUser = student.Class.HomeroomTeacher ?? teachers[0]
                 });
             }
         }
@@ -294,22 +298,22 @@ public class DbSeeder(
 
     private void CreateEvents(List<SchoolClass> classes, User admin)
     {
-        SchoolEvent Event(string title, int daysFromToday, int hour, int durationHours, SchoolClass? schoolClass = null) => new()
+        SchoolEvent Event(string title, int daysFromToday, int durationDays = 1, SchoolClass? schoolClass = null) => new()
         {
             Title = title,
-            StartAt = _today.AddDays(daysFromToday).ToDateTime(new TimeOnly(hour, 0), DateTimeKind.Utc),
-            EndAt = _today.AddDays(daysFromToday).ToDateTime(new TimeOnly(hour + durationHours, 0), DateTimeKind.Utc),
+            StartDate = _today.AddDays(daysFromToday),
+            EndDate = durationDays > 1 ? _today.AddDays(daysFromToday + durationDays - 1) : null,
             Class = schoolClass,
-            CreatedBy = admin
+            CreatedByUser = admin
         };
 
         context.Events.AddRange(
-            Event("ישיבת צוות", -6, 14, 2),
-            Event("אסיפת הורים", 2, 18, 3),
-            Event("טיול שנתי", 9, 8, 8, classes.First(c => c.GradeLevel == 9)),
-            Event("מבחן מתכונת במתמטיקה", 12, 9, 3, classes.First(c => c.GradeLevel == 12)),
-            Event("ישיבת מחנכים", 16, 14, 2),
-            Event("יום פתוח לנרשמים", 23, 17, 3));
+            Event("ישיבת צוות", -6),
+            Event("אסיפת הורים", 2),
+            Event("טיול שנתי", 9, durationDays: 2, schoolClass: classes.First(c => c.GradeLevel == 9)),
+            Event("מבחן מתכונת במתמטיקה", 12, schoolClass: classes.First(c => c.GradeLevel == 12)),
+            Event("ישיבת מחנכים", 16),
+            Event("יום פתוח לנרשמים", 23));
     }
 
     private void CreateTodoTasks(User admin, User teacher)
@@ -319,7 +323,7 @@ public class DbSeeder(
             User = user,
             Title = title,
             DueDate = _today.AddDays(dueInDays),
-            IsCompleted = done,
+            IsDone = done,
             CreatedAt = _now.AddDays(-3)
         };
 

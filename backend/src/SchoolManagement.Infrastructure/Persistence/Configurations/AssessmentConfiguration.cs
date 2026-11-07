@@ -9,15 +9,18 @@ public class AssessmentConfiguration : IEntityTypeConfiguration<Assessment>
     public void Configure(EntityTypeBuilder<Assessment> builder)
     {
         builder.ToTable("Assessments", t =>
-            t.HasCheckConstraint("CK_Assessments_MaxScore", "[MaxScore] > 0"));
+        {
+            t.HasCheckConstraint("CK_Assessments_Type", "[Type] IN (N'Exam', N'Quiz', N'Assignment')");
+            t.HasCheckConstraint("CK_Assessments_MaxScore", "[MaxScore] > 0");
+        });
 
-        builder.Property(a => a.Title).HasMaxLength(150).IsRequired();
-        builder.Property(a => a.Description).HasMaxLength(1000);
+        builder.Property(a => a.Title).HasMaxLength(100).IsRequired();
+        builder.Property(a => a.CreatedAt).HasDefaultValueSql("SYSDATETIME()");
 
         // Store the enum as text ("Exam") instead of a number, so the table is readable.
         builder.Property(a => a.Type).HasConversion<string>().HasMaxLength(20);
 
-        builder.HasIndex(a => new { a.ClassId, a.SubjectId, a.Date });
+        builder.HasIndex(a => new { a.ClassId, a.Date }).HasDatabaseName("IX_Assessments_Class_Date");
 
         builder.HasOne(a => a.Class)
             .WithMany(c => c.Assessments)
@@ -29,9 +32,9 @@ public class AssessmentConfiguration : IEntityTypeConfiguration<Assessment>
             .HasForeignKey(a => a.SubjectId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        builder.HasOne(a => a.CreatedBy)
+        builder.HasOne(a => a.CreatedByUser)
             .WithMany()
-            .HasForeignKey(a => a.CreatedById)
+            .HasForeignKey(a => a.CreatedByUserId)
             .OnDelete(DeleteBehavior.Restrict);
     }
 }

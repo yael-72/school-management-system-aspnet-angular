@@ -12,7 +12,7 @@ using SchoolManagement.Infrastructure.Persistence;
 namespace SchoolManagement.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20261107203802_InitialCreate")]
+    [Migration("20261107211345_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -37,29 +37,27 @@ namespace SchoolManagement.Infrastructure.Persistence.Migrations
                         .HasColumnType("int");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("SYSDATETIME()");
 
-                    b.Property<int?>("CreatedById")
+                    b.Property<int>("CreatedByUserId")
                         .HasColumnType("int");
 
                     b.Property<DateOnly>("Date")
                         .HasColumnType("date");
 
-                    b.Property<string>("Description")
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
-
                     b.Property<decimal>("MaxScore")
-                        .HasPrecision(6, 2)
-                        .HasColumnType("decimal(6,2)");
+                        .HasPrecision(5, 2)
+                        .HasColumnType("decimal(5,2)");
 
                     b.Property<int>("SubjectId")
                         .HasColumnType("int");
 
                     b.Property<string>("Title")
                         .IsRequired()
-                        .HasMaxLength(150)
-                        .HasColumnType("nvarchar(150)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("Type")
                         .IsRequired()
@@ -68,15 +66,18 @@ namespace SchoolManagement.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CreatedById");
+                    b.HasIndex("CreatedByUserId");
 
                     b.HasIndex("SubjectId");
 
-                    b.HasIndex("ClassId", "SubjectId", "Date");
+                    b.HasIndex("ClassId", "Date")
+                        .HasDatabaseName("IX_Assessments_Class_Date");
 
                     b.ToTable("Assessments", null, t =>
                         {
                             t.HasCheckConstraint("CK_Assessments_MaxScore", "[MaxScore] > 0");
+
+                            t.HasCheckConstraint("CK_Assessments_Type", "[Type] IN (N'Exam', N'Quiz', N'Assignment')");
                         });
                 });
 
@@ -92,33 +93,35 @@ namespace SchoolManagement.Infrastructure.Persistence.Migrations
                         .HasColumnType("date");
 
                     b.Property<string>("Note")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
-                    b.Property<int?>("RecordedById")
+                    b.Property<int>("RecordedByUserId")
                         .HasColumnType("int");
 
                     b.Property<string>("Status")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
 
                     b.Property<int>("StudentId")
                         .HasColumnType("int");
 
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("Date");
+                    b.HasIndex("Date")
+                        .HasDatabaseName("IX_Attendance_Date");
 
-                    b.HasIndex("RecordedById");
+                    b.HasIndex("RecordedByUserId");
 
                     b.HasIndex("StudentId", "Date")
-                        .IsUnique();
+                        .IsUnique()
+                        .HasDatabaseName("UQ_Attendance");
 
-                    b.ToTable("Attendance", (string)null);
+                    b.ToTable("Attendance", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_Attendance_Status", "[Status] IN (N'Present', N'Absent', N'Late', N'Excused')");
+                        });
                 });
 
             modelBuilder.Entity("SchoolManagement.Domain.Entities.NotificationSettings", b =>
@@ -126,19 +129,13 @@ namespace SchoolManagement.Infrastructure.Persistence.Migrations
                     b.Property<int>("UserId")
                         .HasColumnType("int");
 
-                    b.Property<bool>("AbsenceAlerts")
+                    b.Property<bool>("AlertOnLowAttendance")
                         .HasColumnType("bit");
 
-                    b.Property<bool>("EmailNotifications")
+                    b.Property<bool>("RemindBeforeExam")
                         .HasColumnType("bit");
 
-                    b.Property<bool>("EventReminders")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("GradeAlerts")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("WeeklySummary")
+                    b.Property<bool>("WeeklySummaryEmail")
                         .HasColumnType("bit");
 
                     b.HasKey("UserId");
@@ -156,8 +153,8 @@ namespace SchoolManagement.Infrastructure.Persistence.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)")
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)")
                         .HasColumnName("Role");
 
                     b.HasKey("Id");
@@ -188,8 +185,8 @@ namespace SchoolManagement.Infrastructure.Persistence.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("GradeLevel")
-                        .HasColumnType("int");
+                    b.Property<byte>("GradeLevel")
+                        .HasColumnType("tinyint");
 
                     b.Property<int?>("HomeroomTeacherId")
                         .HasColumnType("int");
@@ -201,19 +198,20 @@ namespace SchoolManagement.Infrastructure.Persistence.Migrations
 
                     b.Property<string>("SchoolYear")
                         .IsRequired()
-                        .HasMaxLength(9)
-                        .HasColumnType("nvarchar(9)");
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("HomeroomTeacherId");
 
                     b.HasIndex("Name", "SchoolYear")
-                        .IsUnique();
+                        .IsUnique()
+                        .HasDatabaseName("UQ_Classes_Name_Year");
 
                     b.ToTable("Classes", null, t =>
                         {
-                            t.HasCheckConstraint("CK_Classes_GradeLevel", "[GradeLevel] BETWEEN 7 AND 12");
+                            t.HasCheckConstraint("CK_Classes_GradeLevel", "[GradeLevel] BETWEEN 1 AND 12");
                         });
                 });
 
@@ -228,35 +226,31 @@ namespace SchoolManagement.Infrastructure.Persistence.Migrations
                     b.Property<int?>("ClassId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("CreatedById")
+                    b.Property<int>("CreatedByUserId")
                         .HasColumnType("int");
 
-                    b.Property<string>("Description")
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
+                    b.Property<DateOnly?>("EndDate")
+                        .HasColumnType("date");
 
-                    b.Property<DateTime?>("EndAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("StartAt")
-                        .HasColumnType("datetime2");
+                    b.Property<DateOnly>("StartDate")
+                        .HasColumnType("date");
 
                     b.Property<string>("Title")
                         .IsRequired()
-                        .HasMaxLength(150)
-                        .HasColumnType("nvarchar(150)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("ClassId");
 
-                    b.HasIndex("CreatedById");
+                    b.HasIndex("CreatedByUserId");
 
-                    b.HasIndex("StartAt");
+                    b.HasIndex("StartDate");
 
                     b.ToTable("Events", null, t =>
                         {
-                            t.HasCheckConstraint("CK_Events_EndAfterStart", "[EndAt] IS NULL OR [EndAt] >= [StartAt]");
+                            t.HasCheckConstraint("CK_Events_EndAfterStart", "[EndDate] IS NULL OR [EndDate] >= [StartDate]");
                         });
                 });
 
@@ -272,29 +266,33 @@ namespace SchoolManagement.Infrastructure.Persistence.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Comment")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
 
                     b.Property<int>("StudentId")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime2");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("SYSDATETIME()");
 
-                    b.Property<decimal>("Value")
-                        .HasPrecision(6, 2)
-                        .HasColumnType("decimal(6,2)");
+                    b.Property<decimal?>("Value")
+                        .HasPrecision(5, 2)
+                        .HasColumnType("decimal(5,2)")
+                        .HasColumnName("Score");
 
                     b.HasKey("Id");
 
                     b.HasIndex("StudentId");
 
                     b.HasIndex("AssessmentId", "StudentId")
-                        .IsUnique();
+                        .IsUnique()
+                        .HasDatabaseName("UQ_Score");
 
                     b.ToTable("Scores", null, t =>
                         {
-                            t.HasCheckConstraint("CK_Scores_Value", "[Value] >= 0");
+                            t.HasCheckConstraint("CK_Scores_Score", "[Score] >= 0");
                         });
                 });
 
@@ -306,18 +304,15 @@ namespace SchoolManagement.Infrastructure.Persistence.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("ClassId")
-                        .HasColumnType("int");
+                    b.Property<string>("Address")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
-                    b.Property<DateOnly>("DateOfBirth")
+                    b.Property<DateOnly?>("BirthDate")
                         .HasColumnType("date");
 
-                    b.Property<string>("Email")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
-                    b.Property<DateTime>("EnrolledAt")
-                        .HasColumnType("datetime2");
+                    b.Property<int>("ClassId")
+                        .HasColumnType("int");
 
                     b.Property<string>("FirstName")
                         .IsRequired()
@@ -332,17 +327,14 @@ namespace SchoolManagement.Infrastructure.Persistence.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.Property<string>("ParentName")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
                     b.Property<string>("ParentPhone")
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ClassId", "IsActive");
+                    b.HasIndex("ClassId", "IsActive")
+                        .HasDatabaseName("IX_Students_ClassId");
 
                     b.ToTable("Students", (string)null);
                 });
@@ -357,8 +349,8 @@ namespace SchoolManagement.Infrastructure.Persistence.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.HasKey("Id");
 
@@ -392,7 +384,8 @@ namespace SchoolManagement.Infrastructure.Persistence.Migrations
                     b.HasIndex("SubjectId");
 
                     b.HasIndex("TeacherId", "ClassId", "SubjectId")
-                        .IsUnique();
+                        .IsUnique()
+                        .HasDatabaseName("UQ_TeacherAssignment");
 
                     b.ToTable("TeacherAssignments", (string)null);
                 });
@@ -406,12 +399,14 @@ namespace SchoolManagement.Infrastructure.Persistence.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("SYSDATETIME()");
 
                     b.Property<DateOnly?>("DueDate")
                         .HasColumnType("date");
 
-                    b.Property<bool>("IsCompleted")
+                    b.Property<bool>("IsDone")
                         .HasColumnType("bit");
 
                     b.Property<string>("Title")
@@ -437,34 +432,28 @@ namespace SchoolManagement.Infrastructure.Persistence.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("ContentType")
+                    b.Property<string>("FileName")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("OriginalFileName")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
                     b.Property<long>("SizeBytes")
                         .HasColumnType("bigint");
 
-                    b.Property<string>("StoredFileName")
+                    b.Property<string>("StoredPath")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasMaxLength(400)
+                        .HasColumnType("nvarchar(400)");
 
                     b.Property<DateTime>("UploadedAt")
-                        .HasColumnType("datetime2");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("SYSDATETIME()");
 
                     b.Property<int>("UserId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("StoredFileName")
-                        .IsUnique();
 
                     b.HasIndex("UserId");
 
@@ -480,33 +469,27 @@ namespace SchoolManagement.Infrastructure.Persistence.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("SYSDATETIME()");
 
                     b.Property<string>("Email")
                         .IsRequired()
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
 
-                    b.Property<string>("FirstName")
+                    b.Property<string>("FullName")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
-                    b.Property<DateTime?>("LastLoginAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("LastName")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
                     b.Property<string>("PasswordHash")
                         .IsRequired()
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
 
                     b.Property<string>("Phone")
                         .HasMaxLength(20)
@@ -518,7 +501,8 @@ namespace SchoolManagement.Infrastructure.Persistence.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("Email")
-                        .IsUnique();
+                        .IsUnique()
+                        .HasDatabaseName("UQ_Users_Email");
 
                     b.HasIndex("RoleId");
 
@@ -533,10 +517,11 @@ namespace SchoolManagement.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("SchoolManagement.Domain.Entities.User", "CreatedBy")
+                    b.HasOne("SchoolManagement.Domain.Entities.User", "CreatedByUser")
                         .WithMany()
-                        .HasForeignKey("CreatedById")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasForeignKey("CreatedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.HasOne("SchoolManagement.Domain.Entities.Subject", "Subject")
                         .WithMany("Assessments")
@@ -546,17 +531,18 @@ namespace SchoolManagement.Infrastructure.Persistence.Migrations
 
                     b.Navigation("Class");
 
-                    b.Navigation("CreatedBy");
+                    b.Navigation("CreatedByUser");
 
                     b.Navigation("Subject");
                 });
 
             modelBuilder.Entity("SchoolManagement.Domain.Entities.AttendanceRecord", b =>
                 {
-                    b.HasOne("SchoolManagement.Domain.Entities.User", "RecordedBy")
+                    b.HasOne("SchoolManagement.Domain.Entities.User", "RecordedByUser")
                         .WithMany()
-                        .HasForeignKey("RecordedById")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasForeignKey("RecordedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.HasOne("SchoolManagement.Domain.Entities.Student", "Student")
                         .WithMany("AttendanceRecords")
@@ -564,7 +550,7 @@ namespace SchoolManagement.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("RecordedBy");
+                    b.Navigation("RecordedByUser");
 
                     b.Navigation("Student");
                 });
@@ -597,14 +583,15 @@ namespace SchoolManagement.Infrastructure.Persistence.Migrations
                         .HasForeignKey("ClassId")
                         .OnDelete(DeleteBehavior.Cascade);
 
-                    b.HasOne("SchoolManagement.Domain.Entities.User", "CreatedBy")
+                    b.HasOne("SchoolManagement.Domain.Entities.User", "CreatedByUser")
                         .WithMany()
-                        .HasForeignKey("CreatedById")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasForeignKey("CreatedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.Navigation("Class");
 
-                    b.Navigation("CreatedBy");
+                    b.Navigation("CreatedByUser");
                 });
 
             modelBuilder.Entity("SchoolManagement.Domain.Entities.Score", b =>

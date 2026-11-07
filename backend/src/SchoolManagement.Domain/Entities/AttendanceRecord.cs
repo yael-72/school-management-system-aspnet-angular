@@ -12,9 +12,8 @@ public class AttendanceRecord
     public DateOnly Date { get; set; }
     public AttendanceStatus Status { get; set; }
     public string? Note { get; set; }
-    public int? RecordedById { get; set; }
-    public DateTime UpdatedAt { get; set; }
+    public int RecordedByUserId { get; set; }
 
     public Student Student { get; set; } = null!;
-    public User? RecordedBy { get; set; }
+    public User RecordedByUser { get; set; } = null!;
 }

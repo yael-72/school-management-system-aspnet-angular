@@ -11,13 +11,12 @@ public class StudentConfiguration : IEntityTypeConfiguration<Student>
         builder.ToTable("Students");
         builder.Property(s => s.FirstName).HasMaxLength(50).IsRequired();
         builder.Property(s => s.LastName).HasMaxLength(50).IsRequired();
-        builder.Property(s => s.Email).HasMaxLength(256);
-        builder.Property(s => s.ParentName).HasMaxLength(100);
         builder.Property(s => s.ParentPhone).HasMaxLength(20);
+        builder.Property(s => s.Address).HasMaxLength(200);
         builder.Ignore(s => s.FullName);
 
-        // Most queries are "active students of class X", so index exactly that.
-        builder.HasIndex(s => new { s.ClassId, s.IsActive });
+        // Most queries are "active students of class X", so the index covers both columns.
+        builder.HasIndex(s => new { s.ClassId, s.IsActive }).HasDatabaseName("IX_Students_ClassId");
 
         // Restrict: a class with students cannot be deleted by accident (business rule).
         builder.HasOne(s => s.Class)

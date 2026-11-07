@@ -9,21 +9,20 @@ public class SchoolEventConfiguration : IEntityTypeConfiguration<SchoolEvent>
     public void Configure(EntityTypeBuilder<SchoolEvent> builder)
     {
         builder.ToTable("Events", t =>
-            t.HasCheckConstraint("CK_Events_EndAfterStart", "[EndAt] IS NULL OR [EndAt] >= [StartAt]"));
+            t.HasCheckConstraint("CK_Events_EndAfterStart", "[EndDate] IS NULL OR [EndDate] >= [StartDate]"));
 
-        builder.Property(e => e.Title).HasMaxLength(150).IsRequired();
-        builder.Property(e => e.Description).HasMaxLength(1000);
+        builder.Property(e => e.Title).HasMaxLength(100).IsRequired();
 
-        builder.HasIndex(e => e.StartAt);
+        builder.HasIndex(e => e.StartDate);
 
         builder.HasOne(e => e.Class)
             .WithMany(c => c.Events)
             .HasForeignKey(e => e.ClassId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        builder.HasOne(e => e.CreatedBy)
+        builder.HasOne(e => e.CreatedByUser)
             .WithMany()
-            .HasForeignKey(e => e.CreatedById)
+            .HasForeignKey(e => e.CreatedByUserId)
             .OnDelete(DeleteBehavior.Restrict);
     }
 }

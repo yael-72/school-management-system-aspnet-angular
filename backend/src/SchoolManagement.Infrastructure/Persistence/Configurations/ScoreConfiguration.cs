@@ -11,12 +11,14 @@ public class ScoreConfiguration : IEntityTypeConfiguration<Score>
         // The upper limit (MaxScore) lives in another table, so it is checked in the
         // application service; the database still guards against negative values.
         builder.ToTable("Scores", t =>
-            t.HasCheckConstraint("CK_Scores_Value", "[Value] >= 0"));
+            t.HasCheckConstraint("CK_Scores_Score", "[Score] >= 0"));
 
-        builder.Property(s => s.Comment).HasMaxLength(500);
+        builder.Property(s => s.Value).HasColumnName("Score");
+        builder.Property(s => s.Comment).HasMaxLength(300);
+        builder.Property(s => s.UpdatedAt).HasDefaultValueSql("SYSDATETIME()");
 
         // Business rule: one score per student per assessment.
-        builder.HasIndex(s => new { s.AssessmentId, s.StudentId }).IsUnique();
+        builder.HasIndex(s => new { s.AssessmentId, s.StudentId }).IsUnique().HasDatabaseName("UQ_Score");
 
         builder.HasOne(s => s.Assessment)
             .WithMany(a => a.Scores)

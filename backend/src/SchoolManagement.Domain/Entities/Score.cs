@@ -8,7 +8,13 @@ public class Score
     public int Id { get; set; }
     public int AssessmentId { get; set; }
     public int StudentId { get; set; }
-    public decimal Value { get; set; }
+
+    /// <summary>
+    /// Null means "not graded yet" (for example the student missed the exam).
+    /// Stored in the "Score" column; the C# property cannot have the same name as its class.
+    /// </summary>
+    public decimal? Value { get; set; }
+
     public string? Comment { get; set; }
     public DateTime UpdatedAt { get; set; }
 

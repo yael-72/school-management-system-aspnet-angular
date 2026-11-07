@@ -10,7 +10,7 @@ public class RoleConfiguration : IEntityTypeConfiguration<Role>
     public void Configure(EntityTypeBuilder<Role> builder)
     {
         builder.ToTable("Roles");
-        builder.Property(r => r.Name).HasColumnName("Role").HasMaxLength(50).IsRequired();
+        builder.Property(r => r.Name).HasColumnName("Role").HasMaxLength(30).IsRequired();
         builder.HasIndex(r => r.Name).IsUnique();
 
         // Roles are fixed reference data, so they are part of the migration itself (HasData)

@@ -9,8 +9,8 @@ public class SchoolClass
     public int Id { get; set; }
     public string Name { get; set; } = string.Empty;
 
-    /// <summary>Grade level 7–12.</summary>
-    public int GradeLevel { get; set; }
+    /// <summary>Grade level 1–12 (the demo school has grades 7–12).</summary>
+    public byte GradeLevel { get; set; }
 
     /// <summary>For example "2026-2027".</summary>
     public string SchoolYear { get; set; } = string.Empty;

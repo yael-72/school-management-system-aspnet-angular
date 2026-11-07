@@ -8,12 +8,11 @@ public class SchoolEvent
 {
     public int Id { get; set; }
     public string Title { get; set; } = string.Empty;
-    public string? Description { get; set; }
-    public DateTime StartAt { get; set; }
-    public DateTime? EndAt { get; set; }
+    public DateOnly StartDate { get; set; }
+    public DateOnly? EndDate { get; set; }
     public int? ClassId { get; set; }
-    public int? CreatedById { get; set; }
+    public int CreatedByUserId { get; set; }
 
     public SchoolClass? Class { get; set; }
-    public User? CreatedBy { get; set; }
+    public User CreatedByUser { get; set; } = null!;
 }
