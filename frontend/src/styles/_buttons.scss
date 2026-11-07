@@ -1,0 +1,87 @@
+// Buttons used across pages (Horizon UI "Button" component). The full-width sign-in button
+// (.button-primary) lives in _forms.scss.
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  block-size: 44px;
+  padding-inline: var(--space-5);
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  white-space: nowrap;
+  color: var(--color-text-on-primary);
+  background: var(--color-primary);
+  border: 0;
+  border-radius: var(--radius-control);
+  transition: background-color var(--transition-fast);
+
+  &:hover:not(:disabled) {
+    background: var(--color-primary-hover);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  .icon {
+    font-size: 20px;
+  }
+}
+
+.button--secondary {
+  color: var(--color-primary);
+  background: var(--color-surface-muted);
+
+  &:hover:not(:disabled) {
+    background: var(--color-border);
+  }
+}
+
+.button--danger {
+  background: var(--color-danger);
+
+  &:hover:not(:disabled) {
+    background: color-mix(in srgb, var(--color-danger) 85%, black);
+  }
+}
+
+// Round icon-only button (edit, delete, pagination arrows). Always give it an aria-label.
+.icon-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: 36px;
+  block-size: 36px;
+  padding: 0;
+  color: var(--color-text-secondary);
+  background: transparent;
+  border: 0;
+  border-radius: 50%;
+  transition:
+    background-color var(--transition-fast),
+    color var(--transition-fast);
+
+  &:hover:not(:disabled) {
+    color: var(--color-primary);
+    background: var(--color-surface-muted);
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  .icon {
+    font-size: 20px;
+  }
+}
+
+// Buttons at the bottom of a dialog: "save" first (on the start side), "cancel" next to it.
+.form-actions {
+  display: flex;
+  gap: var(--space-3);
+  margin-block-start: var(--space-6);
+}

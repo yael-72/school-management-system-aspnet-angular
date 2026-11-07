@@ -1,0 +1,75 @@
+// Data tables (Horizon UI "Tables" page): light uppercase-style headers, bold navy cells,
+// a thin divider under the header only.
+
+.table-scroll {
+  overflow-x: auto;
+}
+
+.data-table {
+  inline-size: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-size-sm);
+
+  th {
+    padding: var(--space-3) var(--space-2);
+    font-size: var(--font-size-xs);
+    font-weight: 500;
+    text-align: start;
+    white-space: nowrap;
+    color: var(--color-text-secondary);
+    border-block-end: 1px solid var(--color-border);
+  }
+
+  td {
+    padding: var(--space-3) var(--space-2);
+    font-weight: 700;
+    color: var(--color-text);
+    white-space: nowrap;
+  }
+
+  tbody tr {
+    transition: background-color var(--transition-fast);
+
+    &:hover {
+      background: var(--color-surface-muted);
+    }
+  }
+}
+
+// A column header that sorts the table when clicked.
+.sort-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+
+  .icon {
+    font-size: 16px;
+  }
+
+  &.is-active {
+    color: var(--color-text);
+  }
+}
+
+// Toolbar above a list: search box, filters and the "add" button.
+.list-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  margin-block-end: var(--space-4);
+
+  .list-toolbar__search {
+    flex: 1 1 240px;
+    max-inline-size: 360px;
+  }
+
+  .list-toolbar__end {
+    margin-inline-start: auto;
+  }
+}
