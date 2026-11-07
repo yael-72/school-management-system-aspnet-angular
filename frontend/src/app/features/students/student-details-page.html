@@ -1,0 +1,108 @@
+<a class="details-back" routerLink="/students">
+  <span class="icon" aria-hidden="true">arrow_forward</span>
+  חזרה לרשימת התלמידים
+</a>
+
+@if (errorMessage(); as message) {
+  <app-card>
+    <app-empty-state icon="error" title="לא ניתן לטעון את פרטי התלמיד" [message]="message">
+      <button type="button" class="button" (click)="summary.reload()">נסו שוב</button>
+    </app-empty-state>
+  </app-card>
+} @else if (summary.value(); as data) {
+  @let student = data.student;
+  <div class="details-grid">
+    <app-card class="details-profile">
+      <app-avatar [name]="student.firstName + ' ' + student.lastName" [size]="88" />
+      <h2 class="details-profile__name">{{ student.firstName }} {{ student.lastName }}</h2>
+      <a
+        class="details-profile__class"
+        [routerLink]="['/students']"
+        [queryParams]="{ classId: student.classId }"
+        >כיתה {{ student.className }}</a
+      >
+
+      <dl class="details-info">
+        <div>
+          <dt>תאריך לידה</dt>
+          <dd>{{ student.birthDate ? (student.birthDate | date: 'dd.MM.yyyy') : '—' }}</dd>
+        </div>
+        <div>
+          <dt>טלפון הורה</dt>
+          <dd dir="ltr">{{ student.parentPhone ?? '—' }}</dd>
+        </div>
+        <div>
+          <dt>כתובת</dt>
+          <dd>{{ student.address ?? '—' }}</dd>
+        </div>
+      </dl>
+    </app-card>
+
+    <div class="details-main">
+      <div class="details-stats">
+        <app-card class="stat">
+          <span class="stat__label">ממוצע ציונים</span>
+          <span class="stat__value"><app-score-badge [score]="data.averageScore" /></span>
+        </app-card>
+        <app-card class="stat">
+          <span class="stat__label">אחוז נוכחות</span>
+          <span class="stat__value">{{
+            data.attendanceRate === null ? '—' : (data.attendanceRate | number: '1.0-1') + '%'
+          }}</span>
+        </app-card>
+        <app-card class="stat">
+          <span class="stat__label">היעדרויות</span>
+          <span class="stat__value">{{ data.absenceCount }}</span>
+        </app-card>
+        <app-card class="stat">
+          <span class="stat__label">איחורים</span>
+          <span class="stat__value">{{ data.lateCount }}</span>
+        </app-card>
+      </div>
+
+      <app-card class="details-scores" title="ציונים אחרונים">
+        @if (data.recentScores.length === 0) {
+          <app-empty-state icon="assignment" title="אין עדיין ציונים" />
+        } @else {
+          <div class="table-scroll">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>מבחן</th>
+                  <th>מקצוע</th>
+                  <th>תאריך</th>
+                  <th>ציון</th>
+                  <th>אחוז</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (score of data.recentScores; track score.assessmentId) {
+                  <tr>
+                    <td>{{ score.assessmentTitle }}</td>
+                    <td>{{ score.subjectName }}</td>
+                    <td>{{ score.date | date: 'dd.MM.yyyy' }}</td>
+                    <td>
+                      {{ score.score | number: '1.0-1' }} / {{ score.maxScore | number: '1.0-1' }}
+                    </td>
+                    <td><app-score-badge [score]="score.percent" /></td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </app-card>
+    </div>
+  </div>
+} @else {
+  <div class="details-grid" aria-busy="true">
+    <app-card class="details-profile">
+      <app-skeleton width="88px" height="88px" radius="50%" />
+      <app-skeleton width="60%" height="24px" />
+      <app-skeleton width="40%" />
+    </app-card>
+    <app-card class="details-scores">
+      <app-skeleton height="160px" />
+    </app-card>
+  </div>
+}

@@ -34,6 +34,12 @@ export const routes: Routes = [
         loadComponent: () => import('./features/students/students-page').then((m) => m.StudentsPage),
       },
       {
+        path: 'students/:id',
+        title: 'פרטי תלמיד',
+        loadComponent: () =>
+          import('./features/students/student-details-page').then((m) => m.StudentDetailsPage),
+      },
+      {
         path: 'attendance',
         title: 'נוכחות',
         loadComponent: () => import('./features/attendance/attendance-page').then((m) => m.AttendancePage),

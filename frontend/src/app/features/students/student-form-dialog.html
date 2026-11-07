@@ -1,0 +1,116 @@
+<app-dialog
+  [open]="open()"
+  [title]="studentId() ? 'עריכת תלמיד' : 'תלמיד חדש'"
+  (closed)="closed.emit()"
+>
+  <form
+    class="form-grid"
+    [formGroup]="form"
+    (ngSubmit)="submit()"
+    [attr.aria-busy]="loadingStudent()"
+    novalidate
+  >
+    @if (errorMessage(); as message) {
+      <p class="form-alert" role="alert">{{ message }}</p>
+    }
+
+    <div class="form-row">
+      <div class="form-field">
+        <label class="form-label" for="student-first-name"
+          >שם פרטי<span class="form-label__required">*</span></label
+        >
+        <input
+          id="student-first-name"
+          class="form-input"
+          formControlName="firstName"
+          [class.is-invalid]="isInvalid('firstName')"
+        />
+        @if (isInvalid('firstName')) {
+          <span class="form-error">יש להזין שם פרטי.</span>
+        }
+      </div>
+      <div class="form-field">
+        <label class="form-label" for="student-last-name"
+          >שם משפחה<span class="form-label__required">*</span></label
+        >
+        <input
+          id="student-last-name"
+          class="form-input"
+          formControlName="lastName"
+          [class.is-invalid]="isInvalid('lastName')"
+        />
+        @if (isInvalid('lastName')) {
+          <span class="form-error">יש להזין שם משפחה.</span>
+        }
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-field">
+        <label class="form-label" for="student-class"
+          >כיתה<span class="form-label__required">*</span></label
+        >
+        <select
+          id="student-class"
+          class="form-input form-select"
+          formControlName="classId"
+          [class.is-invalid]="isInvalid('classId')"
+        >
+          <option [ngValue]="null" disabled>בחרו כיתה</option>
+          @for (schoolClass of classes.value()?.items ?? []; track schoolClass.id) {
+            <option [ngValue]="schoolClass.id">{{ schoolClass.name }}</option>
+          }
+        </select>
+        @if (isInvalid('classId')) {
+          <span class="form-error">יש לבחור כיתה.</span>
+        }
+      </div>
+      <div class="form-field">
+        <label class="form-label" for="student-birth-date">תאריך לידה</label>
+        <input
+          id="student-birth-date"
+          class="form-input"
+          type="date"
+          formControlName="birthDate"
+          [max]="today"
+        />
+      </div>
+    </div>
+
+    <div class="form-field">
+      <label class="form-label" for="student-phone">טלפון הורה</label>
+      <input
+        id="student-phone"
+        class="form-input"
+        type="tel"
+        dir="ltr"
+        formControlName="parentPhone"
+        placeholder="050-1234567"
+        [class.is-invalid]="isInvalid('parentPhone')"
+      />
+      @if (isInvalid('parentPhone')) {
+        <span class="form-error">מספר הטלפון אינו תקין.</span>
+      }
+    </div>
+
+    <div class="form-field">
+      <label class="form-label" for="student-address">כתובת</label>
+      <input
+        id="student-address"
+        class="form-input"
+        formControlName="address"
+        [class.is-invalid]="isInvalid('address')"
+      />
+      @if (isInvalid('address')) {
+        <span class="form-error">הכתובת ארוכה מדי (עד 200 תווים).</span>
+      }
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="button" [disabled]="submitting() || loadingStudent()">
+        {{ submitting() ? 'שומר...' : 'שמירה' }}
+      </button>
+      <button type="button" class="button button--secondary" (click)="closed.emit()">ביטול</button>
+    </div>
+  </form>
+</app-dialog>

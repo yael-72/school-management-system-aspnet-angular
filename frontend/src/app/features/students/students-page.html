@@ -1,0 +1,194 @@
+<app-card title="רשימת תלמידים">
+  <div class="list-toolbar">
+    <label class="search-field list-toolbar__search">
+      <span class="visually-hidden">חיפוש תלמיד</span>
+      <span class="icon" aria-hidden="true">search</span>
+      <input
+        #searchInput
+        class="form-input"
+        type="search"
+        placeholder="חיפוש לפי שם"
+        [value]="searchText()"
+        (input)="onSearch(searchInput.value)"
+      />
+    </label>
+
+    <label class="students-class-filter">
+      <span class="visually-hidden">סינון לפי כיתה</span>
+      <select
+        #classSelect
+        class="form-input form-select"
+        (change)="filterByClass(classSelect.value)"
+      >
+        <option value="" [selected]="classId() === null">כל הכיתות</option>
+        @for (schoolClass of classes.value()?.items ?? []; track schoolClass.id) {
+          <option [value]="schoolClass.id" [selected]="schoolClass.id === classId()">
+            כיתה {{ schoolClass.name }}
+          </option>
+        }
+      </select>
+    </label>
+
+    @if (isAdmin()) {
+      <button type="button" class="button list-toolbar__end" (click)="openCreate()">
+        <span class="icon" aria-hidden="true">person_add</span>
+        תלמיד חדש
+      </button>
+    }
+  </div>
+
+  @if (errorMessage(); as message) {
+    <app-empty-state icon="error" title="לא ניתן לטעון את התלמידים" [message]="message">
+      <button type="button" class="button" (click)="students.reload()">נסו שוב</button>
+    </app-empty-state>
+  } @else if (students.isLoading() && !students.hasValue()) {
+    <div class="students-skeleton" aria-busy="true">
+      @for (i of skeletonRows; track i) {
+        <app-skeleton height="36px" />
+      }
+    </div>
+  } @else if (students.value(); as result) {
+    @if (result.items.length === 0) {
+      <app-empty-state
+        icon="person_search"
+        title="לא נמצאו תלמידים"
+        message="נסו לשנות את החיפוש או את הכיתה שנבחרה."
+      />
+    } @else {
+      <div class="table-scroll">
+        <table class="data-table" [class.is-reloading]="students.isLoading()">
+          <thead>
+            <tr>
+              <th [attr.aria-sort]="ariaSort('lastName')">
+                <button
+                  type="button"
+                  class="sort-button"
+                  [class.is-active]="sortBy() === 'lastName'"
+                  (click)="sort('lastName')"
+                >
+                  שם <span class="icon" aria-hidden="true">{{ sortIcon('lastName') }}</span>
+                </button>
+              </th>
+              <th [attr.aria-sort]="ariaSort('className')">
+                <button
+                  type="button"
+                  class="sort-button"
+                  [class.is-active]="sortBy() === 'className'"
+                  (click)="sort('className')"
+                >
+                  כיתה <span class="icon" aria-hidden="true">{{ sortIcon('className') }}</span>
+                </button>
+              </th>
+              <th [attr.aria-sort]="ariaSort('birthDate')">
+                <button
+                  type="button"
+                  class="sort-button"
+                  [class.is-active]="sortBy() === 'birthDate'"
+                  (click)="sort('birthDate')"
+                >
+                  תאריך לידה
+                  <span class="icon" aria-hidden="true">{{ sortIcon('birthDate') }}</span>
+                </button>
+              </th>
+              <th>טלפון הורה</th>
+              <th [attr.aria-sort]="ariaSort('averageScore')">
+                <button
+                  type="button"
+                  class="sort-button"
+                  [class.is-active]="sortBy() === 'averageScore'"
+                  (click)="sort('averageScore')"
+                >
+                  ממוצע <span class="icon" aria-hidden="true">{{ sortIcon('averageScore') }}</span>
+                </button>
+              </th>
+              @if (isAdmin()) {
+                <th><span class="visually-hidden">פעולות</span></th>
+              }
+            </tr>
+          </thead>
+          <tbody>
+            @for (student of result.items; track student.id) {
+              <tr>
+                <td>
+                  <a class="students-name" [routerLink]="['/students', student.id]">
+                    <app-avatar [name]="student.firstName + ' ' + student.lastName" [size]="34" />
+                    {{ student.firstName }} {{ student.lastName }}
+                  </a>
+                </td>
+                <td>{{ student.className }}</td>
+                <td>{{ student.birthDate ? (student.birthDate | date: 'dd.MM.yyyy') : '—' }}</td>
+                <td dir="ltr" class="students-phone">{{ student.parentPhone ?? '—' }}</td>
+                <td><app-score-badge [score]="student.averageScore" /></td>
+                @if (isAdmin()) {
+                  <td class="students-actions">
+                    <button
+                      type="button"
+                      class="icon-button"
+                      (click)="openEdit(student)"
+                      [attr.aria-label]="'עריכת ' + student.firstName + ' ' + student.lastName"
+                    >
+                      <span class="icon" aria-hidden="true">edit</span>
+                    </button>
+                    <button
+                      type="button"
+                      class="icon-button"
+                      (click)="askDelete(student)"
+                      [attr.aria-label]="'הסרת ' + student.firstName + ' ' + student.lastName"
+                    >
+                      <span class="icon" aria-hidden="true">delete</span>
+                    </button>
+                  </td>
+                }
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      <app-paginator
+        [page]="result.page"
+        [pageSize]="result.pageSize"
+        [totalCount]="result.totalCount"
+        (pageChange)="page.set($event)"
+      />
+    }
+  }
+</app-card>
+
+@if (isAdmin()) {
+  <app-student-form-dialog
+    [open]="formOpen()"
+    [studentId]="editedStudentId()"
+    [defaultClassId]="classId()"
+    (saved)="onSaved()"
+    (closed)="formOpen.set(false)"
+  />
+
+  <app-dialog
+    [open]="studentToDelete() !== null"
+    title="הסרת תלמיד"
+    (closed)="studentToDelete.set(null)"
+  >
+    @if (studentToDelete(); as student) {
+      <p>
+        להסיר את <strong>{{ student.firstName }} {{ student.lastName }}</strong> מרשימת התלמידים?
+        הציונים והנוכחות שלו יישמרו במערכת.
+      </p>
+    }
+    @if (deleteError(); as message) {
+      <p class="form-alert students-delete-error" role="alert">{{ message }}</p>
+    }
+    <div class="form-actions">
+      <button
+        type="button"
+        class="button button--danger"
+        [disabled]="deleting()"
+        (click)="confirmDelete()"
+      >
+        {{ deleting() ? 'מסיר...' : 'הסרה' }}
+      </button>
+      <button type="button" class="button button--secondary" (click)="studentToDelete.set(null)">
+        ביטול
+      </button>
+    </div>
+  </app-dialog>
+}
