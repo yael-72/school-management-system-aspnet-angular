@@ -1,0 +1,133 @@
+<div class="classes-header">
+  <h2 class="classes-header__title">הכיתות שלי</h2>
+
+  <nav class="grade-tabs" aria-label="סינון לפי שכבה">
+    <button
+      type="button"
+      class="grade-tabs__tab"
+      [class.is-active]="gradeLevel() === null"
+      (click)="selectGrade(null)"
+    >
+      הכל
+    </button>
+    @for (tab of gradeTabs; track tab.value) {
+      <button
+        type="button"
+        class="grade-tabs__tab"
+        [class.is-active]="gradeLevel() === tab.value"
+        (click)="selectGrade(tab.value)"
+      >
+        {{ tab.name }}
+      </button>
+    }
+  </nav>
+</div>
+
+<div class="list-toolbar">
+  <label class="search-field list-toolbar__search">
+    <span class="visually-hidden">חיפוש כיתה</span>
+    <span class="icon" aria-hidden="true">search</span>
+    <input
+      #searchInput
+      class="form-input"
+      type="search"
+      placeholder="חיפוש לפי כיתה או מחנך"
+      [value]="searchText()"
+      (input)="onSearch(searchInput.value)"
+    />
+  </label>
+  @if (isAdmin()) {
+    <button type="button" class="button list-toolbar__end" (click)="openCreate()">
+      <span class="icon" aria-hidden="true">add</span>
+      כיתה חדשה
+    </button>
+  }
+</div>
+
+@if (errorMessage(); as message) {
+  <div class="classes-message">
+    <app-empty-state icon="error" title="לא ניתן לטעון את הכיתות" [message]="message">
+      <button type="button" class="button" (click)="classes.reload()">נסו שוב</button>
+    </app-empty-state>
+  </div>
+} @else if (classes.isLoading() && !classes.hasValue()) {
+  <div class="classes-grid" aria-busy="true">
+    @for (i of skeletonCards; track i) {
+      <div class="classes-grid__skeleton">
+        <app-skeleton height="140px" radius="18px" />
+        <app-skeleton width="50%" height="20px" />
+        <app-skeleton width="70%" />
+        <app-skeleton width="40%" height="34px" radius="70px" />
+      </div>
+    }
+  </div>
+} @else if (classes.value(); as result) {
+  @if (result.items.length === 0) {
+    <div class="classes-message">
+      <app-empty-state
+        icon="school"
+        title="לא נמצאו כיתות"
+        [message]="
+          isAdmin()
+            ? 'אין כיתות שמתאימות לסינון. אפשר להוסיף כיתה חדשה.'
+            : 'אין כיתות שמתאימות לסינון, או שעדיין לא שובצת ללמד בכיתה.'
+        "
+      />
+    </div>
+  } @else {
+    <div class="classes-grid" [class.is-reloading]="classes.isLoading()">
+      @for (schoolClass of result.items; track schoolClass.id) {
+        <app-class-card
+          [schoolClass]="schoolClass"
+          [canManage]="isAdmin()"
+          (edit)="openEdit($event)"
+          (remove)="askDelete($event)"
+        />
+      }
+    </div>
+    @if (result.totalCount > result.pageSize) {
+      <app-paginator
+        [page]="result.page"
+        [pageSize]="result.pageSize"
+        [totalCount]="result.totalCount"
+        (pageChange)="page.set($event)"
+      />
+    }
+  }
+}
+
+@if (isAdmin()) {
+  <app-class-form-dialog
+    [open]="formOpen()"
+    [schoolClass]="editedClass()"
+    (saved)="onSaved()"
+    (closed)="formOpen.set(false)"
+  />
+
+  <app-dialog
+    [open]="classToDelete() !== null"
+    title="מחיקת כיתה"
+    (closed)="classToDelete.set(null)"
+  >
+    <p>
+      למחוק את כיתה <strong>{{ classToDelete()?.name }}</strong
+      >? לא ניתן לבטל פעולה זו.
+    </p>
+    @if (deleteError(); as message) {
+      <p class="form-alert classes-delete-error" role="alert">{{ message }}</p>
+    }
+    <div class="form-actions">
+      <button
+        type="button"
+        class="button button--danger"
+        [disabled]="deleting()"
+        (click)="confirmDelete()"
+      >
+        {{ deleting() ? 'מוחק...' : 'מחיקה' }}
+      </button>
+      <button type="button" class="button button--secondary" (click)="classToDelete.set(null)">
+        ביטול
+      </button>
+    </div>
+  </app-dialog>
+}

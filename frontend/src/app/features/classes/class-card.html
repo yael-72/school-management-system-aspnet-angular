@@ -1,0 +1,39 @@
+@let item = schoolClass();
+<div class="class-card__banner">
+  <span class="class-card__grade">{{ gradeNames[item.gradeLevel] }}</span>
+  @if (canManage()) {
+    <div class="class-card__actions">
+      <button
+        type="button"
+        class="class-card__action"
+        (click)="edit.emit(item)"
+        [attr.aria-label]="'עריכת כיתה ' + item.name"
+      >
+        <span class="icon" aria-hidden="true">edit</span>
+      </button>
+      <button
+        type="button"
+        class="class-card__action"
+        (click)="remove.emit(item)"
+        [attr.aria-label]="'מחיקת כיתה ' + item.name"
+      >
+        <span class="icon" aria-hidden="true">delete</span>
+      </button>
+    </div>
+  }
+</div>
+
+<h3 class="class-card__name">כיתה {{ item.name }}</h3>
+<p class="class-card__teacher">מחנך: {{ item.homeroomTeacherName ?? 'לא הוגדר' }}</p>
+
+<div class="class-card__stats">
+  <span class="class-card__count">
+    <span class="icon" aria-hidden="true">groups</span>
+    {{ item.studentCount }} תלמידים
+  </span>
+  <span class="class-card__average">ממוצע <app-score-badge [score]="item.averageScore" /></span>
+</div>
+
+<a class="class-card__link" [routerLink]="['/students']" [queryParams]="{ classId: item.id }"
+  >לתלמידי הכיתה</a
+>

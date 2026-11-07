@@ -1,0 +1,78 @@
+// Header row like "Trending NFTs" + category tabs in the Horizon NFT Marketplace page.
+.classes-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  margin-block-end: var(--space-5);
+}
+
+.classes-header__title {
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+}
+
+.grade-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.grade-tabs__tab {
+  padding: 6px 16px;
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--color-text);
+  background: transparent;
+  border: 0;
+  border-radius: var(--radius-pill);
+  transition:
+    background-color var(--transition-fast),
+    color var(--transition-fast);
+
+  &:hover,
+  &.is-active {
+    color: var(--color-primary);
+    background: var(--color-surface);
+  }
+
+  &.is-active {
+    font-weight: 700;
+  }
+}
+
+.classes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: var(--space-5);
+  transition: opacity var(--transition-fast);
+
+  // While a new page or filter loads, keep showing the old cards, slightly faded.
+  &.is-reloading {
+    opacity: 0.6;
+  }
+}
+
+.classes-grid__skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: 18px;
+  background: var(--color-surface);
+  border-radius: var(--radius-card);
+}
+
+.classes-message {
+  background: var(--color-surface);
+  border-radius: var(--radius-card);
+}
+
+.classes-delete-error {
+  margin-block-start: var(--space-4);
+}
+
+// The search box sits on the page background here (not inside a card), so it needs the card color.
+.search-field .form-input {
+  background: var(--color-surface);
+}

@@ -1,0 +1,77 @@
+<app-dialog
+  [open]="open()"
+  [title]="schoolClass() ? 'עריכת כיתה' : 'כיתה חדשה'"
+  (closed)="closed.emit()"
+>
+  <form class="form-grid" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+    @if (errorMessage(); as message) {
+      <p class="form-alert" role="alert">{{ message }}</p>
+    }
+
+    <div class="form-row">
+      <div class="form-field">
+        <label class="form-label" for="class-name"
+          >שם הכיתה<span class="form-label__required">*</span></label
+        >
+        <input
+          id="class-name"
+          class="form-input"
+          formControlName="name"
+          placeholder="לדוגמה: ז'1"
+          [class.is-invalid]="isInvalid('name')"
+        />
+        @if (isInvalid('name')) {
+          <span class="form-error">יש להזין שם כיתה (עד 20 תווים).</span>
+        }
+      </div>
+
+      <div class="form-field">
+        <label class="form-label" for="class-grade"
+          >שכבה<span class="form-label__required">*</span></label
+        >
+        <select id="class-grade" class="form-input form-select" formControlName="gradeLevel">
+          @for (grade of gradeLevels; track grade.value) {
+            <option [ngValue]="grade.value">{{ grade.name }}</option>
+          }
+        </select>
+      </div>
+    </div>
+
+    <div class="form-field">
+      <label class="form-label" for="class-year"
+        >שנת לימודים<span class="form-label__required">*</span></label
+      >
+      <input
+        id="class-year"
+        class="form-input"
+        formControlName="schoolYear"
+        dir="ltr"
+        placeholder="2026-2027"
+        [class.is-invalid]="isInvalid('schoolYear')"
+      />
+      @if (isInvalid('schoolYear')) {
+        <span class="form-error">יש להזין שנה בפורמט 2026-2027.</span>
+      }
+    </div>
+
+    <div class="form-field">
+      <label class="form-label" for="class-teacher">מחנך</label>
+      <select id="class-teacher" class="form-input form-select" formControlName="homeroomTeacherId">
+        <option [ngValue]="null">ללא מחנך</option>
+        @for (user of staff.value() ?? []; track user.id) {
+          <option [ngValue]="user.id">{{ user.fullName }}</option>
+        }
+      </select>
+      @if (staff.error()) {
+        <span class="form-error">לא ניתן לטעון את רשימת המורים.</span>
+      }
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="button" [disabled]="submitting()">
+        {{ submitting() ? 'שומר...' : 'שמירה' }}
+      </button>
+      <button type="button" class="button button--secondary" (click)="closed.emit()">ביטול</button>
+    </div>
+  </form>
+</app-dialog>
