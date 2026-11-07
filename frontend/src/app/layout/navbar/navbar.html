@@ -1,0 +1,27 @@
+<div class="navbar__titles">
+  <span class="navbar__breadcrumb">דפים / {{ pageTitle() }}</span>
+  <h1 class="navbar__title">{{ pageTitle() }}</h1>
+</div>
+
+<div class="navbar__actions">
+  <label class="navbar__search">
+    <span class="icon" aria-hidden="true">search</span>
+    <span class="visually-hidden">חיפוש</span>
+    <input type="search" placeholder="חיפוש..." />
+  </label>
+
+  <button type="button" class="navbar__icon-button navbar__menu" (click)="menuToggled.emit()" aria-label="פתיחת התפריט">
+    <span class="icon" aria-hidden="true">menu</span>
+  </button>
+
+  <button
+    type="button"
+    class="navbar__icon-button"
+    (click)="themeService.toggle()"
+    [attr.aria-label]="themeService.theme() === 'dark' ? 'מעבר למצב בהיר' : 'מעבר למצב כהה'"
+  >
+    <span class="icon" aria-hidden="true">{{ themeService.theme() === 'dark' ? 'light_mode' : 'dark_mode' }}</span>
+  </button>
+
+  <app-avatar [name]="userName" [size]="40" />
+</div>

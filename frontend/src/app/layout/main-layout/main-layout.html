@@ -1,0 +1,12 @@
+<app-sidebar [open]="sidebarOpen()" (closed)="sidebarOpen.set(false)" />
+
+@if (sidebarOpen()) {
+  <div class="layout__overlay" (click)="sidebarOpen.set(false)" aria-hidden="true"></div>
+}
+
+<div class="layout__main">
+  <app-navbar [pageTitle]="pageTitle()" (menuToggled)="sidebarOpen.set(true)" />
+  <main class="layout__content">
+    <router-outlet />
+  </main>
+</div>

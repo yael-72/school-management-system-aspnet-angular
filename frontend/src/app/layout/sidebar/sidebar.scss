@@ -1,0 +1,98 @@
+:host {
+  position: fixed;
+  inset-block: 0;
+  inset-inline-start: 0;
+  z-index: 20;
+  inline-size: var(--sidebar-width);
+  display: flex;
+  flex-direction: column;
+  background: var(--color-surface);
+  box-shadow: var(--shadow-card);
+  transition: transform var(--transition-fast);
+}
+
+.sidebar__header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-8) var(--space-6);
+  border-block-end: 1px solid var(--color-border);
+}
+
+.sidebar__logo {
+  font-size: 1.6rem;
+  letter-spacing: 0.02em;
+
+  strong {
+    font-weight: 700;
+  }
+}
+
+.sidebar__close {
+  display: none;
+  position: absolute;
+  inset-inline-end: var(--space-4);
+  background: none;
+  border: 0;
+  color: var(--color-text-secondary);
+}
+
+.sidebar__nav ul {
+  list-style: none;
+  margin: 0;
+  padding: var(--space-6) 0;
+}
+
+.sidebar__link {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-3) var(--space-8);
+  color: var(--color-text-secondary);
+  font-weight: 500;
+  transition: color var(--transition-fast);
+
+  &:hover {
+    color: var(--color-text);
+  }
+
+  // Active link: brand-colored icon and a small bar on the outer edge, as in the Horizon design.
+  &.is-active {
+    color: var(--color-text);
+    font-weight: 700;
+
+    .icon {
+      color: var(--color-primary);
+    }
+
+    &::after {
+      content: '';
+      position: absolute;
+      inset-inline-end: 0;
+      inset-block: 6px;
+      inline-size: 4px;
+      border-radius: var(--radius-pill);
+      background: var(--color-primary);
+    }
+  }
+}
+
+// Small screens: the sidebar is hidden off-screen and slides in when opened.
+@media (max-width: 1199px) {
+  :host {
+    transform: translateX(100%); // RTL: the sidebar sits on the right, so it slides out to the right
+  }
+
+  :host-context([dir='ltr']) {
+    transform: translateX(-100%);
+  }
+
+  :host.is-open {
+    transform: none;
+  }
+
+  .sidebar__close {
+    display: inline-flex;
+  }
+}
