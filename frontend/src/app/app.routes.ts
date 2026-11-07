@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { authGuard, guestGuard } from './core/auth/auth.guards';
 import { MainLayout } from './layout/main-layout/main-layout';
 
 // Every feature page is lazy-loaded (loadComponent), so its code is downloaded only
@@ -7,11 +8,14 @@ export const routes: Routes = [
   {
     path: 'login',
     title: 'התחברות',
+    canActivate: [guestGuard],
     loadComponent: () => import('./features/auth/login/login-page').then((m) => m.LoginPage),
   },
   {
     path: '',
     component: MainLayout,
+    canActivate: [authGuard],
+    canActivateChild: [authGuard],
     children: [
       { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
       {
