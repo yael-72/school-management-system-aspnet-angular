@@ -13,18 +13,13 @@ import { EmptyState } from '../../shared/components/empty-state/empty-state';
 import { Paginator } from '../../shared/components/paginator/paginator';
 import { ScoreBadge } from '../../shared/components/score-badge/score-badge';
 import { Skeleton } from '../../shared/components/skeleton/skeleton';
+import { toPositiveId } from '../../shared/utils/route-params';
 import { ClassesService } from '../classes/classes.service';
 import { StudentFormDialog } from './student-form-dialog';
 import { StudentListItem, StudentSortField } from './students.models';
 import { StudentsService } from './students.service';
 
 const PAGE_SIZE = 15;
-
-/** Query params are strings ("3"); turn ?classId=3 into the number 3, and a missing one into null. */
-function toClassId(value: string | undefined): number | null {
-  const id = Number(value);
-  return Number.isInteger(id) && id > 0 ? id : null;
-}
 
 @Component({
   selector: 'app-students-page',
@@ -50,7 +45,7 @@ export class StudentsPage {
   private readonly router = inject(Router);
 
   /** From the URL (?classId=3), so a filtered list can be bookmarked or opened from a class card. */
-  readonly classId = input(null, { transform: toClassId });
+  readonly classId = input(null, { transform: toPositiveId });
 
   protected readonly isAdmin = computed(() => this.authService.hasRole('Admin'));
   protected readonly skeletonRows = Array.from({ length: 8 }, (_, i) => i);
@@ -102,7 +97,7 @@ export class StudentsPage {
     this.page.set(1);
     // Updating the URL updates the classId input, which reloads the list.
     void this.router.navigate([], {
-      queryParams: { classId: toClassId(value) },
+      queryParams: { classId: toPositiveId(value) },
       queryParamsHandling: 'merge',
     });
   }
