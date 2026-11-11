@@ -1,0 +1,154 @@
+.register-toolbar {
+  justify-content: space-between;
+}
+
+.date-picker {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.date-picker__input {
+  block-size: 44px;
+  inline-size: auto;
+  padding-inline: var(--space-4);
+}
+
+// Summary chips: "נוכח: 28", "חסר: 2", ...
+.register-counts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+// One color per status, shared by the summary chips and the selected status option.
+// --status-color is set per status below and read by both.
+.status-chip,
+.status-option {
+  --status-color: var(--color-text-secondary);
+}
+
+.status-chip--Present,
+.status-option--Present {
+  --status-color: var(--color-success);
+}
+
+.status-chip--Absent,
+.status-option--Absent {
+  --status-color: var(--color-danger);
+}
+
+.status-chip--Late,
+.status-option--Late {
+  --status-color: var(--color-warning);
+}
+
+.status-chip--Excused,
+.status-option--Excused {
+  --status-color: var(--color-info);
+}
+
+.status-chip {
+  padding: 4px 12px;
+  font-size: var(--font-size-xs);
+  font-weight: 700;
+  color: var(--status-color);
+  background: color-mix(in srgb, var(--status-color) 12%, transparent);
+  border-radius: var(--radius-pill);
+}
+
+.register-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.data-table.is-reloading {
+  opacity: 0.6;
+}
+
+.register-name {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+// A row without a status gets a thin accent line, so the teacher sees who is still missing.
+.is-unmarked td:first-child {
+  border-inline-start: 3px solid var(--color-warning);
+}
+
+.status-picker {
+  display: inline-flex;
+  gap: var(--space-1);
+  padding: 3px;
+  background: var(--color-surface-muted);
+  border-radius: var(--radius-pill);
+}
+
+.status-option {
+  padding: 6px 12px;
+  font-size: var(--font-size-xs);
+  font-weight: 700;
+  color: var(--color-text-secondary);
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  transition:
+    background-color var(--transition-fast),
+    color var(--transition-fast);
+
+  &:hover {
+    color: var(--status-color);
+  }
+
+  &.is-selected {
+    color: var(--color-text-on-primary);
+    background: var(--status-color);
+  }
+
+  // The radio input itself is hidden, so show keyboard focus on its label.
+  &:has(input:focus-visible) {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 1px;
+  }
+}
+
+.register-note {
+  block-size: 36px;
+  min-inline-size: 160px;
+  padding-inline: var(--space-3);
+  font-weight: 500;
+}
+
+.register-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  margin-block-start: var(--space-5);
+}
+
+.register-footer__message {
+  flex: 1 1 200px;
+
+  p {
+    margin: 0;
+  }
+}
+
+.register-saved {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  color: var(--color-success);
+}
+
+.register-unsaved {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}

@@ -1,0 +1,155 @@
+<div class="list-toolbar register-toolbar">
+  <div class="date-picker">
+    <!-- In RTL "previous" points right (same convention as the paginator). -->
+    <button type="button" class="icon-button" aria-label="היום הקודם" (click)="moveDate(-1)">
+      <span class="icon" aria-hidden="true">chevron_right</span>
+    </button>
+    <label>
+      <span class="visually-hidden">תאריך</span>
+      <input
+        #dateInput
+        class="form-input date-picker__input"
+        type="date"
+        [max]="today"
+        [value]="date()"
+        (change)="changeDate(dateInput.value)"
+      />
+    </label>
+    <button
+      type="button"
+      class="icon-button"
+      aria-label="היום הבא"
+      [disabled]="date() >= today"
+      (click)="moveDate(1)"
+    >
+      <span class="icon" aria-hidden="true">chevron_left</span>
+    </button>
+  </div>
+
+  @if (register.hasValue() && rows().length > 0) {
+    <ul class="register-counts" aria-label="סיכום">
+      @for (status of statuses; track status.value) {
+        <li [class]="'status-chip status-chip--' + status.value">
+          {{ status.label }}: {{ counts()[status.value] }}
+        </li>
+      }
+      @if (counts().unmarked > 0) {
+        <li class="status-chip">לא סומנו: {{ counts().unmarked }}</li>
+      }
+    </ul>
+  }
+</div>
+
+@if (loadError(); as message) {
+  <app-empty-state icon="error" title="לא ניתן לטעון את הנוכחות" [message]="message">
+    <button type="button" class="button" (click)="register.reload()">נסו שוב</button>
+  </app-empty-state>
+} @else if (register.isLoading() && !register.hasValue()) {
+  <div class="register-skeleton" aria-busy="true">
+    @for (i of skeletonRows; track i) {
+      <app-skeleton height="40px" />
+    }
+  </div>
+} @else if (register.hasValue()) {
+  @if (rows().length === 0) {
+    <app-empty-state
+      icon="group_off"
+      title="אין תלמידים בכיתה"
+      message="כשיירשמו תלמידים לכיתה, ניתן יהיה לסמן כאן את הנוכחות שלהם."
+    />
+  } @else {
+    <div class="table-scroll">
+      <table class="data-table" [class.is-reloading]="register.isLoading()">
+        <caption class="visually-hidden">
+          נוכחות בתאריך
+          {{
+            date() | date: 'dd.MM.yyyy'
+          }}
+        </caption>
+        <thead>
+          <tr>
+            <th>תלמיד</th>
+            <th>נוכחות</th>
+            <th>הערה</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (row of rows(); track row.studentId) {
+            <tr [class.is-unmarked]="row.status === null">
+              <td>
+                <span class="register-name">
+                  <app-avatar [name]="row.firstName + ' ' + row.lastName" [size]="34" />
+                  {{ row.firstName }} {{ row.lastName }}
+                </span>
+              </td>
+              <td>
+                <!-- Native radio buttons: arrow keys move between statuses, screen readers announce the group. -->
+                <div
+                  class="status-picker"
+                  role="radiogroup"
+                  [attr.aria-label]="'נוכחות של ' + row.firstName + ' ' + row.lastName"
+                >
+                  @for (status of statuses; track status.value) {
+                    <label
+                      [class]="'status-option status-option--' + status.value"
+                      [class.is-selected]="row.status === status.value"
+                    >
+                      <input
+                        type="radio"
+                        class="visually-hidden"
+                        [name]="'status-' + row.studentId"
+                        [checked]="row.status === status.value"
+                        (change)="setStatus(row.studentId, status.value)"
+                      />
+                      {{ status.label }}
+                    </label>
+                  }
+                </div>
+              </td>
+              <td>
+                <input
+                  #noteInput
+                  class="form-input register-note"
+                  type="text"
+                  maxlength="200"
+                  placeholder="—"
+                  [attr.aria-label]="'הערה עבור ' + row.firstName + ' ' + row.lastName"
+                  [value]="row.note ?? ''"
+                  (input)="setNote(row.studentId, noteInput.value)"
+                />
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <div class="register-footer">
+      <div class="register-footer__message" aria-live="polite">
+        @if (saveError(); as message) {
+          <p class="form-alert" role="alert">{{ message }}</p>
+        } @else if (saved()) {
+          <p class="register-saved">
+            <span class="icon" aria-hidden="true">check_circle</span>
+            הנוכחות נשמרה
+          </p>
+        } @else if (hasChanges()) {
+          <p class="register-unsaved">יש שינויים שלא נשמרו</p>
+        }
+      </div>
+
+      <button
+        type="button"
+        class="button button--secondary"
+        [disabled]="counts().unmarked === 0"
+        (click)="markUnmarkedAsPresent()"
+      >
+        <span class="icon" aria-hidden="true">done_all</span>
+        סימון כל השאר כנוכחים
+      </button>
+      <button type="button" class="button" [disabled]="saving() || !hasChanges()" (click)="save()">
+        {{ saving() ? 'שומר...' : 'שמירת נוכחות' }}
+      </button>
+    </div>
+  }
+}

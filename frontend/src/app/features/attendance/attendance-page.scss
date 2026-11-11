@@ -1,0 +1,50 @@
+.attendance-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-4);
+  margin-block-end: var(--space-5);
+}
+
+.attendance-header__title {
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+}
+
+// Same look as the grade tabs on the classes page (Horizon NFT Marketplace category tabs).
+.view-tabs {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.view-tabs__tab {
+  padding: 6px 16px;
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--color-text);
+  background: transparent;
+  border: 0;
+  border-radius: var(--radius-pill);
+  transition:
+    background-color var(--transition-fast),
+    color var(--transition-fast);
+
+  &:hover,
+  &.is-active {
+    color: var(--color-primary);
+    background: var(--color-primary-soft);
+  }
+
+  &.is-active {
+    font-weight: 700;
+  }
+}
+
+.attendance-class {
+  margin-inline-start: auto;
+
+  .form-select {
+    block-size: 44px;
+    min-inline-size: 160px;
+  }
+}

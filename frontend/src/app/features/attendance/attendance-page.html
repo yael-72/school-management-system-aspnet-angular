@@ -1,0 +1,63 @@
+<app-card>
+  <div class="attendance-header">
+    <h2 class="attendance-header__title">נוכחות</h2>
+
+    <nav class="view-tabs" aria-label="תצוגה">
+      <button
+        type="button"
+        class="view-tabs__tab"
+        [class.is-active]="view() === 'register'"
+        [attr.aria-pressed]="view() === 'register'"
+        (click)="view.set('register')"
+      >
+        רישום יומי
+      </button>
+      <button
+        type="button"
+        class="view-tabs__tab"
+        [class.is-active]="view() === 'report'"
+        [attr.aria-pressed]="view() === 'report'"
+        (click)="view.set('report')"
+      >
+        דוח תקופתי
+      </button>
+    </nav>
+
+    @if (classes.value()?.items?.length) {
+      <label class="attendance-class">
+        <span class="visually-hidden">כיתה</span>
+        <select
+          #classSelect
+          class="form-input form-select"
+          (change)="selectClass(classSelect.value)"
+        >
+          @for (schoolClass of classes.value()?.items ?? []; track schoolClass.id) {
+            <option [value]="schoolClass.id" [selected]="schoolClass.id === selectedClassId()">
+              כיתה {{ schoolClass.name }}
+            </option>
+          }
+        </select>
+      </label>
+    }
+  </div>
+
+  @if (classesError(); as message) {
+    <app-empty-state icon="error" title="לא ניתן לטעון את הכיתות" [message]="message">
+      <button type="button" class="button" (click)="classes.reload()">נסו שוב</button>
+    </app-empty-state>
+  } @else if (classes.isLoading()) {
+    <app-skeleton height="320px" radius="16px" />
+  } @else if (selectedClassId(); as classId) {
+    @if (view() === 'register') {
+      <app-attendance-register [classId]="classId" />
+    } @else {
+      <app-attendance-report [classId]="classId" />
+    }
+  } @else {
+    <app-empty-state
+      icon="school"
+      title="אין כיתות להצגה"
+      message="נוכחות ניתן לרשום רק לכיתות שאתה מלמד בהן או מחנך שלהן."
+    />
+  }
+</app-card>
