@@ -51,3 +51,25 @@ Content-Type: application/json
 ### Teachers for the homeroom teacher picker (admin only)
 GET {{baseUrl}}/api/users?role=Teacher&isActive=true&pageSize=100
 Authorization: Bearer {{login.response.body.$.accessToken}}
+
+### Attendance register of a class on one day
+GET {{baseUrl}}/api/attendance?classId=1&date=2026-11-10
+Authorization: Bearer {{login.response.body.$.accessToken}}
+
+### Save attendance of a class on one day (creates or updates; future dates are rejected)
+PUT {{baseUrl}}/api/attendance
+Authorization: Bearer {{login.response.body.$.accessToken}}
+Content-Type: application/json
+
+{
+  "classId": 1,
+  "date": "2026-11-10",
+  "records": [
+    { "studentId": 1, "status": "Present" },
+    { "studentId": 2, "status": "Late", "note": "הגיע בשעה 9:00" }
+  ]
+}
+
+### Attendance report of a class over a date range
+GET {{baseUrl}}/api/attendance/report?classId=1&from=2026-10-01&to=2026-10-31
+Authorization: Bearer {{login.response.body.$.accessToken}}
