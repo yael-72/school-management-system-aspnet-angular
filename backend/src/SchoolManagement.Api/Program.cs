@@ -1,4 +1,5 @@
 using System.Security.Cryptography;
+using System.Text.Json.Serialization;
 using SchoolManagement.Api.Extensions;
 using SchoolManagement.Api.Infrastructure;
 using SchoolManagement.Application;
@@ -23,7 +24,10 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ICurrentUser, CurrentUser>();
 
 builder.Services.AddJwtAuthentication(builder.Configuration);
-builder.Services.AddControllers();
+// Enums travel as names ("Present") instead of numbers (0), so the API is readable and
+// reordering an enum can never silently change the meaning of stored client data.
+builder.Services.AddControllers()
+    .AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 builder.Services.AddProblemDetails();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddSwaggerWithJwt();
