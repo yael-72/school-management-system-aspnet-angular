@@ -250,8 +250,17 @@ Start each new session by reading this section.
   (debounced search, sortable headers, paging, `?classId=` filter), student details page (`/students/:id`).
   Shared: `Paginator`, `Dialog` (native `<dialog>`), `Skeleton`, `ScoreBadge`, `toErrorMessage()`.
 
+- **Milestone 4 – Attendance**: `GET /api/attendance?classId=&date=` (register: every active student +
+  that day's status or null), `PUT /api/attendance` (bulk upsert for one class and day; rejects future
+  dates, duplicate students, and students who are not active in the class), `GET /api/attendance/report`
+  (per-student totals + class rate, range ≤ 366 days). `AttendanceRate.Calculate` is the single formula.
+  Enums are serialized as names (`JsonStringEnumConverter`). Angular: attendance page with a class picker
+  and two views – daily register (status radio pills, note, "mark the rest present", one save, stacked
+  rows on phones) and period report. Shared `dates.ts` (`toIsoDate` uses local date parts) and
+  `route-params.ts` (`toPositiveId`).
+
 ### Next
-- **Milestone 4 – Attendance** (see "Build order" above).
+- **Milestone 5 – Assessments & Grades** (see "Build order" above).
 
 ### Open items
 - Classes and Students screens were built from the design tokens without opening their Figma frames
@@ -282,6 +291,10 @@ Start each new session by reading this section.
   DTOs that a query sorts on must be init-property records built with an object initializer – EF Core
   cannot translate ORDER BY on a constructor-built DTO. EF InMemory does NOT catch this; check new
   queries with `ToQueryString()` against the SQL Server provider.
+- **Attendance**: teachers record attendance for every class they can access (homeroom or subject
+  teacher). The register sends only rows that have a status; unmarked students stay unrecorded.
+  "Today" on the server is the UTC date (same as the birth-date rule), so between midnight and ~02:00
+  Israel time the server may still reject "today" as a future date – acceptable for now.
 - **Averages** are percentages: `Score.Value * 100 / Assessment.MaxScore`, ungraded (null) scores and
   inactive students excluded, rounded to 1 decimal in C#. Attendance rate = (Present + Late) / recorded days.
 - **Validation**: DataAnnotations on request DTOs (no FluentValidation). API messages in English,
