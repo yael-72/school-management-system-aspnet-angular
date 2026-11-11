@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using SchoolManagement.Application.Attendance;
 using SchoolManagement.Application.Common.Exceptions;
 using SchoolManagement.Application.Common.Extensions;
 using SchoolManagement.Application.Common.Interfaces;
@@ -126,10 +127,10 @@ public class StudentService(
 
         int CountOf(AttendanceStatus status) => attendanceByStatus.GetValueOrDefault(status);
 
-        var recordedDays = attendanceByStatus.Values.Sum();
-        decimal? attendanceRate = recordedDays == 0
-            ? null
-            : Math.Round(100m * (CountOf(AttendanceStatus.Present) + CountOf(AttendanceStatus.Late)) / recordedDays, 1);
+        var attendanceRate = AttendanceRate.Calculate(
+            CountOf(AttendanceStatus.Present),
+            CountOf(AttendanceStatus.Late),
+            attendanceByStatus.Values.Sum());
 
         return new StudentSummaryDto(
             student,

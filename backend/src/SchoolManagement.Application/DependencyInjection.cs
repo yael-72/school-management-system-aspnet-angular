@@ -1,4 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
+using SchoolManagement.Application.Attendance;
 using SchoolManagement.Application.Auth;
 using SchoolManagement.Application.Classes;
 using SchoolManagement.Application.Common.Security;
@@ -11,6 +12,7 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddApplication(this IServiceCollection services)
     {
+        services.AddScoped<IAttendanceService, AttendanceService>();
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<IClassAccessService, ClassAccessService>();
         services.AddScoped<IClassService, ClassService>();
