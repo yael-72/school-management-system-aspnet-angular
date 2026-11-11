@@ -19,6 +19,13 @@ const KNOWN_MESSAGES: readonly [string, string][] = [
   ['Homeroom teacher', 'המחנך שנבחר לא קיים או שאינו פעיל.'],
   ['Birth date cannot be in the future', 'תאריך הלידה לא יכול להיות בעתיד.'],
   ['Class with id', 'הכיתה שנבחרה לא קיימת.'],
+  ['future date', 'לא ניתן לרשום נוכחות לתאריך עתידי.'],
+  [
+    'not active students of this class',
+    'חלק מהתלמידים כבר אינם רשומים בכיתה. רעננו את הדף ונסו שוב.',
+  ],
+  ['start date must be', 'תאריך ההתחלה חייב להיות לפני תאריך הסיום.'],
+  ['A report can cover at most', 'ניתן להפיק דוח לתקופה של עד שנה.'],
 ];
 
 /** A Hebrew message for the user, for any error coming from HttpClient. */
