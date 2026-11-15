@@ -1,0 +1,116 @@
+<form class="add-form" (ngSubmit)="add()">
+  <label class="add-form__field">
+    <span class="visually-hidden">מקצוע חדש</span>
+    <input
+      class="form-input"
+      [formControl]="newName"
+      maxlength="50"
+      placeholder="שם מקצוע חדש, לדוגמה: ספרות"
+      [class.is-invalid]="newName.invalid && newName.touched"
+    />
+  </label>
+  <button type="submit" class="button" [disabled]="busy()">
+    <span class="icon" aria-hidden="true">add</span>
+    הוספה
+  </button>
+</form>
+
+@if (actionError(); as message) {
+  <p class="form-alert action-error" role="alert">{{ message }}</p>
+}
+
+@if (loadError(); as message) {
+  <app-empty-state icon="error" title="לא ניתן לטעון את המקצועות" [message]="message">
+    <button type="button" class="button" (click)="subjects.reload()">נסו שוב</button>
+  </app-empty-state>
+} @else if (subjects.isLoading() && !subjects.hasValue()) {
+  <div class="table-skeleton" aria-busy="true">
+    <app-skeleton height="44px" />
+    <app-skeleton height="44px" />
+    <app-skeleton height="44px" />
+  </div>
+} @else if (subjects.value(); as list) {
+  @if (list.length === 0) {
+    <app-empty-state
+      icon="menu_book"
+      title="אין עדיין מקצועות"
+      message="הוסיפו מקצוע ראשון בשדה למעלה."
+    />
+  } @else {
+    <ul class="subject-list" [class.is-busy]="busy()">
+      @for (subject of list; track subject.id) {
+        <li class="subject-item">
+          <span class="subject-item__icon" aria-hidden="true"
+            ><span class="icon">menu_book</span></span
+          >
+          @if (editingId() === subject.id) {
+            <form class="subject-item__edit" (ngSubmit)="saveEdit(subject)">
+              <input
+                class="form-input"
+                [formControl]="editName"
+                maxlength="50"
+                [attr.aria-label]="'שם חדש עבור ' + subject.name"
+                [class.is-invalid]="editName.invalid && editName.touched"
+              />
+              <button type="submit" class="icon-button" aria-label="שמירה" [disabled]="busy()">
+                <span class="icon" aria-hidden="true">check</span>
+              </button>
+              <button
+                type="button"
+                class="icon-button"
+                aria-label="ביטול"
+                (click)="editingId.set(null)"
+              >
+                <span class="icon" aria-hidden="true">close</span>
+              </button>
+            </form>
+          } @else {
+            <span class="subject-item__name">{{ subject.name }}</span>
+            <button
+              type="button"
+              class="icon-button"
+              [attr.aria-label]="'שינוי שם ' + subject.name"
+              (click)="startEdit(subject)"
+            >
+              <span class="icon" aria-hidden="true">edit</span>
+            </button>
+            <button
+              type="button"
+              class="icon-button"
+              [attr.aria-label]="'מחיקת ' + subject.name"
+              (click)="askDelete(subject)"
+            >
+              <span class="icon" aria-hidden="true">delete</span>
+            </button>
+          }
+        </li>
+      }
+    </ul>
+  }
+}
+
+<app-dialog
+  [open]="subjectToDelete() !== null"
+  title="מחיקת מקצוע"
+  (closed)="subjectToDelete.set(null)"
+>
+  @if (subjectToDelete(); as subject) {
+    <p>
+      למחוק את המקצוע <strong>{{ subject.name }}</strong
+      >? אפשר למחוק רק מקצוע שאין לו שיבוצי מורים ומבחנים.
+    </p>
+  }
+  <div class="form-actions">
+    <button
+      type="button"
+      class="button button--danger"
+      [disabled]="busy()"
+      (click)="confirmDelete()"
+    >
+      מחיקה
+    </button>
+    <button type="button" class="button button--secondary" (click)="subjectToDelete.set(null)">
+      ביטול
+    </button>
+  </div>
+</app-dialog>
