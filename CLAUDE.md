@@ -232,7 +232,7 @@ Each milestone should end in a working, committed state.
 - Commit after each meaningful step with a clear message.
 ## Project status (keep this section up to date at the end of every milestone)
 
-Latest work is on branch `claude/vigilant-fermat-rh4wkw` (milestones 5–7). Earlier branches: `claude/serene-feynman-cx8m35`
+Latest work is on branch `claude/vigilant-fermat-rh4wkw` (milestones 5–8). Earlier branches: `claude/serene-feynman-cx8m35`
 (milestone 4), `claude/ecstatic-knuth-hgil1o` (3), `claude/gifted-keller-p6dfi2` (1–2).
 Start each new session by reading this section.
 
@@ -290,9 +290,20 @@ Start each new session by reading this section.
   progress, files list with authenticated blob download, personal details tiles + edit form, notification
   toggles saved instantly). Shared `Toggle` (controlled switch) and `formatBytes()`.
 
+- **Milestone 8 – Polish**: `backend/Dockerfile`, `frontend/Dockerfile` (nginx serves the build and proxies
+  `/api` and `/swagger` to the API), `docker-compose.yml` (SQL Server 2022 + API + web on :8080, secrets from
+  `.env`, see `.env.example`), GitHub Actions CI (backend build/test, frontend build/test, Docker image builds –
+  green). Startup seeding and Swagger are settings (`Database:InitializeOnStartup`, `Swagger:Enabled`), `/health`
+  endpoint, SQL retry on transient errors, user-secrets enabled. README with real screenshots (`docs/screenshots`).
+  First end-to-end run on real SQL Server found and fixed: an invalid AVG in the assessments list, demo teachers
+  seeing every class, future activity times in the seed, a phone-width overflow (`.table-scroll` not positioned)
+  and a keyboard-focusable closed sidebar.
+
 ### Next
-- **Milestone 8 – Polish** (see "Build order" above): Docker, CI, README with screenshots, live demo,
-  RTL/responsive review, and the remaining admin screens (users, subjects, teacher assignments) if time allows.
+- **Live demo**: needs a hosting account (for example Azure App Service + Azure SQL, or a VPS with Docker
+  Compose) – ask Yael which one; she has to create the account and give access.
+- Optional: admin screens for users, subjects and teacher assignments (the API has read-only users and
+  subjects so far); change password; Testcontainers-based integration tests on real SQL Server (ask first).
 
 ### Open items
 - Classes and Students screens were built from the design tokens without opening their Figma frames
@@ -362,7 +373,11 @@ Start each new session by reading this section.
   `_buttons.scss` (`.button`, `.icon-button`), `_tables.scss` (`.data-table`, `.sort-button`, `.list-toolbar`).
   Grade bands (ScoreBadge): ≥90 excellent, ≥75 good, ≥55 fair, else low.
 - **Cloud sessions**: the .NET SDK is not preinstalled and dot.net is blocked; install it with
-  `apt-get install -y dotnet-sdk-10.0`. There is no SQL Server, so check UI changes with Playwright and
-  mocked `/api` responses (the backend is covered by the integration tests).
+  `apt-get update && apt-get install -y dotnet-sdk-10.0`. Docker is installed but its daemon is not running:
+  start it with `dockerd &`. Containers cannot use the session's TLS proxy, so `docker compose build` fails at
+  `dotnet restore` / `npm ci`; instead publish the API and build Angular on the host and run them with a
+  scratch compose override (runtime images + the build output), against the real `db` service. Docker Hub
+  may rate-limit (429): reuse local images. Always check new queries on real SQL Server – EF InMemory and a
+  "did it reach the database" check do NOT catch invalid SQL (see the AVG bug of milestone 8).
 - **Security**: no secrets in the repo; in Development a random JWT key is generated when
   `Jwt:SigningKey` is missing.
