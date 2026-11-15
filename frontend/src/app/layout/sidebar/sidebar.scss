@@ -100,6 +100,12 @@
   :host {
     box-shadow: var(--shadow-navbar);
     transform: translateX(100%); // RTL: the sidebar sits on the right, so it slides out to the right
+    // Hidden, not only moved away: a closed sidebar must not be reachable with the Tab key.
+    // Visibility switches after the slide-out animation, and immediately when opening.
+    visibility: hidden;
+    transition:
+      transform var(--transition-fast),
+      visibility 0s linear 150ms;
   }
 
   :host-context([dir='ltr']) {
@@ -108,6 +114,8 @@
 
   :host.is-open {
     transform: none;
+    visibility: visible;
+    transition: transform var(--transition-fast);
   }
 
   .sidebar__close {
