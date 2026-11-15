@@ -2,27 +2,54 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable, map } from 'rxjs';
 import { PagedResult, toHttpParams } from '../api/api.models';
-import { UserRole } from '../auth/auth.models';
+import {
+  CreateUserRequest,
+  Role,
+  UpdateUserRequest,
+  UserDetails,
+  UserListItem,
+  UserListQuery,
+} from './users.models';
 
-export interface UserListItem {
-  id: number;
-  fullName: string;
-  email: string;
-  role: UserRole;
-  phone: string | null;
-  isActive: boolean;
-}
-
-/** Staff members (admin only). */
+/** Staff members (/api/users and /api/roles – admin only). */
 @Injectable({ providedIn: 'root' })
 export class UsersService {
   private readonly http = inject(HttpClient);
+  private readonly baseUrl = '/api/users';
 
-  /** Active staff who can be a homeroom teacher (teachers and the principal), sorted by name. */
+  getUsers(query: UserListQuery = {}): Observable<PagedResult<UserListItem>> {
+    return this.http.get<PagedResult<UserListItem>>(this.baseUrl, { params: toHttpParams(query) });
+  }
+
+  /** Active staff who can be a homeroom teacher or get an assignment, sorted by name. */
   getActiveStaff(): Observable<UserListItem[]> {
-    const params = toHttpParams({ isActive: true, pageSize: 100, sortBy: 'fullName' });
-    return this.http
-      .get<PagedResult<UserListItem>>('/api/users', { params })
-      .pipe(map((page) => page.items));
+    return this.getUsers({ isActive: true, pageSize: 100, sortBy: 'fullName' }).pipe(
+      map((page) => page.items),
+    );
+  }
+
+  getUser(id: number): Observable<UserDetails> {
+    return this.http.get<UserDetails>(`${this.baseUrl}/${id}`);
+  }
+
+  createUser(request: CreateUserRequest): Observable<UserDetails> {
+    return this.http.post<UserDetails>(this.baseUrl, request);
+  }
+
+  updateUser(id: number, request: UpdateUserRequest): Observable<UserDetails> {
+    return this.http.put<UserDetails>(`${this.baseUrl}/${id}`, request);
+  }
+
+  /** A deactivated user cannot log in; their history is kept. */
+  setStatus(id: number, isActive: boolean): Observable<UserDetails> {
+    return this.http.patch<UserDetails>(`${this.baseUrl}/${id}/status`, { isActive });
+  }
+
+  deleteUser(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/${id}`);
+  }
+
+  getRoles(): Observable<Role[]> {
+    return this.http.get<Role[]>('/api/roles');
   }
 }

@@ -15,7 +15,7 @@ import { NotificationSettingsCard } from './notification-settings-card';
 import { PersonalDetails } from './personal-details';
 import { Profile, UploadedFile } from './profile.models';
 import { ProfileService } from './profile.service';
-import { ROLE_LABELS } from './role-labels';
+import { ROLE_LABELS } from '../../core/auth/role-labels';
 
 /** Icon per file type in the files list. */
 function fileIcon(fileName: string): string {
