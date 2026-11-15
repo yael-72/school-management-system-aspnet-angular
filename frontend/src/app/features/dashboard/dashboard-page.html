@@ -1,0 +1,134 @@
+<!-- KPI cards -->
+<section class="dashboard-stats" aria-label="נתונים עיקריים">
+  @if (errorOf(stats); as message) {
+    <app-card class="dashboard-stats__error">
+      <app-empty-state icon="error" title="לא ניתן לטעון את הנתונים" [message]="message">
+        <button type="button" class="button" (click)="stats.reload()">נסו שוב</button>
+      </app-empty-state>
+    </app-card>
+  } @else if (stats.value(); as data) {
+    <app-stat-card icon="groups" label="תלמידים" [value]="data.studentCount" />
+    <app-stat-card icon="school" label="כיתות" [value]="data.classCount" />
+    <app-stat-card
+      icon="fact_check"
+      label="נוכחות היום"
+      [value]="
+        data.todayAttendanceRate === null ? '—' : (data.todayAttendanceRate | number: '1.0-1') + '%'
+      "
+    />
+    <app-stat-card icon="insights" label="ממוצע ציונים">
+      <app-score-badge [score]="data.averageScore" />
+    </app-stat-card>
+    <app-stat-card
+      icon="event_note"
+      label="מבחנים השבוע"
+      [value]="data.examsThisWeek"
+      [accent]="true"
+    />
+    <app-stat-card
+      icon="person_alert"
+      label="היעדרויות תכופות"
+      [value]="data.frequentAbsences.length"
+    />
+  } @else {
+    @for (i of [1, 2, 3, 4, 5, 6]; track i) {
+      <app-skeleton height="97px" radius="20px" />
+    }
+  }
+</section>
+
+<div class="dashboard-grid">
+  <!-- Grades trend (line chart) -->
+  <app-card class="dashboard-grid__half">
+    <div class="chart-header">
+      <span class="chart-header__pill">
+        <span class="icon" aria-hidden="true">calendar_month</span>
+        {{ trendMonths }} חודשים אחרונים
+      </span>
+    </div>
+    @if (errorOf(gradesTrend); as message) {
+      <app-empty-state icon="error" title="לא ניתן לטעון את מגמת הציונים" [message]="message" />
+    } @else if (gradesTrend.value(); as months) {
+      <div class="trend">
+        <div class="trend__summary">
+          <span class="trend__value">{{
+            trendSummary().latest === null ? '—' : (trendSummary().latest | number: '1.0-1')
+          }}</span>
+          <span class="trend__label">
+            ממוצע החודש האחרון
+            @if (trendSummary().change; as change) {
+              <span class="trend__change" [class.is-down]="change < 0" dir="ltr">
+                {{ change > 0 ? '+' : '' }}{{ change }}
+              </span>
+            }
+          </span>
+          <h2 class="trend__title">מגמת ציונים</h2>
+        </div>
+        <app-grades-trend-chart class="trend__chart" [months]="months" />
+      </div>
+    } @else {
+      <app-skeleton height="230px" />
+    }
+  </app-card>
+
+  <!-- Weekly attendance (bar chart) -->
+  <app-card class="dashboard-grid__half" title="נוכחות שבועית">
+    @if (errorOf(weeklyAttendance); as message) {
+      <app-empty-state icon="error" title="לא ניתן לטעון את הנוכחות" [message]="message" />
+    } @else if (weeklyAttendance.value(); as days) {
+      <app-weekly-attendance-chart [days]="days" />
+    } @else {
+      <app-skeleton height="250px" />
+    }
+  </app-card>
+
+  <!-- Top students -->
+  <app-card class="dashboard-grid__wide" title="תלמידים מצטיינים">
+    @if (errorOf(topStudents); as message) {
+      <app-empty-state icon="error" title="לא ניתן לטעון את הרשימה" [message]="message" />
+    } @else if (topStudents.value(); as students) {
+      <app-top-students [students]="students" />
+    } @else {
+      <app-skeleton height="220px" />
+    }
+  </app-card>
+
+  <!-- Frequent absences -->
+  <app-card title="היעדרויות תכופות">
+    @if (stats.value(); as data) {
+      <app-frequent-absences [students]="data.frequentAbsences" />
+    } @else if (!stats.error()) {
+      <app-skeleton height="220px" />
+    }
+  </app-card>
+
+  <!-- Grade distribution (pie) -->
+  <app-card title="התפלגות ציונים">
+    @if (errorOf(gradeDistribution); as message) {
+      <app-empty-state icon="error" title="לא ניתן לטעון את ההתפלגות" [message]="message" />
+    } @else if (gradeDistribution.value(); as distribution) {
+      <app-grade-distribution-chart [distribution]="distribution" />
+    } @else {
+      <app-skeleton height="260px" />
+    }
+  </app-card>
+
+  <!-- Recent activity -->
+  <app-card class="dashboard-grid__wide" title="פעילות אחרונה">
+    @if (errorOf(recentActivity); as message) {
+      <app-empty-state icon="error" title="לא ניתן לטעון את הפעילות" [message]="message" />
+    } @else if (recentActivity.value(); as items) {
+      <app-recent-activity [items]="items" />
+    } @else {
+      <app-skeleton height="220px" />
+    }
+  </app-card>
+
+  <app-card>
+    <app-todo-list />
+  </app-card>
+
+  <app-card>
+    <app-mini-calendar />
+  </app-card>
+</div>

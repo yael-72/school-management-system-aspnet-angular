@@ -1,0 +1,38 @@
+.students-class-filter .form-select {
+  block-size: 44px;
+  min-inline-size: 160px;
+}
+
+.students-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.data-table.is-reloading {
+  opacity: 0.6;
+}
+
+.students-name {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+
+  &:hover {
+    color: var(--color-primary);
+  }
+}
+
+// Phone numbers are LTR; keep them aligned with the other (RTL) cells.
+.students-phone {
+  text-align: end;
+  font-weight: 500;
+}
+
+.students-actions {
+  text-align: end;
+}
+
+.students-delete-error {
+  margin-block-start: var(--space-4);
+}

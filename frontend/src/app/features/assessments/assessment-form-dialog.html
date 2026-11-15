@@ -1,0 +1,123 @@
+<app-dialog
+  [open]="open()"
+  [title]="assessment() ? 'עריכת מבחן' : 'מבחן חדש'"
+  (closed)="closed.emit()"
+>
+  <form class="form-grid" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+    @if (errorMessage(); as message) {
+      <p class="form-alert" role="alert">{{ message }}</p>
+    }
+
+    <div class="form-field">
+      <label class="form-label" for="assessment-title"
+        >שם<span class="form-label__required">*</span></label
+      >
+      <input
+        id="assessment-title"
+        class="form-input"
+        formControlName="title"
+        placeholder="לדוגמה: מבחן בשברים"
+        [class.is-invalid]="isInvalid('title')"
+      />
+      @if (isInvalid('title')) {
+        <span class="form-error">יש להזין שם (עד 100 תווים).</span>
+      }
+    </div>
+
+    <div class="form-row">
+      <div class="form-field">
+        <label class="form-label" for="assessment-class"
+          >כיתה<span class="form-label__required">*</span></label
+        >
+        <select
+          id="assessment-class"
+          class="form-input form-select"
+          formControlName="classId"
+          [class.is-invalid]="isInvalid('classId')"
+        >
+          <option [ngValue]="null" disabled>בחרו כיתה</option>
+          @for (schoolClass of classes.value()?.items ?? []; track schoolClass.id) {
+            <option [ngValue]="schoolClass.id">{{ schoolClass.name }}</option>
+          }
+        </select>
+        @if (isInvalid('classId')) {
+          <span class="form-error">יש לבחור כיתה.</span>
+        }
+      </div>
+      <div class="form-field">
+        <label class="form-label" for="assessment-subject"
+          >מקצוע<span class="form-label__required">*</span></label
+        >
+        <select
+          id="assessment-subject"
+          class="form-input form-select"
+          formControlName="subjectId"
+          [class.is-invalid]="isInvalid('subjectId')"
+        >
+          <option [ngValue]="null" disabled>
+            {{ loadingSubjects() ? 'טוען...' : 'בחרו מקצוע' }}
+          </option>
+          @for (subject of subjectOptions(); track subject.id) {
+            <option [ngValue]="subject.id">{{ subject.name }}</option>
+          }
+        </select>
+        @if (noSubjectsInClass()) {
+          <span class="form-error">אינך מלמד מקצוע בכיתה זו, ולכן אין אפשרות ליצור בה מבחן.</span>
+        } @else if (isInvalid('subjectId')) {
+          <span class="form-error">יש לבחור מקצוע.</span>
+        }
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-field">
+        <label class="form-label" for="assessment-type">סוג</label>
+        <select id="assessment-type" class="form-input form-select" formControlName="type">
+          @for (type of types; track type.value) {
+            <option [ngValue]="type.value">{{ type.label }}</option>
+          }
+        </select>
+      </div>
+      <div class="form-field">
+        <label class="form-label" for="assessment-date"
+          >תאריך<span class="form-label__required">*</span></label
+        >
+        <input
+          id="assessment-date"
+          class="form-input"
+          type="date"
+          formControlName="date"
+          [class.is-invalid]="isInvalid('date')"
+        />
+        @if (isInvalid('date')) {
+          <span class="form-error">יש לבחור תאריך.</span>
+        }
+      </div>
+    </div>
+
+    <div class="form-field">
+      <label class="form-label" for="assessment-max-score"
+        >ציון מרבי<span class="form-label__required">*</span></label
+      >
+      <input
+        id="assessment-max-score"
+        class="form-input"
+        type="number"
+        min="1"
+        max="999"
+        formControlName="maxScore"
+        [class.is-invalid]="isInvalid('maxScore')"
+      />
+      @if (isInvalid('maxScore')) {
+        <span class="form-error">הציון המרבי חייב להיות בין 1 ל-999.</span>
+      }
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="button" [disabled]="submitting()">
+        {{ submitting() ? 'שומר...' : 'שמירה' }}
+      </button>
+      <button type="button" class="button button--secondary" (click)="closed.emit()">ביטול</button>
+    </div>
+  </form>
+</app-dialog>

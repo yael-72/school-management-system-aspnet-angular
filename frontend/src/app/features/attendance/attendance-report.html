@@ -1,0 +1,82 @@
+<div class="list-toolbar report-toolbar">
+  <label class="report-date">
+    <span class="report-date__label">מתאריך</span>
+    <input
+      #fromInput
+      class="form-input"
+      type="date"
+      [max]="to()"
+      [value]="from()"
+      (change)="fromInput.value && from.set(fromInput.value)"
+    />
+  </label>
+  <label class="report-date">
+    <span class="report-date__label">עד תאריך</span>
+    <input
+      #toInput
+      class="form-input"
+      type="date"
+      [min]="from()"
+      [max]="today"
+      [value]="to()"
+      (change)="toInput.value && to.set(toInput.value)"
+    />
+  </label>
+
+  @if (report.value(); as result) {
+    <p class="report-class-rate list-toolbar__end">
+      נוכחות בכיתה:
+      <app-score-badge [score]="result.attendanceRate" />
+    </p>
+  }
+</div>
+
+@if (!rangeIsValid()) {
+  <p class="form-alert" role="alert">תאריך ההתחלה חייב להיות לפני תאריך הסיום.</p>
+} @else if (errorMessage(); as message) {
+  <app-empty-state icon="error" title="לא ניתן לטעון את הדוח" [message]="message">
+    <button type="button" class="button" (click)="report.reload()">נסו שוב</button>
+  </app-empty-state>
+} @else if (report.isLoading() && !report.hasValue()) {
+  <div class="report-skeleton" aria-busy="true">
+    @for (i of skeletonRows; track i) {
+      <app-skeleton height="36px" />
+    }
+  </div>
+} @else if (report.value(); as result) {
+  @if (result.students.length === 0) {
+    <app-empty-state icon="group_off" title="אין תלמידים בכיתה" />
+  } @else {
+    <div class="table-scroll">
+      <table class="data-table report-table" [class.is-reloading]="report.isLoading()">
+        <thead>
+          <tr>
+            <th>תלמיד</th>
+            <th>נוכח</th>
+            <th>חסר</th>
+            <th>איחור</th>
+            <th>חיסור מוצדק</th>
+            <th>אחוז נוכחות</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (student of result.students; track student.studentId) {
+            <tr>
+              <td>
+                <span class="report-name">
+                  <app-avatar [name]="student.firstName + ' ' + student.lastName" [size]="34" />
+                  {{ student.firstName }} {{ student.lastName }}
+                </span>
+              </td>
+              <td>{{ student.present }}</td>
+              <td [class.report-highlight]="student.absent > 0">{{ student.absent }}</td>
+              <td>{{ student.late }}</td>
+              <td>{{ student.excused }}</td>
+              <td><app-score-badge [score]="student.attendanceRate" /></td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+}

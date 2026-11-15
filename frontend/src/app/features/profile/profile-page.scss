@@ -1,0 +1,203 @@
+// Layout of the Horizon "Profile" frame: profile | storage | upload, then files | details | notifications.
+.profile-grid {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr 1.3fr;
+  gap: var(--space-5);
+  align-items: stretch;
+
+  @media (max-width: 1399px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  @media (max-width: 767px) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+// ---------- profile card ----------
+
+.profile-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+// The design uses a photo here; a brand gradient with soft circles keeps the look without images.
+.profile-card__banner {
+  align-self: stretch;
+  block-size: 130px;
+  background:
+    radial-gradient(circle at 20% 120%, rgba(255, 255, 255, 0.25) 0 30%, transparent 31%),
+    radial-gradient(circle at 85% -20%, rgba(255, 255, 255, 0.18) 0 35%, transparent 36%),
+    var(--gradient-brand);
+  border-radius: 16px;
+}
+
+.profile-card__avatar {
+  margin-block-start: -44px;
+  padding: 4px;
+  background: var(--color-surface);
+  border-radius: 50%;
+}
+
+.profile-card__name {
+  margin-block-start: var(--space-2);
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+}
+
+.profile-card__role {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+.profile-card__stats {
+  display: flex;
+  gap: var(--space-8);
+  margin: var(--space-5) 0 0;
+
+  // <dt> comes first in the HTML (as <dl> requires); the number is shown above its label.
+  div {
+    display: flex;
+    flex-direction: column-reverse;
+  }
+
+  dd {
+    margin: 0;
+    font-size: var(--font-size-lg);
+    font-weight: 700;
+  }
+
+  dt {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+  }
+}
+
+// The drop zone fills the whole upload card.
+.upload-card {
+  display: flex;
+  flex-direction: column;
+}
+
+// ---------- storage card ----------
+
+.storage-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.storage-card__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: 100px;
+  block-size: 100px;
+  margin-block: var(--space-4);
+  color: var(--color-primary);
+  background: var(--color-surface-muted);
+  border-radius: 50%;
+
+  .icon {
+    font-size: 48px;
+  }
+}
+
+.storage-card__title {
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+}
+
+.storage-card__text {
+  max-inline-size: 240px;
+  margin-block: var(--space-2) auto;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+.storage-card__usage {
+  display: flex;
+  justify-content: space-between;
+  align-self: stretch;
+  margin-block: var(--space-6) var(--space-2);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--color-text-secondary);
+}
+
+.storage-card__bar {
+  align-self: stretch;
+  block-size: 8px;
+  overflow: hidden;
+  background: var(--color-border);
+  border-radius: var(--radius-pill);
+
+  span {
+    display: block;
+    block-size: 100%;
+    background: var(--color-primary);
+    border-radius: inherit;
+  }
+}
+
+// ---------- files list ----------
+
+.files-card__error {
+  margin-block-end: var(--space-3);
+}
+
+.files-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+// One file per row, as the "All Projects" items in the design.
+.file-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  background: var(--color-surface);
+  border-radius: var(--radius-control);
+  box-shadow: var(--shadow-soft);
+  outline: 1px solid var(--color-border);
+}
+
+.file-item__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  inline-size: 48px;
+  block-size: 48px;
+  color: var(--color-primary);
+  background: var(--color-surface-muted);
+  border-radius: 12px;
+}
+
+.file-item__text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-inline-size: 0;
+}
+
+.file-item__name {
+  overflow: hidden;
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.file-item__meta {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+}

@@ -1,0 +1,142 @@
+:host {
+  display: block;
+}
+
+.todo-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-block-end: var(--space-4);
+}
+
+.todo-header__icon {
+  display: inline-flex;
+  padding: 6px;
+  color: var(--color-primary);
+  background: var(--color-surface-muted);
+  border-radius: 10px;
+
+  .icon {
+    font-size: 22px;
+  }
+}
+
+.todo-header__title {
+  flex: 1;
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+}
+
+.todo-header__count {
+  font-size: var(--font-size-xs);
+  font-weight: 700;
+  color: var(--color-primary);
+}
+
+// The title takes the whole first line; the due date and the add button share the second.
+.todo-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-block-end: var(--space-3);
+
+  .form-input {
+    block-size: 40px;
+    padding-inline: var(--space-3);
+  }
+}
+
+.todo-form__title {
+  flex: 1 1 100%;
+}
+
+.todo-form__date-label {
+  flex: 1;
+}
+
+.todo-form__add {
+  flex: none;
+  block-size: 40px;
+  inline-size: 40px;
+  color: var(--color-text-on-primary);
+  background: var(--color-primary);
+
+  &:hover:not(:disabled) {
+    color: var(--color-text-on-primary);
+    background: var(--color-primary-hover);
+  }
+}
+
+.todo-error {
+  margin-block-end: var(--space-3);
+}
+
+.todo-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.todo-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+
+  &.is-busy {
+    opacity: 0.7;
+  }
+}
+
+.todo-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-block-size: 40px;
+}
+
+.todo-item__check {
+  flex: 1;
+  min-inline-size: 0;
+  cursor: pointer;
+}
+
+.todo-item__title {
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.is-done .todo-item__title {
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  text-decoration: line-through;
+}
+
+.todo-item__due {
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+  color: var(--color-text-secondary);
+
+  &.is-overdue {
+    font-weight: 700;
+    color: var(--color-danger);
+  }
+}
+
+// The delete button appears on hover (and stays reachable by keyboard).
+.todo-item__delete {
+  inline-size: 30px;
+  block-size: 30px;
+  opacity: 0;
+
+  .todo-item:hover &,
+  &:focus-visible {
+    opacity: 1;
+  }
+
+  @media (hover: none) {
+    opacity: 1;
+  }
+}

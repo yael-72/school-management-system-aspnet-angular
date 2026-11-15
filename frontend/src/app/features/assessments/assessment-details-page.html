@@ -1,0 +1,147 @@
+<a class="details-back" routerLink="/assessments">
+  <span class="icon" aria-hidden="true">arrow_forward</span>
+  חזרה לרשימת המבחנים
+</a>
+
+@if (errorMessage(); as message) {
+  <app-card>
+    <app-empty-state icon="error" title="לא ניתן לטעון את המבחן" [message]="message">
+      <button type="button" class="button" (click)="sheet.reload()">נסו שוב</button>
+    </app-empty-state>
+  </app-card>
+} @else if (sheet.value(); as data) {
+  @let assessment = data.assessment;
+  <div class="assessment-layout">
+    <app-card class="assessment-header">
+      <div class="assessment-header__top">
+        <app-assessment-type-chip [type]="assessment.type" />
+        @if (assessment.canEdit) {
+          <div class="assessment-header__actions">
+            <button
+              type="button"
+              class="icon-button"
+              aria-label="עריכת המבחן"
+              (click)="formOpen.set(true)"
+            >
+              <span class="icon" aria-hidden="true">edit</span>
+            </button>
+            <button
+              type="button"
+              class="icon-button"
+              aria-label="מחיקת המבחן"
+              (click)="askDelete()"
+            >
+              <span class="icon" aria-hidden="true">delete</span>
+            </button>
+          </div>
+        }
+      </div>
+      <h2 class="assessment-header__title">{{ assessment.title }}</h2>
+
+      <dl class="assessment-info">
+        <div>
+          <dt>כיתה</dt>
+          <dd>
+            <a [routerLink]="['/assessments']" [queryParams]="{ classId: assessment.classId }">{{
+              assessment.className
+            }}</a>
+          </dd>
+        </div>
+        <div>
+          <dt>מקצוע</dt>
+          <dd>{{ assessment.subjectName }}</dd>
+        </div>
+        <div>
+          <dt>תאריך</dt>
+          <dd>{{ assessment.date | date: 'dd.MM.yyyy' }}</dd>
+        </div>
+        <div>
+          <dt>ציון מרבי</dt>
+          <dd>{{ assessment.maxScore | number: '1.0-2' }}</dd>
+        </div>
+        <div>
+          <dt>נוצר על ידי</dt>
+          <dd>{{ assessment.createdByName }}</dd>
+        </div>
+      </dl>
+    </app-card>
+
+    <div class="assessment-main">
+      <div class="assessment-stats">
+        <app-card class="stat">
+          <span class="stat__label">ממוצע</span>
+          <span class="stat__value"><app-score-badge [score]="data.averageScore" /></span>
+        </app-card>
+        <app-card class="stat">
+          <span class="stat__label">ציון גבוה</span>
+          <span class="stat__value">{{
+            data.highestScore === null ? '—' : (data.highestScore | number: '1.0-2')
+          }}</span>
+        </app-card>
+        <app-card class="stat">
+          <span class="stat__label">ציון נמוך</span>
+          <span class="stat__value">{{
+            data.lowestScore === null ? '—' : (data.lowestScore | number: '1.0-2')
+          }}</span>
+        </app-card>
+        <app-card class="stat">
+          <span class="stat__label">נבדקו</span>
+          <!-- dir="ltr" so "6 / 7" is not mirrored into "7 / 6" in the RTL layout -->
+          <span class="stat__value"
+            ><span dir="ltr">{{ data.gradedCount }} / {{ data.students.length }}</span></span
+          >
+        </app-card>
+      </div>
+
+      <app-card title="ציוני התלמידים">
+        <app-grade-sheet [sheet]="data" (saved)="onScoresSaved($event)" />
+      </app-card>
+    </div>
+  </div>
+
+  @if (assessment.canEdit) {
+    <app-assessment-form-dialog
+      [open]="formOpen()"
+      [assessment]="assessment"
+      (saved)="onEdited()"
+      (closed)="formOpen.set(false)"
+    />
+
+    <app-dialog [open]="deleteOpen()" title="מחיקת מבחן" (closed)="deleteOpen.set(false)">
+      <p>
+        למחוק את <strong>{{ assessment.title }}</strong
+        >?
+        @if (data.gradedCount > 0) {
+          גם {{ data.gradedCount }} הציונים שהוזנו לו יימחקו.
+        }
+      </p>
+      @if (deleteError(); as message) {
+        <p class="form-alert delete-error" role="alert">{{ message }}</p>
+      }
+      <div class="form-actions">
+        <button
+          type="button"
+          class="button button--danger"
+          [disabled]="deleting()"
+          (click)="confirmDelete()"
+        >
+          {{ deleting() ? 'מוחק...' : 'מחיקה' }}
+        </button>
+        <button type="button" class="button button--secondary" (click)="deleteOpen.set(false)">
+          ביטול
+        </button>
+      </div>
+    </app-dialog>
+  }
+} @else {
+  <div class="assessment-layout" aria-busy="true">
+    <app-card class="assessment-header">
+      <app-skeleton width="60px" />
+      <app-skeleton width="70%" height="28px" />
+      <app-skeleton height="160px" />
+    </app-card>
+    <app-card>
+      <app-skeleton height="320px" />
+    </app-card>
+  </div>
+}

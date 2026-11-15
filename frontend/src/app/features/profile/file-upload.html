@@ -1,0 +1,44 @@
+<label
+  class="drop-zone"
+  [class.is-dragging]="dragging()"
+  [class.is-busy]="progress() !== null"
+  (dragover)="onDragOver($event)"
+  (dragleave)="dragging.set(false)"
+  (drop)="onDrop($event)"
+>
+  <input
+    #fileInput
+    type="file"
+    class="visually-hidden"
+    [accept]="accept"
+    [disabled]="progress() !== null"
+    (change)="onFileChosen(fileInput)"
+  />
+  <span class="icon drop-zone__icon" aria-hidden="true">upload</span>
+  <span class="drop-zone__title">העלאת קבצים</span>
+  <span class="drop-zone__hint">גררו קובץ לכאן או לחצו לבחירה. מסמכים ותמונות, עד <span dir="ltr" class="nowrap">5 MB</span>.</span>
+
+  @if (progress() !== null) {
+    <span
+      class="drop-zone__progress"
+      role="progressbar"
+      aria-label="התקדמות ההעלאה"
+      [attr.aria-valuenow]="progress()"
+      aria-valuemin="0"
+      aria-valuemax="100"
+    >
+      <span class="drop-zone__progress-bar" [style.inline-size.%]="progress()"></span>
+    </span>
+  }
+</label>
+
+<div class="upload-message" aria-live="polite">
+  @if (errorMessage(); as message) {
+    <p class="form-alert" role="alert">{{ message }}</p>
+  } @else if (lastUploaded(); as name) {
+    <p class="upload-message__done">
+      <span class="icon" aria-hidden="true">check_circle</span>
+      הקובץ "{{ name }}" הועלה
+    </p>
+  }
+</div>

@@ -1,0 +1,87 @@
+<app-dialog [open]="open()" title="אירוע חדש" (closed)="closed.emit()">
+  <form class="form-grid" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+    @if (errorMessage(); as message) {
+      <p class="form-alert" role="alert">{{ message }}</p>
+    }
+
+    <div class="form-field">
+      <label class="form-label" for="event-title"
+        >שם האירוע<span class="form-label__required">*</span></label
+      >
+      <input
+        id="event-title"
+        class="form-input"
+        formControlName="title"
+        placeholder="לדוגמה: אסיפת הורים"
+        [class.is-invalid]="isInvalid('title')"
+      />
+      @if (isInvalid('title')) {
+        <span class="form-error">יש להזין שם (עד 100 תווים).</span>
+      }
+    </div>
+
+    <div class="form-row">
+      <div class="form-field">
+        <label class="form-label" for="event-start"
+          >תאריך<span class="form-label__required">*</span></label
+        >
+        <input
+          id="event-start"
+          class="form-input"
+          type="date"
+          formControlName="startDate"
+          [class.is-invalid]="isInvalid('startDate')"
+        />
+      </div>
+      <div class="form-field">
+        <label class="form-label" for="event-end">עד תאריך</label>
+        <input
+          id="event-end"
+          class="form-input"
+          type="date"
+          formControlName="endDate"
+          [min]="form.controls.startDate.value"
+        />
+        @if (
+          form.controls.endDate.value && form.controls.endDate.value < form.controls.startDate.value
+        ) {
+          <span class="form-error">תאריך הסיום חייב להיות אחרי תאריך ההתחלה.</span>
+        }
+      </div>
+    </div>
+
+    <div class="form-field">
+      <label class="form-label" for="event-class">
+        כיתה
+        @if (!isAdmin()) {
+          <span class="form-label__required">*</span>
+        }
+      </label>
+      <select
+        id="event-class"
+        class="form-input form-select"
+        formControlName="classId"
+        [class.is-invalid]="isInvalid('classId')"
+      >
+        @if (isAdmin()) {
+          <option [ngValue]="null">כל בית הספר</option>
+        } @else {
+          <option [ngValue]="null" disabled>בחרו כיתה</option>
+        }
+        @for (schoolClass of classes.value()?.items ?? []; track schoolClass.id) {
+          <option [ngValue]="schoolClass.id">{{ schoolClass.name }}</option>
+        }
+      </select>
+      @if (isInvalid('classId')) {
+        <span class="form-error">יש לבחור כיתה.</span>
+      }
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="button" [disabled]="submitting()">
+        {{ submitting() ? 'שומר...' : 'שמירה' }}
+      </button>
+      <button type="button" class="button button--secondary" (click)="closed.emit()">ביטול</button>
+    </div>
+  </form>
+</app-dialog>

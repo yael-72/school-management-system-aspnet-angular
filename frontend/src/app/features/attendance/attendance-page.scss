@@ -1,0 +1,21 @@
+.attendance-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-4);
+  margin-block-end: var(--space-5);
+}
+
+.attendance-header__title {
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+}
+
+.attendance-class {
+  margin-inline-start: auto;
+
+  .form-select {
+    block-size: 44px;
+    min-inline-size: 160px;
+  }
+}

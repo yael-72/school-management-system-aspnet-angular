@@ -1,0 +1,119 @@
+@if (rows().length === 0) {
+  <app-empty-state
+    icon="group_off"
+    title="אין תלמידים בכיתה"
+    message="כשיירשמו תלמידים לכיתה, ניתן יהיה להזין כאן את הציונים שלהם."
+  />
+} @else {
+  @if (isUpcoming()) {
+    <p class="sheet-notice">
+      <span class="icon" aria-hidden="true">event_upcoming</span>
+      המבחן עוד לא התקיים. ניתן יהיה להזין ציונים החל מיום המבחן.
+    </p>
+  } @else if (!assessment().canEdit) {
+    <p class="sheet-notice">
+      <span class="icon" aria-hidden="true">visibility</span>
+      צפייה בלבד – את הציונים מזין המורה של המקצוע.
+    </p>
+  }
+
+  <div class="table-scroll">
+    <table class="data-table sheet-table">
+      <caption class="visually-hidden">
+        ציונים –
+        {{
+          assessment().title
+        }}
+      </caption>
+      <thead>
+        <tr>
+          <th>תלמיד</th>
+          <th>ציון (מתוך {{ maxScore() | number: '1.0-2' }})</th>
+          <th>אחוז</th>
+          <th>הערה</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (row of rows(); track row.student.studentId) {
+          @let name = row.student.firstName + ' ' + row.student.lastName;
+          <tr>
+            <td>
+              <span class="sheet-name">
+                <app-avatar [name]="name" [size]="34" />
+                {{ name }}
+              </span>
+            </td>
+            <td>
+              @if (editable()) {
+                <input
+                  #scoreInput
+                  class="form-input sheet-score"
+                  type="text"
+                  inputmode="decimal"
+                  dir="ltr"
+                  placeholder="—"
+                  [class.is-invalid]="!isValid(row)"
+                  [attr.aria-invalid]="!isValid(row)"
+                  [attr.aria-label]="'ציון של ' + name"
+                  [value]="row.scoreText"
+                  (input)="setScore(row.student.studentId, scoreInput.value)"
+                />
+              } @else {
+                {{ row.student.score === null ? '—' : (row.student.score | number: '1.0-2') }}
+              }
+            </td>
+            <td><app-score-badge [score]="percent(row)" /></td>
+            <td>
+              @if (editable()) {
+                <input
+                  #commentInput
+                  class="form-input sheet-comment"
+                  type="text"
+                  maxlength="300"
+                  placeholder="—"
+                  [attr.aria-label]="'הערה עבור ' + name"
+                  [value]="row.comment"
+                  (input)="setComment(row.student.studentId, commentInput.value)"
+                />
+              } @else {
+                <span class="sheet-comment-text">{{ row.student.comment ?? '—' }}</span>
+              }
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  @if (editable()) {
+    <div class="sheet-footer">
+      <div class="sheet-footer__message" aria-live="polite">
+        @if (invalidCount() > 0) {
+          <p class="form-alert" role="alert">
+            יש {{ invalidCount() }} ציונים לא תקינים. ציון הוא מספר בין 0 ל-{{
+              maxScore() | number: '1.0-2'
+            }}.
+          </p>
+        } @else if (saveError(); as message) {
+          <p class="form-alert" role="alert">{{ message }}</p>
+        } @else if (savedMessage()) {
+          <p class="sheet-saved">
+            <span class="icon" aria-hidden="true">check_circle</span>
+            הציונים נשמרו
+          </p>
+        } @else if (changedRows().length > 0) {
+          <p class="sheet-unsaved">יש {{ changedRows().length }} שינויים שלא נשמרו</p>
+        }
+      </div>
+
+      <button
+        type="button"
+        class="button"
+        [disabled]="saving() || changedRows().length === 0 || invalidCount() > 0"
+        (click)="save()"
+      >
+        {{ saving() ? 'שומר...' : 'שמירת ציונים' }}
+      </button>
+    </div>
+  }
+}

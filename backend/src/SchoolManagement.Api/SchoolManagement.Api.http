@@ -1,0 +1,201 @@
+@baseUrl = http://localhost:5097
+
+### Log in with the demo admin account
+# @name login
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@school.demo",
+  "password": "Demo123!",
+  "rememberMe": false
+}
+
+### Current user (uses the token from the login request above)
+GET {{baseUrl}}/api/auth/me
+Authorization: Bearer {{login.response.body.$.accessToken}}
+
+### Classes (a teacher only gets her own classes)
+GET {{baseUrl}}/api/classes?gradeLevel=7&sortBy=averageScore&sortDir=desc
+Authorization: Bearer {{login.response.body.$.accessToken}}
+
+### One class with its subjects and teachers
+GET {{baseUrl}}/api/classes/1
+Authorization: Bearer {{login.response.body.$.accessToken}}
+
+### Students of a class
+GET {{baseUrl}}/api/classes/1/students?pageSize=10
+Authorization: Bearer {{login.response.body.$.accessToken}}
+
+### Search students
+GET {{baseUrl}}/api/students?search=כהן&page=1&pageSize=20&sortBy=lastName&sortDir=asc
+Authorization: Bearer {{login.response.body.$.accessToken}}
+
+### Student summary (average, attendance rate, recent scores)
+GET {{baseUrl}}/api/students/1/summary
+Authorization: Bearer {{login.response.body.$.accessToken}}
+
+### Enrol a student (admin only)
+POST {{baseUrl}}/api/students
+Authorization: Bearer {{login.response.body.$.accessToken}}
+Content-Type: application/json
+
+{
+  "firstName": "אליהו",
+  "lastName": "שמש",
+  "classId": 1,
+  "birthDate": "2013-03-14",
+  "parentPhone": "050-1234567"
+}
+
+### Teachers for the homeroom teacher picker (admin only)
+GET {{baseUrl}}/api/users?role=Teacher&isActive=true&pageSize=100
+Authorization: Bearer {{login.response.body.$.accessToken}}
+
+### Attendance register of a class on one day
+GET {{baseUrl}}/api/attendance?classId=1&date=2026-11-10
+Authorization: Bearer {{login.response.body.$.accessToken}}
+
+### Save attendance of a class on one day (creates or updates; future dates are rejected)
+PUT {{baseUrl}}/api/attendance
+Authorization: Bearer {{login.response.body.$.accessToken}}
+Content-Type: application/json
+
+{
+  "classId": 1,
+  "date": "2026-11-10",
+  "records": [
+    { "studentId": 1, "status": "Present" },
+    { "studentId": 2, "status": "Late", "note": "הגיע בשעה 9:00" }
+  ]
+}
+
+### Attendance report of a class over a date range
+GET {{baseUrl}}/api/attendance/report?classId=1&from=2026-10-01&to=2026-10-31
+Authorization: Bearer {{login.response.body.$.accessToken}}
+
+### Subjects (for filters and forms)
+GET {{baseUrl}}/api/subjects
+Authorization: Bearer {{login.response.body.$.accessToken}}
+
+### Assessments of a class, newest first (canEdit says whether you may grade each one)
+GET {{baseUrl}}/api/assessments?classId=1&subjectId=1&from=2026-09-01&to=2026-12-31&page=1&pageSize=20
+Authorization: Bearer {{login.response.body.$.accessToken}}
+
+### Create an assessment (a teacher only for a subject she teaches in that class)
+POST {{baseUrl}}/api/assessments
+Authorization: Bearer {{login.response.body.$.accessToken}}
+Content-Type: application/json
+
+{
+  "title": "מבחן בשברים",
+  "type": "Exam",
+  "classId": 1,
+  "subjectId": 1,
+  "date": "2026-11-10",
+  "maxScore": 100
+}
+
+### Grade sheet of an assessment (every active student and their score)
+GET {{baseUrl}}/api/assessments/1/scores
+Authorization: Bearer {{login.response.body.$.accessToken}}
+
+### Save the scores of an assessment (0 – maxScore; a row with no score and no comment clears it)
+PUT {{baseUrl}}/api/assessments/1/scores
+Authorization: Bearer {{login.response.body.$.accessToken}}
+Content-Type: application/json
+
+{
+  "scores": [
+    { "studentId": 1, "score": 92 },
+    { "studentId": 2, "score": null, "comment": "חולה ביום המבחן" }
+  ]
+}
+
+### Dashboard KPI cards (an admin sees the school, a teacher her classes)
+GET {{baseUrl}}/api/dashboard/stats
+Authorization: Bearer {{login.response.body.$.accessToken}}
+
+### Dashboard charts and lists
+GET {{baseUrl}}/api/dashboard/grades-trend?months=6
+Authorization: Bearer {{login.response.body.$.accessToken}}
+
+###
+GET {{baseUrl}}/api/dashboard/attendance-weekly
+Authorization: Bearer {{login.response.body.$.accessToken}}
+
+###
+GET {{baseUrl}}/api/dashboard/grade-distribution
+Authorization: Bearer {{login.response.body.$.accessToken}}
+
+###
+GET {{baseUrl}}/api/dashboard/top-students?count=5
+Authorization: Bearer {{login.response.body.$.accessToken}}
+
+###
+GET {{baseUrl}}/api/dashboard/recent-activity?count=8
+Authorization: Bearer {{login.response.body.$.accessToken}}
+
+### My to-do list
+GET {{baseUrl}}/api/tasks
+Authorization: Bearer {{login.response.body.$.accessToken}}
+
+### Add a task
+POST {{baseUrl}}/api/tasks
+Authorization: Bearer {{login.response.body.$.accessToken}}
+Content-Type: application/json
+
+{ "title": "להכין את אסיפת ההורים", "dueDate": "2026-11-20" }
+
+### Mark a task done (or open again)
+PATCH {{baseUrl}}/api/tasks/1/toggle
+Authorization: Bearer {{login.response.body.$.accessToken}}
+
+### Calendar events in a date range
+GET {{baseUrl}}/api/events?from=2026-11-01&to=2026-11-30
+Authorization: Bearer {{login.response.body.$.accessToken}}
+
+### Add an event (classId null = school-wide, admin only)
+POST {{baseUrl}}/api/events
+Authorization: Bearer {{login.response.body.$.accessToken}}
+Content-Type: application/json
+
+{ "title": "טיול שנתי", "startDate": "2026-11-24", "endDate": "2026-11-25", "classId": 1 }
+
+### My profile
+GET {{baseUrl}}/api/users/me
+Authorization: Bearer {{login.response.body.$.accessToken}}
+
+### Update my name and phone (email and role cannot be changed here)
+PUT {{baseUrl}}/api/users/me
+Authorization: Bearer {{login.response.body.$.accessToken}}
+Content-Type: application/json
+
+{ "fullName": "אהרן אברמסון", "phone": "050-1234567" }
+
+### My notification settings
+PUT {{baseUrl}}/api/users/me/notification-settings
+Authorization: Bearer {{login.response.body.$.accessToken}}
+Content-Type: application/json
+
+{ "remindBeforeExam": true, "alertOnLowAttendance": true, "weeklySummaryEmail": false }
+
+### My files and storage usage
+GET {{baseUrl}}/api/files
+Authorization: Bearer {{login.response.body.$.accessToken}}
+
+### Upload a file (documents and images, up to 5 MB; 50 MB per user)
+POST {{baseUrl}}/api/files
+Authorization: Bearer {{login.response.body.$.accessToken}}
+Content-Type: multipart/form-data; boundary=boundary
+
+--boundary
+Content-Disposition: form-data; name="file"; filename="notes.txt"
+Content-Type: text/plain
+
+Hello from the .http file
+--boundary--
+
+### Download a file
+GET {{baseUrl}}/api/files/1/download
+Authorization: Bearer {{login.response.body.$.accessToken}}

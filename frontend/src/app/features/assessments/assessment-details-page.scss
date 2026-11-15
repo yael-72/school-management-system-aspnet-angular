@@ -1,0 +1,105 @@
+.details-back {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  margin-block-end: var(--space-4);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--color-primary);
+}
+
+.assessment-layout {
+  display: grid;
+  grid-template-columns: minmax(240px, 1fr) 3fr;
+  gap: var(--space-5);
+  align-items: start;
+
+  @media (max-width: 1099px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.assessment-header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.assessment-header__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-block-size: 36px;
+}
+
+.assessment-header__actions {
+  display: flex;
+}
+
+.assessment-header__title {
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+}
+
+.assessment-info {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: var(--space-3);
+  margin: 0;
+
+  div {
+    padding: var(--space-3) var(--space-4);
+    background: var(--color-surface-muted);
+    border-radius: var(--radius-control);
+  }
+
+  dt {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-secondary);
+  }
+
+  dd {
+    margin: 0;
+    font-size: var(--font-size-sm);
+    font-weight: 700;
+  }
+
+  a {
+    color: var(--color-primary);
+  }
+}
+
+.assessment-main {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  min-inline-size: 0;
+}
+
+.assessment-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: var(--space-5);
+}
+
+// Small KPI tile (Horizon "mini statistics" card), same as on the student details page.
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.stat__label {
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--color-text-secondary);
+}
+
+.stat__value {
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+}
+
+.delete-error {
+  margin-block-start: var(--space-4);
+}

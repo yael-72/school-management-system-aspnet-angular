@@ -1,0 +1,46 @@
+# Runs the whole app locally: SQL Server + API + web (nginx with the Angular build).
+#   cp .env.example .env
+#   docker compose up --build
+# Then open http://localhost:8080 (demo logins are in the README) and http://localhost:8080/swagger.
+
+services:
+  db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: ${MSSQL_SA_PASSWORD:?Set MSSQL_SA_PASSWORD in .env (see .env.example)}
+    volumes:
+      - sqldata:/var/opt/mssql
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -C -S localhost -U sa -P \"$$MSSQL_SA_PASSWORD\" -Q 'SELECT 1' -b -o /dev/null"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 20s
+
+  api:
+    build: ./backend
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ConnectionStrings__DefaultConnection: "Server=db;Database=SchoolManagement;User Id=sa;Password=${MSSQL_SA_PASSWORD};TrustServerCertificate=True"
+      Jwt__SigningKey: ${JWT_SIGNING_KEY:?Set JWT_SIGNING_KEY in .env (see .env.example)}
+      # Demo settings: create the database with demo data, and show Swagger.
+      Database__InitializeOnStartup: "true"
+      Swagger__Enabled: "true"
+    volumes:
+      - uploads:/app/App_Data/uploads
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: on-failure
+
+  web:
+    build: ./frontend
+    ports:
+      - "8080:80"
+    depends_on:
+      - api
+
+volumes:
+  sqldata:
+  uploads:

@@ -1,0 +1,106 @@
+// Design tokens taken from the Horizon UI Figma file (light and dark pages).
+// Every color, radius and shadow in the app comes from these CSS variables, so the dark theme
+// only has to redefine the variables, and components never contain hard-coded colors.
+
+:root {
+  // Brand
+  --color-primary: #4318ff; // Primary/Purple Blue/500
+  --color-primary-hover: #3311db;
+  --color-primary-soft: #f4f7fe;
+
+  // Text
+  --color-text: #2b3674; // navy, titles and values
+  --color-text-secondary: #a3aed0; // labels and inactive menu items
+  --color-text-muted: #707eae; // breadcrumb
+  --color-text-placeholder: #8f9bba;
+  --color-text-on-primary: #ffffff;
+
+  // Surfaces
+  --color-background: #f4f7fe;
+  --color-surface: #ffffff;
+  --color-surface-muted: #f4f7fe; // search box, icon circles
+  --color-border: #e9edf7; // Secondary/Grey/400
+  --color-divider: #f4f7fe; // line under the sidebar logo
+  --color-input-border: #e0e5f2; // Secondary/Grey/500
+  --color-auth-background: #ffffff; // the sign-in page is white, not light blue
+
+  // Sidebar and navbar
+  --color-nav-item: #a3aed0;
+  --color-nav-item-active: #2b3674;
+  --color-nav-icon-active: #4318ff;
+  --color-nav-indicator: #4318ff;
+  --color-navbar-icon: #a3aed0;
+  --color-search-icon: #2b3674;
+
+  // Status colors (attendance, grades, alerts)
+  --color-success: #05cd99;
+  --color-warning: #ffb547;
+  --color-danger: #ee5d50;
+  --color-info: #3965ff;
+
+  // Shape
+  --radius-card: 20px;
+  --radius-control: 16px;
+  --radius-pill: 49px;
+  --shadow-card: none; // cards in the design are flat white on the light-blue background
+  --shadow-navbar: 14px 17px 40px 4px rgba(112, 144, 176, 0.08);
+  --shadow-soft: 0 18px 40px rgba(112, 144, 176, 0.12); // Shadows/Soft Shadow - Style 1
+  --gradient-brand: linear-gradient(140deg, #868cff 0%, #4318ff 100%); // Gradients/Gradient Style 1
+
+  // Typography. DM Sans and Poppins have no Hebrew letters, so Hebrew text falls back to Heebo.
+  --font-family: 'DM Sans', 'Heebo', system-ui, sans-serif;
+  --font-family-logo: 'Poppins', 'Heebo', system-ui, sans-serif;
+  --letter-spacing: -0.02em; // the design uses -2% tracking on all DM Sans text
+  --font-size-xs: 12px;
+  --font-size-sm: 14px;
+  --font-size-md: 16px;
+  --font-size-lg: 24px;
+  --font-size-xl: 34px;
+
+  // Spacing scale
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+
+  // Layout
+  --sidebar-width: 290px;
+  --transition-fast: 150ms ease;
+
+  color-scheme: light;
+}
+
+:root[data-theme='dark'] {
+  --color-primary: #7551ff; // Primary/Purple Blue/400
+  --color-primary-hover: #8a6bff;
+  --color-primary-soft: rgba(117, 81, 255, 0.12);
+
+  --color-text: #ffffff;
+  --color-text-secondary: #a3aed0;
+  --color-text-muted: #ffffff;
+  --color-text-placeholder: #ffffff;
+
+  --color-background: #0b1437;
+  --color-surface: #111c44;
+  --color-surface-muted: #0b1437;
+  --color-border: rgba(255, 255, 255, 0.1);
+  --color-divider: rgba(255, 255, 255, 0.05);
+  --color-input-border: rgba(255, 255, 255, 0.1);
+  --color-auth-background: #0b1437;
+
+  --color-nav-item: #ffffff;
+  --color-nav-item-active: #ffffff;
+  --color-nav-icon-active: #ffffff;
+  --color-nav-indicator: #7551ff;
+  --color-navbar-icon: #ffffff;
+  --color-search-icon: #ffffff;
+
+  --shadow-card: none;
+  --shadow-navbar: none;
+  --shadow-soft: none;
+
+  color-scheme: dark;
+}

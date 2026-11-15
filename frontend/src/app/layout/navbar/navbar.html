@@ -1,0 +1,60 @@
+<div class="navbar__titles">
+  <span class="navbar__breadcrumb">דפים / {{ pageTitle() }}</span>
+  <h1 class="navbar__title">{{ pageTitle() }}</h1>
+</div>
+
+<div class="navbar__actions">
+  <label class="navbar__search">
+    <span class="icon navbar__search-icon" aria-hidden="true">search</span>
+    <span class="visually-hidden">חיפוש</span>
+    <input type="search" placeholder="חיפוש" />
+  </label>
+
+  <button type="button" class="navbar__icon-button navbar__menu" (click)="menuToggled.emit()" aria-label="פתיחת התפריט">
+    <span class="icon" aria-hidden="true">menu</span>
+  </button>
+
+  <button type="button" class="navbar__icon-button" aria-label="התראות">
+    <span class="icon" aria-hidden="true">notifications</span>
+  </button>
+
+  <button
+    type="button"
+    class="navbar__icon-button"
+    (click)="themeService.toggle()"
+    [attr.aria-label]="themeService.theme() === 'dark' ? 'מעבר למצב בהיר' : 'מעבר למצב כהה'"
+  >
+    <span class="icon icon--filled navbar__theme-icon" aria-hidden="true">
+      {{ themeService.theme() === 'dark' ? 'light_mode' : 'dark_mode' }}
+    </span>
+  </button>
+
+  <button type="button" class="navbar__icon-button" aria-label="מידע">
+    <span class="icon" aria-hidden="true">info</span>
+  </button>
+
+  <div class="navbar__user">
+    <button
+      type="button"
+      class="navbar__avatar-button"
+      (click)="userMenuOpen.set(!userMenuOpen())"
+      aria-haspopup="menu"
+      [attr.aria-expanded]="userMenuOpen()"
+      aria-label="תפריט משתמש"
+    >
+      <app-avatar [name]="userName()" [size]="41" />
+    </button>
+
+    @if (userMenuOpen()) {
+      <div class="navbar__user-menu" role="menu">
+        <p class="navbar__user-greeting">👋&nbsp; שלום, {{ userName() }}</p>
+        <a role="menuitem" routerLink="/profile" class="navbar__user-menu-item" (click)="userMenuOpen.set(false)">
+          הגדרות פרופיל
+        </a>
+        <button type="button" role="menuitem" class="navbar__user-menu-item navbar__logout" (click)="logout()">
+          התנתקות
+        </button>
+      </div>
+    }
+  </div>
+</div>
