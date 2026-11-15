@@ -1,0 +1,248 @@
+<app-card title="מבחנים וציונים">
+  <div class="list-toolbar">
+    <label class="search-field list-toolbar__search">
+      <span class="visually-hidden">חיפוש מבחן</span>
+      <span class="icon" aria-hidden="true">search</span>
+      <input
+        #searchInput
+        class="form-input"
+        type="search"
+        placeholder="חיפוש לפי שם או מקצוע"
+        [value]="searchText()"
+        (input)="onSearch(searchInput.value)"
+      />
+    </label>
+
+    <label class="toolbar-select">
+      <span class="visually-hidden">סינון לפי כיתה</span>
+      <select
+        #classSelect
+        class="form-input form-select"
+        (change)="filterByClass(classSelect.value)"
+      >
+        <option value="" [selected]="classId() === null">כל הכיתות</option>
+        @for (schoolClass of classes.value()?.items ?? []; track schoolClass.id) {
+          <option [value]="schoolClass.id" [selected]="schoolClass.id === classId()">
+            כיתה {{ schoolClass.name }}
+          </option>
+        }
+      </select>
+    </label>
+
+    <label class="toolbar-select">
+      <span class="visually-hidden">סינון לפי מקצוע</span>
+      <select
+        #subjectSelect
+        class="form-input form-select"
+        (change)="filterBySubject(subjectSelect.value)"
+      >
+        <option value="" [selected]="subjectId() === null">כל המקצועות</option>
+        @for (subject of subjects.value() ?? []; track subject.id) {
+          <option [value]="subject.id" [selected]="subject.id === subjectId()">
+            {{ subject.name }}
+          </option>
+        }
+      </select>
+    </label>
+
+    <button type="button" class="button list-toolbar__end" (click)="openCreate()">
+      <span class="icon" aria-hidden="true">add</span>
+      מבחן חדש
+    </button>
+  </div>
+
+  <nav class="pill-tabs type-tabs" aria-label="סוג">
+    <button
+      type="button"
+      class="pill-tabs__tab"
+      [class.is-active]="type() === null"
+      [attr.aria-pressed]="type() === null"
+      (click)="filterByType(null)"
+    >
+      הכול
+    </button>
+    @for (option of types; track option.value) {
+      <button
+        type="button"
+        class="pill-tabs__tab"
+        [class.is-active]="type() === option.value"
+        [attr.aria-pressed]="type() === option.value"
+        (click)="filterByType(option.value)"
+      >
+        {{ option.label }}
+      </button>
+    }
+  </nav>
+
+  @if (errorMessage(); as message) {
+    <app-empty-state icon="error" title="לא ניתן לטעון את המבחנים" [message]="message">
+      <button type="button" class="button" (click)="assessments.reload()">נסו שוב</button>
+    </app-empty-state>
+  } @else if (assessments.isLoading() && !assessments.hasValue()) {
+    <div class="assessments-skeleton" aria-busy="true">
+      @for (i of skeletonRows; track i) {
+        <app-skeleton height="36px" />
+      }
+    </div>
+  } @else if (assessments.value(); as result) {
+    @if (result.items.length === 0) {
+      <app-empty-state
+        icon="assignment"
+        title="לא נמצאו מבחנים"
+        message="נסו לשנות את החיפוש או את הסינון, או צרו מבחן חדש."
+      />
+    } @else {
+      <div class="table-scroll">
+        <table class="data-table" [class.is-reloading]="assessments.isLoading()">
+          <thead>
+            <tr>
+              <th [attr.aria-sort]="ariaSort('title')">
+                <button
+                  type="button"
+                  class="sort-button"
+                  [class.is-active]="sortBy() === 'title'"
+                  (click)="sort('title')"
+                >
+                  שם <span class="icon" aria-hidden="true">{{ sortIcon('title') }}</span>
+                </button>
+              </th>
+              <th [attr.aria-sort]="ariaSort('subjectName')">
+                <button
+                  type="button"
+                  class="sort-button"
+                  [class.is-active]="sortBy() === 'subjectName'"
+                  (click)="sort('subjectName')"
+                >
+                  מקצוע <span class="icon" aria-hidden="true">{{ sortIcon('subjectName') }}</span>
+                </button>
+              </th>
+              <th [attr.aria-sort]="ariaSort('className')">
+                <button
+                  type="button"
+                  class="sort-button"
+                  [class.is-active]="sortBy() === 'className'"
+                  (click)="sort('className')"
+                >
+                  כיתה <span class="icon" aria-hidden="true">{{ sortIcon('className') }}</span>
+                </button>
+              </th>
+              <th [attr.aria-sort]="ariaSort('date')">
+                <button
+                  type="button"
+                  class="sort-button"
+                  [class.is-active]="sortBy() === 'date'"
+                  (click)="sort('date')"
+                >
+                  תאריך <span class="icon" aria-hidden="true">{{ sortIcon('date') }}</span>
+                </button>
+              </th>
+              <th>נבדקו</th>
+              <th [attr.aria-sort]="ariaSort('averageScore')">
+                <button
+                  type="button"
+                  class="sort-button"
+                  [class.is-active]="sortBy() === 'averageScore'"
+                  (click)="sort('averageScore')"
+                >
+                  ממוצע <span class="icon" aria-hidden="true">{{ sortIcon('averageScore') }}</span>
+                </button>
+              </th>
+              <th><span class="visually-hidden">פעולות</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (assessment of result.items; track assessment.id) {
+              <tr>
+                <td>
+                  <a class="assessment-title" [routerLink]="['/assessments', assessment.id]">
+                    <app-assessment-type-chip [type]="assessment.type" />
+                    {{ assessment.title }}
+                  </a>
+                </td>
+                <td>{{ assessment.subjectName }}</td>
+                <td>{{ assessment.className }}</td>
+                <td>{{ assessment.date | date: 'dd.MM.yyyy' }}</td>
+                <td>
+                  @if (assessment.date > today) {
+                    <span class="upcoming-chip">מתוכנן</span>
+                  } @else {
+                    <!-- dir="ltr" so "6 / 7" is not mirrored into "7 / 6" in the RTL layout -->
+                    <span class="graded-count" dir="ltr">
+                      {{ assessment.gradedCount }} / {{ assessment.studentCount }}
+                    </span>
+                  }
+                </td>
+                <td><app-score-badge [score]="assessment.averageScore" /></td>
+                <td class="assessment-actions">
+                  @if (assessment.canEdit) {
+                    <button
+                      type="button"
+                      class="icon-button"
+                      (click)="openEdit(assessment)"
+                      [attr.aria-label]="'עריכת ' + assessment.title"
+                    >
+                      <span class="icon" aria-hidden="true">edit</span>
+                    </button>
+                    <button
+                      type="button"
+                      class="icon-button"
+                      (click)="askDelete(assessment)"
+                      [attr.aria-label]="'מחיקת ' + assessment.title"
+                    >
+                      <span class="icon" aria-hidden="true">delete</span>
+                    </button>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      <app-paginator
+        [page]="result.page"
+        [pageSize]="result.pageSize"
+        [totalCount]="result.totalCount"
+        (pageChange)="page.set($event)"
+      />
+    }
+  }
+</app-card>
+
+<app-assessment-form-dialog
+  [open]="formOpen()"
+  [assessment]="editedAssessment()"
+  [defaultClassId]="classId()"
+  (saved)="onSaved($event)"
+  (closed)="formOpen.set(false)"
+/>
+
+<app-dialog
+  [open]="assessmentToDelete() !== null"
+  title="מחיקת מבחן"
+  (closed)="assessmentToDelete.set(null)"
+>
+  @if (assessmentToDelete(); as assessment) {
+    <p>
+      למחוק את <strong>{{ assessment.title }}</strong> של כיתה {{ assessment.className }}?
+      @if (assessment.gradedCount > 0) {
+        גם {{ assessment.gradedCount }} הציונים שהוזנו לו יימחקו.
+      }
+    </p>
+  }
+  @if (deleteError(); as message) {
+    <p class="form-alert delete-error" role="alert">{{ message }}</p>
+  }
+  <div class="form-actions">
+    <button
+      type="button"
+      class="button button--danger"
+      [disabled]="deleting()"
+      (click)="confirmDelete()"
+    >
+      {{ deleting() ? 'מוחק...' : 'מחיקה' }}
+    </button>
+    <button type="button" class="button button--secondary" (click)="assessmentToDelete.set(null)">
+      ביטול
+    </button>
+  </div>
+</app-dialog>

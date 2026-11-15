@@ -21,7 +21,8 @@ export const routes: Routes = [
       {
         path: 'dashboard',
         title: 'לוח בקרה',
-        loadComponent: () => import('./features/dashboard/dashboard-page').then((m) => m.DashboardPage),
+        loadComponent: () =>
+          import('./features/dashboard/dashboard-page').then((m) => m.DashboardPage),
       },
       {
         path: 'classes',
@@ -31,7 +32,8 @@ export const routes: Routes = [
       {
         path: 'students',
         title: 'תלמידים',
-        loadComponent: () => import('./features/students/students-page').then((m) => m.StudentsPage),
+        loadComponent: () =>
+          import('./features/students/students-page').then((m) => m.StudentsPage),
       },
       {
         path: 'students/:id',
@@ -42,12 +44,22 @@ export const routes: Routes = [
       {
         path: 'attendance',
         title: 'נוכחות',
-        loadComponent: () => import('./features/attendance/attendance-page').then((m) => m.AttendancePage),
+        loadComponent: () =>
+          import('./features/attendance/attendance-page').then((m) => m.AttendancePage),
       },
       {
         path: 'assessments',
         title: 'מבחנים וציונים',
-        loadComponent: () => import('./features/assessments/assessments-page').then((m) => m.AssessmentsPage),
+        loadComponent: () =>
+          import('./features/assessments/assessments-page').then((m) => m.AssessmentsPage),
+      },
+      {
+        path: 'assessments/:id',
+        title: 'גיליון ציונים',
+        loadComponent: () =>
+          import('./features/assessments/assessment-details-page').then(
+            (m) => m.AssessmentDetailsPage,
+          ),
       },
       {
         path: 'profile',
