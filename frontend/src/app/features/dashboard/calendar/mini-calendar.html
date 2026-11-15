@@ -1,0 +1,101 @@
+<header class="calendar-header">
+  <!-- In RTL "previous" points right (same convention as the paginator). -->
+  <button type="button" class="icon-button" aria-label="החודש הקודם" (click)="moveMonth(-1)">
+    <span class="icon" aria-hidden="true">chevron_right</span>
+  </button>
+  <h2 class="calendar-header__title" aria-live="polite">{{ title() }}</h2>
+  <button type="button" class="icon-button" aria-label="החודש הבא" (click)="moveMonth(1)">
+    <span class="icon" aria-hidden="true">chevron_left</span>
+  </button>
+</header>
+
+<div class="calendar-grid" [class.is-loading]="events.isLoading()">
+  @for (weekday of weekdays; track weekday) {
+    <span class="calendar-grid__weekday" aria-hidden="true">{{ weekday }}</span>
+  }
+  @for (day of days(); track day.date) {
+    <button
+      type="button"
+      class="calendar-day"
+      [class.is-outside]="!day.inMonth"
+      [class.is-today]="day.date === today"
+      [class.is-selected]="day.date === selectedDate()"
+      [class.has-events]="busyDays().has(day.date)"
+      [attr.aria-pressed]="day.date === selectedDate()"
+      [attr.aria-label]="dayLabel(day.date)"
+      (click)="select(day.date)"
+    >
+      {{ day.day }}
+    </button>
+  }
+</div>
+
+<section class="calendar-events" aria-live="polite">
+  <div class="calendar-events__header">
+    <h3 class="calendar-events__title">
+      {{ selectedDate() === today ? 'היום' : dayLabel(selectedDate()) }}
+    </h3>
+    <button type="button" class="calendar-events__add" (click)="formOpen.set(true)">
+      <span class="icon" aria-hidden="true">add</span>
+      אירוע
+    </button>
+  </div>
+
+  @if (loadError(); as message) {
+    <p class="form-alert" role="alert">{{ message }}</p>
+  } @else if (selectedEvents().length === 0) {
+    <p class="calendar-events__empty">אין אירועים ביום זה.</p>
+  } @else {
+    <ul class="calendar-events__list">
+      @for (event of selectedEvents(); track event.id) {
+        <li class="calendar-event">
+          <span class="calendar-event__text">
+            <span class="calendar-event__title">{{ event.title }}</span>
+            <span class="calendar-event__scope">
+              {{ event.className ? 'כיתה ' + event.className : 'כל בית הספר' }}
+            </span>
+          </span>
+          @if (event.canEdit) {
+            <button
+              type="button"
+              class="icon-button"
+              [attr.aria-label]="'מחיקת ' + event.title"
+              (click)="askDelete(event)"
+            >
+              <span class="icon" aria-hidden="true">delete</span>
+            </button>
+          }
+        </li>
+      }
+    </ul>
+  }
+</section>
+
+<app-event-form-dialog
+  [open]="formOpen()"
+  [date]="selectedDate()"
+  (saved)="onCreated($event)"
+  (closed)="formOpen.set(false)"
+/>
+
+<app-dialog
+  [open]="eventToDelete() !== null"
+  title="מחיקת אירוע"
+  (closed)="eventToDelete.set(null)"
+>
+  @if (eventToDelete(); as event) {
+    <p>
+      למחוק את האירוע <strong>{{ event.title }}</strong
+      >?
+    </p>
+  }
+  @if (deleteError(); as message) {
+    <p class="form-alert" role="alert">{{ message }}</p>
+  }
+  <div class="form-actions">
+    <button type="button" class="button button--danger" (click)="confirmDelete()">מחיקה</button>
+    <button type="button" class="button button--secondary" (click)="eventToDelete.set(null)">
+      ביטול
+    </button>
+  </div>
+</app-dialog>

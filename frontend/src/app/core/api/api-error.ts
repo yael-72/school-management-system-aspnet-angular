@@ -35,6 +35,7 @@ const KNOWN_MESSAGES: readonly [string, string][] = [
   ['lower than an existing score', 'לא ניתן להוריד את הציון המרבי מתחת לציון שכבר הוזן.'],
   ['cannot be moved to another class', 'לא ניתן להעביר לכיתה אחרת מבחן שכבר הוזנו לו ציונים.'],
   ['Subject with id', 'המקצוע שנבחר לא קיים.'],
+  ['end date must be on or after', 'תאריך הסיום חייב להיות אחרי תאריך ההתחלה.'],
 ];
 
 /** A Hebrew message for the user, for any error coming from HttpClient. */
