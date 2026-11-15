@@ -139,24 +139,25 @@ public class DbSeeder(
     }
 
     /// <summary>
-    /// Each teacher teaches two subjects: one in the younger classes (grades 7–9) and another in
-    /// the older classes (10–12). This gives every teacher a realistic, limited set of classes,
-    /// which makes the "teachers only see their own classes" rule visible in the demo.
+    /// The first half of the teachers teaches in the junior high classes (grades 7–9), the second half in
+    /// the high school classes (10–12); each teacher has two subjects in her classes. Together with the
+    /// homeroom classes (assigned round-robin in CreateClasses) this shows both permission rules in the demo:
+    /// a teacher sees only some classes, and is sometimes the homeroom teacher of a class where she does
+    /// not teach – she can see it, but not grade it.
     /// </summary>
     private List<TeacherAssignment> CreateTeacherAssignments(List<SchoolClass> classes, List<Subject> subjects, List<User> teachers)
     {
+        var teachersPerStage = teachers.Count / 2;
         var assignments = new List<TeacherAssignment>();
+
         foreach (var schoolClass in classes)
         {
-            var offset = schoolClass.GradeLevel <= 9 ? 0 : teachers.Count / 2;
+            var firstTeacher = schoolClass.GradeLevel <= 9 ? 0 : teachersPerStage;
             for (var s = 0; s < subjects.Count; s++)
             {
-                assignments.Add(new TeacherAssignment
-                {
-                    Class = schoolClass,
-                    Subject = subjects[s],
-                    Teacher = teachers[(s + offset) % teachers.Count]
-                });
+                // Subjects 0–1 go to the stage's first teacher, 2–3 to the second, 4–5 to the third.
+                var teacher = teachers[firstTeacher + s * teachersPerStage / subjects.Count];
+                assignments.Add(new TeacherAssignment { Class = schoolClass, Subject = subjects[s], Teacher = teacher });
             }
         }
 
@@ -234,12 +235,16 @@ public class DbSeeder(
                     Date = date,
                     MaxScore = isQuiz ? 20 : 100,
                     CreatedByUser = teacher,
-                    CreatedAt = NotAfterNow(date.AddDays(-7).ToDateTime(new TimeOnly(9, 0), DateTimeKind.Utc))
+                    // Teachers announce an exam two to three weeks ahead.
+                    CreatedAt = NotAfterNow(date.AddDays(-_random.Next(10, 22)).ToDateTime(new TimeOnly(9, 0), DateTimeKind.Utc))
                 };
                 context.Assessments.Add(assessment);
 
                 if (date < _today)
                 {
+                    // The whole class is graded at once, one to three days after the exam.
+                    var gradedAt = NotAfterNow(date.AddDays(_random.Next(1, 4)).ToDateTime(new TimeOnly(16, 0), DateTimeKind.Utc));
+
                     foreach (var student in studentsByClass[schoolClass])
                     {
                         var percent = Math.Clamp(NextGaussian(ability[student], 7), 35, 100);
@@ -252,7 +257,7 @@ public class DbSeeder(
                             Assessment = assessment,
                             Student = student,
                             Value = missed ? null : Math.Round((decimal)percent * assessment.MaxScore / 100m),
-                            UpdatedAt = NotAfterNow(date.AddDays(3).ToDateTime(new TimeOnly(16, 0), DateTimeKind.Utc))
+                            UpdatedAt = gradedAt
                         });
                     }
                 }
