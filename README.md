@@ -35,6 +35,10 @@ dark mode, and follows the [Horizon UI](https://horizon-ui.com/) design.
 - **Exams and grades.** Exams, quizzes and assignments per class and subject, and a grade sheet with
   live, color-coded percentages and statistics.
 - **Profile.** Personal details, private file uploads with a storage quota, and notification settings.
+- **Administration (admin only).** Staff accounts (add with a first password, edit, deactivate, delete),
+  subjects, and teacher assignments – the rows that decide which classes each teacher can see and grade.
+  Guard rails: an admin cannot lock herself out, and a user or subject with school history cannot be
+  deleted (users are deactivated instead).
 - **Quality of life.** Hebrew RTL layout, dark mode, responsive down to phone width, loading skeletons,
   empty states and friendly Hebrew error messages on every data view.
 
@@ -50,6 +54,8 @@ dark mode, and follows the [Horizon UI](https://horizon-ui.com/) design.
 | **Attendance register** | **Grade sheet** – color-coded scores |
 | ![Assessments](docs/screenshots/assessments.png) | ![Profile](docs/screenshots/profile.png) |
 | **Assessments** | **Profile** – files, storage, notifications |
+| ![Administration](docs/screenshots/admin-users.png) | |
+| **Administration** – staff, subjects, teacher assignments | |
 
 <p>
   <img src="docs/screenshots/mobile-dashboard.png" alt="Dashboard on a phone" width="240" />
@@ -194,9 +200,9 @@ lazy-loaded folder per feature.
 
 | Suite | Count | What it covers |
 |---|---|---|
-| Backend unit tests | 111 | Business rules per service: permissions, score limits, attendance rules, upserts, dashboard numbers, file rules |
-| Backend integration tests | 58 | The real API in memory (`WebApplicationFactory`): routing, auth, validation, status codes, JSON |
-| Frontend tests | 80 | Services, guards, interceptors, error messages and the components with logic (attendance register, grade sheet, to-do list, upload, toggles) |
+| Backend unit tests | 126 | Business rules per service: permissions, score limits, attendance rules, upserts, dashboard numbers, file rules, user / subject / assignment management |
+| Backend integration tests | 70 | The real API in memory (`WebApplicationFactory`): routing, auth, validation, status codes, JSON |
+| Frontend tests | 87 | Services, guards, interceptors, error messages and the components with logic (attendance register, grade sheet, to-do list, upload, toggles, user form, sidebar per role) |
 
 ```bash
 cd backend && dotnet test
@@ -221,7 +227,8 @@ The full, interactive list is in Swagger.
 | Dashboard | `GET /dashboard/stats`, `grades-trend`, `attendance-weekly`, `grade-distribution`, `top-students`, `recent-activity` |
 | Calendar and tasks | `GET/POST /events`, `PUT/DELETE /events/{id}`, `GET/POST /tasks`, `PUT/DELETE /tasks/{id}`, `PATCH /tasks/{id}/toggle` |
 | Profile and files | `GET/PUT /users/me`, `GET/PUT /users/me/notification-settings`, `GET/POST /files`, `GET /files/{id}/download`, `DELETE /files/{id}` |
-| Reference data | `GET /subjects`, `GET /users` (admin) |
+| Administration (admin) | `GET/POST /users`, `GET/PUT/DELETE /users/{id}`, `PATCH /users/{id}/status`, `GET /roles`, `POST /subjects`, `PUT/DELETE /subjects/{id}`, `GET/POST /teacher-assignments`, `DELETE /teacher-assignments/{id}` |
+| Reference data | `GET /subjects` (any user) |
 
 `backend/src/SchoolManagement.Api/SchoolManagement.Api.http` has ready-to-run sample requests.
 
