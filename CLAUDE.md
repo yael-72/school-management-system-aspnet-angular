@@ -232,7 +232,7 @@ Each milestone should end in a working, committed state.
 - Commit after each meaningful step with a clear message.
 ## Project status (keep this section up to date at the end of every milestone)
 
-Latest work is on branch `claude/vigilant-fermat-rh4wkw` (milestones 5–6). Earlier branches: `claude/serene-feynman-cx8m35`
+Latest work is on branch `claude/vigilant-fermat-rh4wkw` (milestones 5–7). Earlier branches: `claude/serene-feynman-cx8m35`
 (milestone 4), `claude/ecstatic-knuth-hgil1o` (3), `claude/gifted-keller-p6dfi2` (1–2).
 Start each new session by reading this section.
 
@@ -281,8 +281,18 @@ Start each new session by reading this section.
   (reads the CSS tokens, recalculated on theme change). Classes page got its side panel (top students +
   recent activity), closing the milestone-3 open item.
 
+- **Milestone 7 – Profile**: `GET/PUT /api/users/me` (name + phone only; email and role are admin-managed),
+  `GET/PUT /api/users/me/notification-settings` (defaults when no row yet), `GET /api/files` (files +
+  used/quota bytes), `POST /api/files` (multipart field `file`), `GET /api/files/{id}/download`,
+  `DELETE /api/files/{id}`. `IFileStorage` (Application) ← `LocalFileStorage` (Infrastructure, folder from
+  `FileStorage:RootPath`, default `App_Data/uploads`, git-ignored). Angular: profile page laid out like the
+  Figma Profile frame (gradient banner + initials avatar + 3 counts, storage bar, drag-and-drop upload with
+  progress, files list with authenticated blob download, personal details tiles + edit form, notification
+  toggles saved instantly). Shared `Toggle` (controlled switch) and `formatBytes()`.
+
 ### Next
-- **Milestone 7 – Profile** (see "Build order" above).
+- **Milestone 8 – Polish** (see "Build order" above): Docker, CI, README with screenshots, live demo,
+  RTL/responsive review, and the remaining admin screens (users, subjects, teacher assignments) if time allows.
 
 ### Open items
 - Classes and Students screens were built from the design tokens without opening their Figma frames
@@ -329,6 +339,13 @@ Start each new session by reading this section.
 - **Tasks & events**: tasks are personal; another user's task is 404 (not 403). Tasks and events lists are
   plain arrays (not paged). School-wide events (ClassId null) are admin-only; a teacher adds events to
   her accessible classes and edits/deletes only the events she created.
+- **Files**: private per user (another user's file → 404). Limits in `FileRules`: 5 MB per file, 50 MB per
+  user, documents and images only (allowlist of extensions); the Angular `FILE_RULES` mirror them for instant
+  feedback. Stored under a server-generated name (`yyyy/MM/{guid}.ext`), path checked to stay inside the root,
+  always downloaded as an attachment with `X-Content-Type-Options: nosniff`. Over-size requests: the multipart
+  limit returns 400 (validation), Kestrel's request limit may return 413 (`BadHttpRequestException` is mapped).
+- **Profile**: after saving, `AuthService.updateCurrentUser()` updates the stored session so the navbar shows
+  the new name. Changing the password is not implemented yet.
 - **Averages** are percentages: `Score.Value * 100 / Assessment.MaxScore`, ungraded (null) scores and
   inactive students excluded, rounded to 1 decimal in C#. Attendance rate = (Present + Late) / recorded days.
 - **Validation**: DataAnnotations on request DTOs (no FluentValidation). API messages in English,
