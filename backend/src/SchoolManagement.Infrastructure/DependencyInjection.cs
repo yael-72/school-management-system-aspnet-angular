@@ -22,7 +22,10 @@ public static class DependencyInjection
                 "Connection string 'DefaultConnection' is missing. Set it in appsettings, user-secrets or the " +
                 "ConnectionStrings__DefaultConnection environment variable.");
 
-        services.AddDbContext<AppDbContext>(options => options.UseSqlServer(connectionString));
+        // Retry on transient errors (for example SQL Server still starting in a container,
+        // or a short network failure in the cloud).
+        services.AddDbContext<AppDbContext>(options =>
+            options.UseSqlServer(connectionString, sql => sql.EnableRetryOnFailure()));
         services.AddScoped<IApplicationDbContext>(provider => provider.GetRequiredService<AppDbContext>());
 
         // ValidateOnStart: the app refuses to start with a missing or too short signing key,

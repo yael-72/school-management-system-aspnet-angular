@@ -37,12 +37,17 @@ var app = builder.Build();
 app.UseExceptionHandler();
 app.UseStatusCodePages();
 
-if (app.Environment.IsDevelopment())
+// Both are switched on in appsettings.Development.json and in docker-compose (the demo),
+// and stay off in any other environment unless configured explicitly.
+if (app.Configuration.GetValue<bool>("Swagger:Enabled"))
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+}
 
-    // Create/upgrade the database and add demo data on startup (development only).
+if (app.Configuration.GetValue<bool>("Database:InitializeOnStartup"))
+{
+    // Create/upgrade the database and add demo data on startup.
     await app.Services.InitializeDatabaseAsync();
 }
 
@@ -50,6 +55,9 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+// Liveness check for Docker and hosting platforms (no login needed).
+app.MapGet("/health", () => Results.Ok(new { status = "ok" })).AllowAnonymous();
 
 app.Run();
 
