@@ -1,0 +1,109 @@
+// Layout of the Horizon "Main Dashboard" frame: a row of KPI cards, then a 4-column grid
+// (two half-width charts, then rows of a wide card + two narrow ones). Fewer columns on smaller screens.
+
+.dashboard-stats {
+  display: grid;
+  // auto-fit: as many columns as fit (6 on a wide screen, 2 on a phone); empty tracks collapse.
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 160px), 1fr));
+  gap: var(--space-5);
+  margin-block-end: var(--space-5);
+}
+
+.dashboard-stats__error {
+  grid-column: 1 / -1;
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-5);
+  align-items: start;
+}
+
+.dashboard-grid__half,
+.dashboard-grid__wide {
+  grid-column: span 2;
+}
+
+@media (max-width: 1399px) {
+  .dashboard-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 767px) {
+  .dashboard-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .dashboard-grid__half,
+  .dashboard-grid__wide {
+    grid-column: auto;
+  }
+}
+
+.chart-header {
+  display: flex;
+  margin-block-end: var(--space-4);
+}
+
+.chart-header__pill {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 7px 12px;
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  background: var(--color-surface-muted);
+  border-radius: 7px;
+
+  .icon {
+    font-size: 18px;
+  }
+}
+
+.trend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+}
+
+.trend__summary {
+  display: flex;
+  flex: 0 0 150px;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.trend__value {
+  font-size: var(--font-size-xl);
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.trend__label {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+.trend__change {
+  margin-inline-start: var(--space-1);
+  font-weight: 700;
+  color: var(--color-success);
+
+  &.is-down {
+    color: var(--color-danger);
+  }
+}
+
+.trend__title {
+  margin-block-start: var(--space-3);
+  font-size: var(--font-size-md);
+  font-weight: 700;
+}
+
+.trend__chart {
+  flex: 1 1 260px;
+  min-inline-size: 0;
+}
