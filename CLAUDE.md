@@ -232,7 +232,7 @@ Each milestone should end in a working, committed state.
 - Commit after each meaningful step with a clear message.
 ## Project status (keep this section up to date at the end of every milestone)
 
-Latest work is on branch `claude/vigilant-fermat-rh4wkw` (milestones 5–8). Earlier branches: `claude/serene-feynman-cx8m35`
+Latest work is on branch `claude/vigilant-fermat-rh4wkw` (milestones 5–8 are merged to `main` via PR #1; admin screens after that). Earlier branches: `claude/serene-feynman-cx8m35`
 (milestone 4), `claude/ecstatic-knuth-hgil1o` (3), `claude/gifted-keller-p6dfi2` (1–2).
 Start each new session by reading this section.
 
@@ -299,11 +299,18 @@ Start each new session by reading this section.
   seeing every class, future activity times in the seed, a phone-width overflow (`.table-scroll` not positioned)
   and a keyboard-focusable closed sidebar.
 
+- **Admin screens** (after milestone 8): `GET/POST /api/users`, `GET/PUT/DELETE /api/users/{id}`,
+  `PATCH /api/users/{id}/status`, `GET /api/roles`, `POST/PUT/DELETE /api/subjects`,
+  `GET/POST/DELETE /api/teacher-assignments` – all admin-only. Angular: `/admin` (roleGuard('Admin'), nav item
+  with `roles: ['Admin']`) with tabs users / subjects / assignments; assignment filters live in the URL
+  (`?teacherId=`), and the users table links each assignment count to them. Verified on real SQL Server
+  (43-call admin sweep + browser walk; teacher gets 403 / is redirected).
+
 ### Next
 - **Live demo**: needs a hosting account (for example Azure App Service + Azure SQL, or a VPS with Docker
   Compose) – ask Yael which one; she has to create the account and give access.
-- Optional: admin screens for users, subjects and teacher assignments (the API has read-only users and
-  subjects so far); change password; Testcontainers-based integration tests on real SQL Server (ask first).
+- Optional: change password / admin password reset; Testcontainers-based integration tests on real
+  SQL Server (ask first).
 
 ### Open items
 - Classes and Students screens were built from the design tokens without opening their Figma frames
@@ -355,6 +362,11 @@ Start each new session by reading this section.
   feedback. Stored under a server-generated name (`yyyy/MM/{guid}.ext`), path checked to stay inside the root,
   always downloaded as an attachment with `X-Content-Type-Options: nosniff`. Over-size requests: the multipart
   limit returns 400 (validation), Kestrel's request limit may return 413 (`BadHttpRequestException` is mapped).
+- **User management**: the admin sets a first password when adding a user (8–100 chars, a letter and a digit;
+  same regex in API and Angular). Emails are stored in lower case. An admin cannot deactivate, delete or change
+  the role of herself. A user with history (assignments, homeroom class, assessments, attendance records, events)
+  cannot be deleted – deactivate instead (deactivated users cannot log in). A subject with assignments or
+  assessments cannot be deleted. Several teachers may share a (class, subject); the same triple twice is refused.
 - **Profile**: after saving, `AuthService.updateCurrentUser()` updates the stored session so the navbar shows
   the new name. Changing the password is not implemented yet.
 - **Averages** are percentages: `Score.Value * 100 / Assessment.MaxScore`, ungraded (null) scores and
