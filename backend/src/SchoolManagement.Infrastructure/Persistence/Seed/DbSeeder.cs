@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using SchoolManagement.Application.Common.Interfaces;
+using SchoolManagement.Domain.Calendar;
 using SchoolManagement.Domain.Constants;
 using SchoolManagement.Domain.Entities;
 using SchoolManagement.Domain.Enums;
@@ -270,7 +271,7 @@ public class DbSeeder(
 
         for (var date = _today.AddDays(-AttendanceHistoryDays); date <= _today; date = date.AddDays(1))
         {
-            if (!IsSchoolDay(date))
+            if (!SchoolCalendar.IsSchoolDay(date))
             {
                 continue;
             }
@@ -347,13 +348,9 @@ public class DbSeeder(
         return $"{start}-{start + 1}";
     }
 
-    /// <summary>School days are Sunday to Thursday.</summary>
-    private static bool IsSchoolDay(DateOnly date) =>
-        date.DayOfWeek is not (DayOfWeek.Friday or DayOfWeek.Saturday);
-
     private static DateOnly NextSchoolDay(DateOnly date)
     {
-        while (!IsSchoolDay(date))
+        while (!SchoolCalendar.IsSchoolDay(date))
         {
             date = date.AddDays(1);
         }
