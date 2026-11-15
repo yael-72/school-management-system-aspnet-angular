@@ -1,0 +1,80 @@
+<header class="todo-header">
+  <span class="todo-header__icon" aria-hidden="true"><span class="icon">task_alt</span></span>
+  <h2 class="todo-header__title">משימות</h2>
+  @if (tasks.hasValue() && openCount() > 0) {
+    <span class="todo-header__count">{{ openCount() }} פתוחות</span>
+  }
+</header>
+
+<form class="todo-form" [formGroup]="form" (ngSubmit)="add()">
+  <label class="todo-form__title">
+    <span class="visually-hidden">משימה חדשה</span>
+    <input class="form-input" formControlName="title" maxlength="200" placeholder="משימה חדשה..." />
+  </label>
+  <label class="todo-form__date-label">
+    <span class="visually-hidden">תאריך יעד</span>
+    <input class="form-input" type="date" formControlName="dueDate" />
+  </label>
+  <button
+    type="submit"
+    class="icon-button todo-form__add"
+    aria-label="הוספת משימה"
+    [disabled]="busy() || !form.controls.title.value.trim()"
+  >
+    <span class="icon" aria-hidden="true">add</span>
+  </button>
+</form>
+
+@if (actionError(); as message) {
+  <p class="form-alert todo-error" role="alert">{{ message }}</p>
+}
+
+@if (loadError(); as message) {
+  <app-empty-state icon="error" title="לא ניתן לטעון את המשימות" [message]="message">
+    <button type="button" class="button" (click)="tasks.reload()">נסו שוב</button>
+  </app-empty-state>
+} @else if (tasks.isLoading() && !tasks.hasValue()) {
+  <div class="todo-skeleton" aria-busy="true">
+    <app-skeleton height="28px" />
+    <app-skeleton height="28px" />
+    <app-skeleton height="28px" />
+  </div>
+} @else if (tasks.value(); as list) {
+  @if (list.length === 0) {
+    <app-empty-state
+      icon="checklist"
+      title="אין משימות"
+      message="הוסיפו משימה ראשונה בשדה למעלה."
+    />
+  } @else {
+    <ul class="todo-list" [class.is-busy]="busy()">
+      @for (task of list; track task.id) {
+        <li class="todo-item" [class.is-done]="task.isDone">
+          <label class="checkbox todo-item__check">
+            <input
+              type="checkbox"
+              [checked]="task.isDone"
+              [disabled]="busy()"
+              (change)="toggle(task)"
+            />
+            <span class="todo-item__title">{{ task.title }}</span>
+          </label>
+          @if (task.dueDate) {
+            <span class="todo-item__due" [class.is-overdue]="isOverdue(task)">
+              {{ task.dueDate | date: 'dd.MM' }}
+            </span>
+          }
+          <button
+            type="button"
+            class="icon-button todo-item__delete"
+            [attr.aria-label]="'מחיקת המשימה ' + task.title"
+            [disabled]="busy()"
+            (click)="remove(task)"
+          >
+            <span class="icon" aria-hidden="true">delete</span>
+          </button>
+        </li>
+      }
+    </ul>
+  }
+}
