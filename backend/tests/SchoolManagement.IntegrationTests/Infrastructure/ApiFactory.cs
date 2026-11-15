@@ -35,6 +35,9 @@ public class ApiFactory : WebApplicationFactory<Program>
 
     private readonly string _databaseName = $"api-tests-{Guid.NewGuid()}";
 
+    /// <summary>Uploaded files go to a temporary folder that is deleted with the factory.</summary>
+    private readonly string _uploadsPath = Path.Combine(Path.GetTempPath(), $"api-tests-uploads-{Guid.NewGuid():N}");
+
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         builder.UseEnvironment("Testing");
@@ -43,6 +46,7 @@ public class ApiFactory : WebApplicationFactory<Program>
         // while it is still registering services.
         builder.UseSetting("ConnectionStrings:DefaultConnection", "not-used-in-tests");
         builder.UseSetting("Jwt:SigningKey", "integration-tests-signing-key-that-is-long-enough-0123456789");
+        builder.UseSetting("FileStorage:RootPath", _uploadsPath);
 
         builder.ConfigureTestServices(services =>
         {
@@ -117,6 +121,15 @@ public class ApiFactory : WebApplicationFactory<Program>
     {
         using var scope = Services.CreateScope();
         return query(scope.ServiceProvider.GetRequiredService<AppDbContext>());
+    }
+
+    protected override void Dispose(bool disposing)
+    {
+        base.Dispose(disposing);
+        if (disposing && Directory.Exists(_uploadsPath))
+        {
+            Directory.Delete(_uploadsPath, recursive: true);
+        }
     }
 
     public int ClassId(string name) => QueryDatabase(db => db.Classes.Single(c => c.Name == name).Id);
