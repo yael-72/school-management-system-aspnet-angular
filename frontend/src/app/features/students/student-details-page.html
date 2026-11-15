@@ -78,7 +78,13 @@
               <tbody>
                 @for (score of data.recentScores; track score.assessmentId) {
                   <tr>
-                    <td>{{ score.assessmentTitle }}</td>
+                    <td>
+                      <a
+                        class="details-score-link"
+                        [routerLink]="['/assessments', score.assessmentId]"
+                        >{{ score.assessmentTitle }}</a
+                      >
+                    </td>
                     <td>{{ score.subjectName }}</td>
                     <td>{{ score.date | date: 'dd.MM.yyyy' }}</td>
                     <td>
