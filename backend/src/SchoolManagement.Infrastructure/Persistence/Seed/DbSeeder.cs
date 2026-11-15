@@ -234,7 +234,7 @@ public class DbSeeder(
                     Date = date,
                     MaxScore = isQuiz ? 20 : 100,
                     CreatedByUser = teacher,
-                    CreatedAt = date.AddDays(-7).ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc)
+                    CreatedAt = NotAfterNow(date.AddDays(-7).ToDateTime(new TimeOnly(9, 0), DateTimeKind.Utc))
                 };
                 context.Assessments.Add(assessment);
 
@@ -252,7 +252,7 @@ public class DbSeeder(
                             Assessment = assessment,
                             Student = student,
                             Value = missed ? null : Math.Round((decimal)percent * assessment.MaxScore / 100m),
-                            UpdatedAt = date.AddDays(3).ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc)
+                            UpdatedAt = NotAfterNow(date.AddDays(3).ToDateTime(new TimeOnly(16, 0), DateTimeKind.Utc))
                         });
                     }
                 }
@@ -356,6 +356,14 @@ public class DbSeeder(
         }
         return date;
     }
+
+    /// <summary>
+    /// A generated "created" or "graded" time can fall after the moment of seeding (an upcoming exam
+    /// created a week before its date, scores entered three days after it). Nothing can happen in the
+    /// future, so such times are moved to a random moment of the last six days instead.
+    /// </summary>
+    private DateTime NotAfterNow(DateTime time) =>
+        time <= _now ? time : _now.AddHours(-_random.Next(2, 6 * 24));
 
     private T Pick<T>(IReadOnlyList<T> items) => items[_random.Next(items.Count)];
 
