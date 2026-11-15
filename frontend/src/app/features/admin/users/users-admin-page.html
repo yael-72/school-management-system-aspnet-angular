@@ -1,0 +1,219 @@
+<div class="list-toolbar">
+  <label class="search-field list-toolbar__search">
+    <span class="visually-hidden">חיפוש משתמש</span>
+    <span class="icon" aria-hidden="true">search</span>
+    <input
+      #searchInput
+      class="form-input"
+      type="search"
+      placeholder="חיפוש לפי שם או אימייל"
+      [value]="searchText()"
+      (input)="onSearch(searchInput.value)"
+    />
+  </label>
+
+  <label class="toolbar-select">
+    <span class="visually-hidden">סינון לפי תפקיד</span>
+    <select #roleSelect class="form-input form-select" (change)="filterByRole(roleSelect.value)">
+      <option value="">כל התפקידים</option>
+      <option value="Admin">{{ roleLabels.Admin }}</option>
+      <option value="Teacher">{{ roleLabels.Teacher }}</option>
+    </select>
+  </label>
+
+  <label class="toolbar-select">
+    <span class="visually-hidden">סינון לפי סטטוס</span>
+    <select
+      #statusSelect
+      class="form-input form-select"
+      (change)="filterByStatus(statusSelect.value)"
+    >
+      <option value="all">כל הסטטוסים</option>
+      <option value="active">פעילים</option>
+      <option value="inactive">מושבתים</option>
+    </select>
+  </label>
+
+  <button type="button" class="button list-toolbar__end" (click)="openCreate()">
+    <span class="icon" aria-hidden="true">person_add</span>
+    משתמש חדש
+  </button>
+</div>
+
+@if (actionError(); as message) {
+  <p class="form-alert action-error" role="alert">{{ message }}</p>
+}
+
+@if (errorMessage(); as message) {
+  <app-empty-state icon="error" title="לא ניתן לטעון את המשתמשים" [message]="message">
+    <button type="button" class="button" (click)="users.reload()">נסו שוב</button>
+  </app-empty-state>
+} @else if (users.isLoading() && !users.hasValue()) {
+  <div class="table-skeleton" aria-busy="true">
+    @for (i of skeletonRows; track i) {
+      <app-skeleton height="36px" />
+    }
+  </div>
+} @else if (users.value(); as result) {
+  @if (result.items.length === 0) {
+    <app-empty-state
+      icon="person_search"
+      title="לא נמצאו משתמשים"
+      message="נסו לשנות את החיפוש או את הסינון."
+    />
+  } @else {
+    <div class="table-scroll">
+      <table class="data-table" [class.is-reloading]="users.isLoading()">
+        <thead>
+          <tr>
+            <th [attr.aria-sort]="ariaSort('fullName')">
+              <button
+                type="button"
+                class="sort-button"
+                [class.is-active]="sortBy() === 'fullName'"
+                (click)="sort('fullName')"
+              >
+                שם <span class="icon" aria-hidden="true">{{ sortIcon('fullName') }}</span>
+              </button>
+            </th>
+            <th [attr.aria-sort]="ariaSort('email')">
+              <button
+                type="button"
+                class="sort-button"
+                [class.is-active]="sortBy() === 'email'"
+                (click)="sort('email')"
+              >
+                אימייל <span class="icon" aria-hidden="true">{{ sortIcon('email') }}</span>
+              </button>
+            </th>
+            <th [attr.aria-sort]="ariaSort('role')">
+              <button
+                type="button"
+                class="sort-button"
+                [class.is-active]="sortBy() === 'role'"
+                (click)="sort('role')"
+              >
+                תפקיד <span class="icon" aria-hidden="true">{{ sortIcon('role') }}</span>
+              </button>
+            </th>
+            <th [attr.aria-sort]="ariaSort('assignmentCount')">
+              <button
+                type="button"
+                class="sort-button"
+                [class.is-active]="sortBy() === 'assignmentCount'"
+                (click)="sort('assignmentCount')"
+              >
+                שיבוצים
+                <span class="icon" aria-hidden="true">{{ sortIcon('assignmentCount') }}</span>
+              </button>
+            </th>
+            <th>סטטוס</th>
+            <th><span class="visually-hidden">פעולות</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (user of result.items; track user.id) {
+            @let isSelf = user.id === currentUserId();
+            <tr [class.is-inactive]="!user.isActive">
+              <td>
+                <span class="user-name">
+                  <app-avatar [name]="user.fullName" [size]="34" />
+                  {{ user.fullName }}
+                  @if (isSelf) {
+                    <span class="self-chip">אני</span>
+                  }
+                </span>
+              </td>
+              <td dir="ltr" class="ltr-cell">{{ user.email }}</td>
+              <td>{{ roleLabels[user.role] }}</td>
+              <td>
+                @if (user.assignmentCount > 0) {
+                  <a
+                    class="count-link"
+                    routerLink="/admin/assignments"
+                    [queryParams]="{ teacherId: user.id }"
+                  >
+                    {{ user.assignmentCount }}
+                  </a>
+                } @else {
+                  <span class="muted">0</span>
+                }
+              </td>
+              <td>
+                <span class="status-chip" [class.status-chip--inactive]="!user.isActive">
+                  {{ user.isActive ? 'פעיל' : 'מושבת' }}
+                </span>
+              </td>
+              <td class="row-actions">
+                <button
+                  type="button"
+                  class="icon-button"
+                  [attr.aria-label]="'עריכת ' + user.fullName"
+                  (click)="openEdit(user)"
+                >
+                  <span class="icon" aria-hidden="true">edit</span>
+                </button>
+                <button
+                  type="button"
+                  class="icon-button"
+                  [disabled]="isSelf || busyUserId() === user.id"
+                  [attr.aria-label]="(user.isActive ? 'השבתת ' : 'הפעלת ') + user.fullName"
+                  [title]="user.isActive ? 'השבתה' : 'הפעלה'"
+                  (click)="toggleStatus(user)"
+                >
+                  <span class="icon" aria-hidden="true">{{
+                    user.isActive ? 'person_off' : 'person_check'
+                  }}</span>
+                </button>
+                <button
+                  type="button"
+                  class="icon-button"
+                  [disabled]="isSelf || busyUserId() === user.id"
+                  [attr.aria-label]="'מחיקת ' + user.fullName"
+                  (click)="askDelete(user)"
+                >
+                  <span class="icon" aria-hidden="true">delete</span>
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    <app-paginator
+      [page]="result.page"
+      [pageSize]="result.pageSize"
+      [totalCount]="result.totalCount"
+      (pageChange)="page.set($event)"
+    />
+  }
+}
+
+<app-user-form-dialog
+  [open]="formOpen()"
+  [userId]="editedUserId()"
+  (saved)="onSaved()"
+  (closed)="formOpen.set(false)"
+/>
+
+<app-dialog [open]="userToDelete() !== null" title="מחיקת משתמש" (closed)="userToDelete.set(null)">
+  @if (userToDelete(); as user) {
+    <p>
+      למחוק את <strong>{{ user.fullName }}</strong
+      >? אפשר למחוק רק משתמש שאין לו כיתות, שיבוצים או רישומים. אחרת יש להשבית אותו.
+    </p>
+  }
+  <div class="form-actions">
+    <button
+      type="button"
+      class="button button--danger"
+      [disabled]="busyUserId() !== null"
+      (click)="confirmDelete()"
+    >
+      מחיקה
+    </button>
+    <button type="button" class="button button--secondary" (click)="userToDelete.set(null)">
+      ביטול
+    </button>
+  </div>
+</app-dialog>

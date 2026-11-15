@@ -1,0 +1,130 @@
+<app-dialog
+  [open]="open()"
+  [title]="isNew() ? 'משתמש חדש' : 'עריכת משתמש'"
+  (closed)="closed.emit()"
+>
+  <form
+    class="form-grid"
+    [formGroup]="form"
+    (ngSubmit)="submit()"
+    [attr.aria-busy]="loadingUser()"
+    novalidate
+  >
+    @if (errorMessage(); as message) {
+      <p class="form-alert" role="alert">{{ message }}</p>
+    }
+
+    <div class="form-field">
+      <label class="form-label" for="user-name"
+        >שם מלא<span class="form-label__required">*</span></label
+      >
+      <input
+        id="user-name"
+        class="form-input"
+        formControlName="fullName"
+        [class.is-invalid]="isInvalid('fullName')"
+      />
+      @if (isInvalid('fullName')) {
+        <span class="form-error">יש להזין שם (עד 100 תווים).</span>
+      }
+    </div>
+
+    <div class="form-row">
+      <div class="form-field">
+        <label class="form-label" for="user-email"
+          >אימייל<span class="form-label__required">*</span></label
+        >
+        <input
+          id="user-email"
+          class="form-input"
+          type="email"
+          dir="ltr"
+          formControlName="email"
+          placeholder="name@school.demo"
+          [class.is-invalid]="isInvalid('email')"
+        />
+        @if (isInvalid('email')) {
+          <span class="form-error">יש להזין כתובת אימייל תקינה.</span>
+        }
+      </div>
+      <div class="form-field">
+        <label class="form-label" for="user-phone">טלפון</label>
+        <input
+          id="user-phone"
+          class="form-input"
+          type="tel"
+          dir="ltr"
+          formControlName="phone"
+          placeholder="050-1234567"
+          [class.is-invalid]="isInvalid('phone')"
+        />
+        @if (isInvalid('phone')) {
+          <span class="form-error">מספר הטלפון אינו תקין.</span>
+        }
+      </div>
+    </div>
+
+    <div class="form-field">
+      <label class="form-label" for="user-role"
+        >תפקיד<span class="form-label__required">*</span></label
+      >
+      <select
+        id="user-role"
+        class="form-input form-select"
+        formControlName="roleId"
+        [class.is-invalid]="isInvalid('roleId')"
+      >
+        <option [ngValue]="null" disabled>בחרו תפקיד</option>
+        @for (role of roles.value() ?? []; track role.id) {
+          <option [ngValue]="role.id">{{ roleLabels[role.name] }}</option>
+        }
+      </select>
+      @if (isSelf()) {
+        <span class="form-hint">לא ניתן לשנות את התפקיד של עצמך.</span>
+      } @else if (isInvalid('roleId')) {
+        <span class="form-error">יש לבחור תפקיד.</span>
+      }
+    </div>
+
+    @if (isNew()) {
+      <div class="form-field">
+        <label class="form-label" for="user-password"
+          >סיסמה ראשונית<span class="form-label__required">*</span></label
+        >
+        <div class="form-input-group">
+          <input
+            id="user-password"
+            class="form-input"
+            dir="ltr"
+            autocomplete="new-password"
+            [type]="showPassword() ? 'text' : 'password'"
+            formControlName="password"
+            [class.is-invalid]="isInvalid('password')"
+          />
+          <button
+            type="button"
+            class="form-input-group__button"
+            [attr.aria-label]="showPassword() ? 'הסתרת הסיסמה' : 'הצגת הסיסמה'"
+            (click)="showPassword.set(!showPassword())"
+          >
+            <span class="icon" aria-hidden="true">{{
+              showPassword() ? 'visibility_off' : 'visibility'
+            }}</span>
+          </button>
+        </div>
+        @if (isInvalid('password')) {
+          <span class="form-error">8 תווים לפחות, ובהם אות וספרה.</span>
+        } @else {
+          <span class="form-hint">את הסיסמה מוסרים למשתמש החדש.</span>
+        }
+      </div>
+    }
+
+    <div class="form-actions">
+      <button type="submit" class="button" [disabled]="submitting() || loadingUser()">
+        {{ submitting() ? 'שומר...' : 'שמירה' }}
+      </button>
+      <button type="button" class="button button--secondary" (click)="closed.emit()">ביטול</button>
+    </div>
+  </form>
+</app-dialog>
