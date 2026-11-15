@@ -73,3 +73,41 @@ Content-Type: application/json
 ### Attendance report of a class over a date range
 GET {{baseUrl}}/api/attendance/report?classId=1&from=2026-10-01&to=2026-10-31
 Authorization: Bearer {{login.response.body.$.accessToken}}
+
+### Subjects (for filters and forms)
+GET {{baseUrl}}/api/subjects
+Authorization: Bearer {{login.response.body.$.accessToken}}
+
+### Assessments of a class, newest first (canEdit says whether you may grade each one)
+GET {{baseUrl}}/api/assessments?classId=1&subjectId=1&from=2026-09-01&to=2026-12-31&page=1&pageSize=20
+Authorization: Bearer {{login.response.body.$.accessToken}}
+
+### Create an assessment (a teacher only for a subject she teaches in that class)
+POST {{baseUrl}}/api/assessments
+Authorization: Bearer {{login.response.body.$.accessToken}}
+Content-Type: application/json
+
+{
+  "title": "מבחן בשברים",
+  "type": "Exam",
+  "classId": 1,
+  "subjectId": 1,
+  "date": "2026-11-10",
+  "maxScore": 100
+}
+
+### Grade sheet of an assessment (every active student and their score)
+GET {{baseUrl}}/api/assessments/1/scores
+Authorization: Bearer {{login.response.body.$.accessToken}}
+
+### Save the scores of an assessment (0 – maxScore; a row with no score and no comment clears it)
+PUT {{baseUrl}}/api/assessments/1/scores
+Authorization: Bearer {{login.response.body.$.accessToken}}
+Content-Type: application/json
+
+{
+  "scores": [
+    { "studentId": 1, "score": 92 },
+    { "studentId": 2, "score": null, "comment": "חולה ביום המבחן" }
+  ]
+}
