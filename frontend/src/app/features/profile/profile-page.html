@@ -1,0 +1,154 @@
+<div class="profile-grid">
+  <!-- Profile card: banner, avatar, name, role and three numbers -->
+  <app-card class="profile-card">
+    @if (profileError(); as message) {
+      <app-empty-state icon="error" title="לא ניתן לטעון את הפרופיל" [message]="message">
+        <button type="button" class="button" (click)="profile.reload()">נסו שוב</button>
+      </app-empty-state>
+    } @else if (profile.value(); as user) {
+      <div class="profile-card__banner" aria-hidden="true"></div>
+      <app-avatar class="profile-card__avatar" [name]="user.fullName" [size]="87" />
+      <h2 class="profile-card__name">{{ user.fullName }}</h2>
+      <p class="profile-card__role">{{ roleLabels[user.role] }}</p>
+      <dl class="profile-card__stats">
+        <div>
+          <dt>כיתות</dt>
+          <dd>{{ user.classCount }}</dd>
+        </div>
+        <div>
+          <dt>תלמידים</dt>
+          <dd>{{ user.studentCount }}</dd>
+        </div>
+        <div>
+          <dt>מבחנים שיצרתי</dt>
+          <dd>{{ user.assessmentCount }}</dd>
+        </div>
+      </dl>
+    } @else {
+      <app-skeleton height="130px" radius="16px" />
+      <app-skeleton width="50%" height="24px" />
+      <app-skeleton width="70%" height="40px" />
+    }
+  </app-card>
+
+  <!-- Storage usage -->
+  <app-card class="storage-card">
+    <span class="storage-card__icon" aria-hidden="true"><span class="icon">cloud_done</span></span>
+    <h2 class="storage-card__title">האחסון שלי</h2>
+    <p class="storage-card__text">מקום לקבצים אישיים: מערכות שעות, דפי עבודה ומסמכים.</p>
+    @if (files.value(); as overview) {
+      <div class="storage-card__usage">
+        <span dir="ltr">{{ formatBytes(overview.usedBytes) }}</span>
+        <span dir="ltr">{{ formatBytes(overview.quotaBytes) }}</span>
+      </div>
+      <div
+        class="storage-card__bar"
+        role="progressbar"
+        aria-label="נפח בשימוש"
+        [attr.aria-valuenow]="usedPercent()"
+        aria-valuemin="0"
+        aria-valuemax="100"
+      >
+        <span [style.inline-size.%]="usedPercent()"></span>
+      </div>
+    } @else if (!files.error()) {
+      <app-skeleton height="30px" />
+    }
+  </app-card>
+
+  <!-- Upload -->
+  <app-card class="upload-card">
+    <app-file-upload (uploaded)="files.reload()" />
+  </app-card>
+
+  <!-- Files list -->
+  <app-card class="files-card" title="הקבצים שלי">
+    @if (fileError(); as message) {
+      <p class="form-alert files-card__error" role="alert">{{ message }}</p>
+    }
+    @if (filesError(); as message) {
+      <app-empty-state icon="error" title="לא ניתן לטעון את הקבצים" [message]="message">
+        <button type="button" class="button" (click)="files.reload()">נסו שוב</button>
+      </app-empty-state>
+    } @else if (files.value(); as overview) {
+      @if (overview.files.length === 0) {
+        <app-empty-state
+          icon="folder_open"
+          title="עדיין לא הועלו קבצים"
+          message="העלו קובץ דרך התיבה שלמעלה."
+        />
+      } @else {
+        <ul class="files-list">
+          @for (file of overview.files; track file.id) {
+            <li class="file-item">
+              <span class="file-item__icon" aria-hidden="true"
+                ><span class="icon">{{ fileIcon(file.fileName) }}</span></span
+              >
+              <span class="file-item__text">
+                <span class="file-item__name">{{ file.fileName }}</span>
+                <span class="file-item__meta"
+                  ><span dir="ltr">{{ formatBytes(file.sizeBytes) }}</span> ·
+                  {{ file.uploadedAt | date: 'dd.MM.yyyy' }}</span
+                >
+              </span>
+              <button
+                type="button"
+                class="icon-button"
+                [attr.aria-label]="'הורדת ' + file.fileName"
+                (click)="download(file)"
+              >
+                <span class="icon" aria-hidden="true">download</span>
+              </button>
+              <button
+                type="button"
+                class="icon-button"
+                [attr.aria-label]="'מחיקת ' + file.fileName"
+                (click)="fileToDelete.set(file)"
+              >
+                <span class="icon" aria-hidden="true">delete</span>
+              </button>
+            </li>
+          }
+        </ul>
+      }
+    } @else {
+      <app-skeleton height="160px" />
+    }
+  </app-card>
+
+  <!-- Personal details -->
+  <app-card class="details-card">
+    @if (profile.value(); as user) {
+      <app-personal-details [profile]="user" (saved)="onProfileSaved($event)" />
+    } @else if (!profile.error()) {
+      <app-skeleton height="200px" />
+    }
+  </app-card>
+
+  <!-- Notifications -->
+  <app-card class="settings-card">
+    <app-notification-settings-card />
+  </app-card>
+</div>
+
+<app-dialog [open]="fileToDelete() !== null" title="מחיקת קובץ" (closed)="fileToDelete.set(null)">
+  @if (fileToDelete(); as file) {
+    <p>
+      למחוק את הקובץ <strong>{{ file.fileName }}</strong
+      >? לא ניתן לשחזר אותו.
+    </p>
+  }
+  <div class="form-actions">
+    <button
+      type="button"
+      class="button button--danger"
+      [disabled]="deleting()"
+      (click)="confirmDelete()"
+    >
+      {{ deleting() ? 'מוחק...' : 'מחיקה' }}
+    </button>
+    <button type="button" class="button button--secondary" (click)="fileToDelete.set(null)">
+      ביטול
+    </button>
+  </div>
+</app-dialog>

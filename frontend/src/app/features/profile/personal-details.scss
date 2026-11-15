@@ -1,0 +1,54 @@
+:host {
+  display: block;
+}
+
+.details-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-block-end: var(--space-4);
+}
+
+.details-header__title {
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+}
+
+// Tiles with a soft shadow, like the Horizon "General Information" card.
+.details-tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: var(--space-4);
+  margin: 0;
+
+  div {
+    padding: var(--space-4) var(--space-5);
+    background: var(--color-surface);
+    border-radius: var(--radius-control);
+    box-shadow: var(--shadow-soft);
+    outline: 1px solid var(--color-border);
+  }
+
+  dt {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+  }
+
+  dd {
+    margin: 0;
+    font-size: var(--font-size-md);
+    font-weight: 500;
+    overflow-wrap: anywhere;
+  }
+}
+
+// LTR values (email, phone) aligned with the RTL ones.
+.details-tiles__ltr {
+  text-align: end;
+}
+
+.details-note {
+  margin-block-start: var(--space-4);
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+}

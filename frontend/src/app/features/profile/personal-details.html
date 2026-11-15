@@ -1,0 +1,78 @@
+<header class="details-header">
+  <h2 class="details-header__title">פרטים אישיים</h2>
+  @if (!editing()) {
+    <button type="button" class="icon-button" aria-label="עריכת הפרטים" (click)="startEditing()">
+      <span class="icon" aria-hidden="true">edit</span>
+    </button>
+  }
+</header>
+
+@if (editing()) {
+  <form class="form-grid" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+    @if (errorMessage(); as message) {
+      <p class="form-alert" role="alert">{{ message }}</p>
+    }
+    <div class="form-field">
+      <label class="form-label" for="profile-name"
+        >שם מלא<span class="form-label__required">*</span></label
+      >
+      <input
+        id="profile-name"
+        class="form-input"
+        formControlName="fullName"
+        [class.is-invalid]="isInvalid('fullName')"
+      />
+      @if (isInvalid('fullName')) {
+        <span class="form-error">יש להזין שם (עד 100 תווים).</span>
+      }
+    </div>
+    <div class="form-field">
+      <label class="form-label" for="profile-phone">טלפון</label>
+      <input
+        id="profile-phone"
+        class="form-input"
+        type="tel"
+        dir="ltr"
+        formControlName="phone"
+        placeholder="050-1234567"
+        [class.is-invalid]="isInvalid('phone')"
+      />
+      @if (isInvalid('phone')) {
+        <span class="form-error">מספר הטלפון אינו תקין.</span>
+      }
+    </div>
+    <div class="form-actions">
+      <button type="submit" class="button" [disabled]="submitting()">
+        {{ submitting() ? 'שומר...' : 'שמירה' }}
+      </button>
+      <button type="button" class="button button--secondary" (click)="editing.set(false)">
+        ביטול
+      </button>
+    </div>
+  </form>
+} @else {
+  @let user = profile();
+  <dl class="details-tiles">
+    <div>
+      <dt>שם מלא</dt>
+      <dd>{{ user.fullName }}</dd>
+    </div>
+    <div>
+      <dt>תפקיד</dt>
+      <dd>{{ roleLabels[user.role] }}</dd>
+    </div>
+    <div>
+      <dt>אימייל</dt>
+      <dd dir="ltr" class="details-tiles__ltr">{{ user.email }}</dd>
+    </div>
+    <div>
+      <dt>טלפון</dt>
+      <dd dir="ltr" class="details-tiles__ltr">{{ user.phone ?? '—' }}</dd>
+    </div>
+    <div>
+      <dt>במערכת מאז</dt>
+      <dd>{{ user.createdAt | date: 'dd.MM.yyyy' }}</dd>
+    </div>
+  </dl>
+  <p class="details-note">את האימייל והתפקיד ניתן לשנות רק דרך הנהלת בית הספר.</p>
+}
