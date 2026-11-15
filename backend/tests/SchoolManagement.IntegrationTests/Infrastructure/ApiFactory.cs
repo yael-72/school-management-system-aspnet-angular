@@ -19,7 +19,8 @@ namespace SchoolManagement.IntegrationTests.Infrastructure;
 /// <summary>
 /// Starts the real API in memory (real routing, auth, validation and error handling),
 /// with an in-memory database instead of SQL Server and a small known school:
-/// an admin, a teacher who teaches only in <see cref="TeacherClassName"/>, and a disabled user.
+/// an admin, a teacher who teaches only math in <see cref="TeacherClassName"/>, and a disabled user.
+/// English is a subject nobody teaches.
 /// </summary>
 public class ApiFactory : WebApplicationFactory<Program>
 {
@@ -87,7 +88,9 @@ public class ApiFactory : WebApplicationFactory<Program>
         var teacherClass = new SchoolClass { Name = TeacherClassName, GradeLevel = 7, SchoolYear = "2026-2027" };
         var otherClass = new SchoolClass { Name = OtherClassName, GradeLevel = 8, SchoolYear = "2026-2027" };
         var math = new Subject { Name = "מתמטיקה" };
+        var english = new Subject { Name = "אנגלית" };
         db.TeacherAssignments.Add(new TeacherAssignment { Teacher = teacher, Class = teacherClass, Subject = math });
+        db.Subjects.Add(english);
 
         db.Students.AddRange(
             new Student { FirstName = "יוסף", LastName = "לוי", Class = teacherClass },
@@ -117,4 +120,6 @@ public class ApiFactory : WebApplicationFactory<Program>
     }
 
     public int ClassId(string name) => QueryDatabase(db => db.Classes.Single(c => c.Name == name).Id);
+
+    public int SubjectId(string name) => QueryDatabase(db => db.Subjects.Single(s => s.Name == name).Id);
 }
