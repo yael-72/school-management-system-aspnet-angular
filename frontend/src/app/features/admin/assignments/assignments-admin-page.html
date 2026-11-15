@@ -1,0 +1,201 @@
+@let lists = filters.value();
+<div class="list-toolbar">
+  <label class="toolbar-select">
+    <span class="visually-hidden">סינון לפי מורה</span>
+    <select
+      #teacherSelect
+      class="form-input form-select"
+      (change)="filter('teacherId', teacherSelect.value)"
+    >
+      <option value="" [selected]="teacherId() === null">כל המורים</option>
+      @for (teacher of lists?.teachers?.items ?? []; track teacher.id) {
+        <option [value]="teacher.id" [selected]="teacher.id === teacherId()">
+          {{ teacher.fullName }}{{ teacher.isActive ? '' : ' (מושבת)' }}
+        </option>
+      }
+    </select>
+  </label>
+
+  <label class="toolbar-select">
+    <span class="visually-hidden">סינון לפי כיתה</span>
+    <select
+      #classSelect
+      class="form-input form-select"
+      (change)="filter('classId', classSelect.value)"
+    >
+      <option value="" [selected]="classId() === null">כל הכיתות</option>
+      @for (schoolClass of lists?.classes?.items ?? []; track schoolClass.id) {
+        <option [value]="schoolClass.id" [selected]="schoolClass.id === classId()">
+          כיתה {{ schoolClass.name }}
+        </option>
+      }
+    </select>
+  </label>
+
+  <label class="toolbar-select">
+    <span class="visually-hidden">סינון לפי מקצוע</span>
+    <select
+      #subjectSelect
+      class="form-input form-select"
+      (change)="filter('subjectId', subjectSelect.value)"
+    >
+      <option value="" [selected]="subjectId() === null">כל המקצועות</option>
+      @for (subject of lists?.subjects ?? []; track subject.id) {
+        <option [value]="subject.id" [selected]="subject.id === subjectId()">
+          {{ subject.name }}
+        </option>
+      }
+    </select>
+  </label>
+
+  @if (hasFilters()) {
+    <button type="button" class="button button--secondary" (click)="clearFilters()">
+      ניקוי סינון
+    </button>
+  }
+
+  <button type="button" class="button list-toolbar__end" (click)="formOpen.set(true)">
+    <span class="icon" aria-hidden="true">add</span>
+    שיבוץ חדש
+  </button>
+</div>
+
+@if (actionError(); as message) {
+  <p class="form-alert action-error" role="alert">{{ message }}</p>
+}
+
+@if (errorMessage(); as message) {
+  <app-empty-state icon="error" title="לא ניתן לטעון את השיבוצים" [message]="message">
+    <button type="button" class="button" (click)="assignments.reload()">נסו שוב</button>
+  </app-empty-state>
+} @else if (assignments.isLoading() && !assignments.hasValue()) {
+  <div class="table-skeleton" aria-busy="true">
+    @for (i of skeletonRows; track i) {
+      <app-skeleton height="36px" />
+    }
+  </div>
+} @else if (assignments.value(); as result) {
+  @if (result.items.length === 0) {
+    <app-empty-state
+      icon="assignment_ind"
+      title="לא נמצאו שיבוצים"
+      [message]="hasFilters() ? 'נסו לשנות את הסינון.' : 'הוסיפו שיבוץ כדי לתת למורה גישה לכיתה.'"
+    />
+  } @else {
+    <div class="table-scroll">
+      <table class="data-table" [class.is-reloading]="assignments.isLoading()">
+        <thead>
+          <tr>
+            <th [attr.aria-sort]="ariaSort('className')">
+              <button
+                type="button"
+                class="sort-button"
+                [class.is-active]="sortBy() === 'className'"
+                (click)="sort('className')"
+              >
+                כיתה <span class="icon" aria-hidden="true">{{ sortIcon('className') }}</span>
+              </button>
+            </th>
+            <th [attr.aria-sort]="ariaSort('subjectName')">
+              <button
+                type="button"
+                class="sort-button"
+                [class.is-active]="sortBy() === 'subjectName'"
+                (click)="sort('subjectName')"
+              >
+                מקצוע <span class="icon" aria-hidden="true">{{ sortIcon('subjectName') }}</span>
+              </button>
+            </th>
+            <th [attr.aria-sort]="ariaSort('teacherName')">
+              <button
+                type="button"
+                class="sort-button"
+                [class.is-active]="sortBy() === 'teacherName'"
+                (click)="sort('teacherName')"
+              >
+                מורה <span class="icon" aria-hidden="true">{{ sortIcon('teacherName') }}</span>
+              </button>
+            </th>
+            <th><span class="visually-hidden">פעולות</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (assignment of result.items; track assignment.id) {
+            <tr>
+              <td>{{ assignment.className }}</td>
+              <td>{{ assignment.subjectName }}</td>
+              <td>
+                <span class="teacher-name">
+                  <app-avatar [name]="assignment.teacherName" [size]="30" />
+                  {{ assignment.teacherName }}
+                  @if (!assignment.teacherIsActive) {
+                    <span class="status-chip status-chip--inactive">מושבת</span>
+                  }
+                </span>
+              </td>
+              <td class="row-actions">
+                <button
+                  type="button"
+                  class="icon-button"
+                  [attr.aria-label]="
+                    'הסרת השיבוץ של ' +
+                    assignment.teacherName +
+                    ' ל' +
+                    assignment.subjectName +
+                    ' בכיתה ' +
+                    assignment.className
+                  "
+                  (click)="askDelete(assignment)"
+                >
+                  <span class="icon" aria-hidden="true">delete</span>
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    <app-paginator
+      [page]="result.page"
+      [pageSize]="result.pageSize"
+      [totalCount]="result.totalCount"
+      (pageChange)="page.set($event)"
+    />
+  }
+}
+
+<app-assignment-form-dialog
+  [open]="formOpen()"
+  [defaults]="formDefaults()"
+  (saved)="onCreated()"
+  (closed)="formOpen.set(false)"
+/>
+
+<app-dialog
+  [open]="assignmentToDelete() !== null"
+  title="הסרת שיבוץ"
+  (closed)="assignmentToDelete.set(null)"
+>
+  @if (assignmentToDelete(); as assignment) {
+    <p>
+      להסיר את השיבוץ של <strong>{{ assignment.teacherName }}</strong> ל{{
+        assignment.subjectName
+      }}
+      בכיתה {{ assignment.className }}? המורה לא יוכל להזין ציונים במקצוע הזה בכיתה, אבל המבחנים
+      שיצר יישמרו.
+    </p>
+  }
+  <div class="form-actions">
+    <button
+      type="button"
+      class="button button--danger"
+      [disabled]="deleting()"
+      (click)="confirmDelete()"
+    >
+      {{ deleting() ? 'מסיר...' : 'הסרה' }}
+    </button>
+    <button type="button" class="button button--secondary" (click)="assignmentToDelete.set(null)">
+      ביטול
+    </button>
+  </div>
+</app-dialog>
