@@ -1,0 +1,48 @@
+// Styles shared by the three admin screens.
+
+.toolbar-select .form-select {
+  block-size: 44px;
+  min-inline-size: 150px;
+}
+
+.table-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.data-table.is-reloading {
+  opacity: 0.6;
+}
+
+.action-error {
+  margin-block-end: var(--space-4);
+}
+
+.row-actions {
+  text-align: end;
+}
+
+.muted {
+  color: var(--color-text-secondary);
+}
+
+// LTR values (email) aligned with the RTL columns.
+.ltr-cell {
+  text-align: end;
+  font-weight: 500;
+}
+
+.status-chip {
+  padding: 3px 10px;
+  font-size: var(--font-size-xs);
+  font-weight: 700;
+  color: var(--color-success);
+  background: color-mix(in srgb, var(--color-success) 12%, transparent);
+  border-radius: var(--radius-pill);
+
+  &.status-chip--inactive {
+    color: var(--color-text-secondary);
+    background: var(--color-surface-muted);
+  }
+}
