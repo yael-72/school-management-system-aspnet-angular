@@ -15,6 +15,22 @@ describe('toErrorMessage', () => {
     expect(toErrorMessage(error)).toContain('תלמידים פעילים');
   });
 
+  it('does not confuse similar messages', () => {
+    const error = httpError(400, {
+      detail: 'Students 4, 9 are not active students of this class.',
+    });
+
+    expect(toErrorMessage(error)).toContain('אינם רשומים בכיתה');
+  });
+
+  it('translates the score limit message', () => {
+    const error = httpError(400, {
+      detail: 'Score of student 4 must be between 0 and the max score (20).',
+    });
+
+    expect(toErrorMessage(error)).toContain('לציון המרבי');
+  });
+
   it('uses a general message for validation errors', () => {
     const error = httpError(400, { errors: { Name: ['Name is required.'] } });
 

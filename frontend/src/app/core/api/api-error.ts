@@ -13,7 +13,10 @@ interface ProblemDetails {
  * Each entry is [text the API message contains, Hebrew message].
  */
 const KNOWN_MESSAGES: readonly [string, string][] = [
-  ['active students', 'לא ניתן למחוק כיתה שיש בה תלמידים פעילים. יש להעביר אותם לכיתה אחרת קודם.'],
+  [
+    'Cannot delete a class that still has',
+    'לא ניתן למחוק כיתה שיש בה תלמידים פעילים. יש להעביר אותם לכיתה אחרת קודם.',
+  ],
   ['history must be kept', 'לא ניתן למחוק כיתה שיש לה היסטוריית ציונים או תלמידים לשעבר.'],
   ['already exists in school year', 'כבר קיימת כיתה בשם הזה באותה שנת לימודים.'],
   ['Homeroom teacher', 'המחנך שנבחר לא קיים או שאינו פעיל.'],
@@ -26,6 +29,12 @@ const KNOWN_MESSAGES: readonly [string, string][] = [
   ],
   ['start date must be', 'תאריך ההתחלה חייב להיות לפני תאריך הסיום.'],
   ['A report can cover at most', 'ניתן להפיק דוח לתקופה של עד שנה.'],
+  ['between 0 and the max score', 'כל ציון חייב להיות בין 0 לציון המרבי של המבחן.'],
+  ['at most 2 decimal places', 'ניתן להזין ציון עם עד שתי ספרות אחרי הנקודה.'],
+  ['before the assessment date', 'ניתן להזין ציונים רק מיום המבחן ואילך.'],
+  ['lower than an existing score', 'לא ניתן להוריד את הציון המרבי מתחת לציון שכבר הוזן.'],
+  ['cannot be moved to another class', 'לא ניתן להעביר לכיתה אחרת מבחן שכבר הוזנו לו ציונים.'],
+  ['Subject with id', 'המקצוע שנבחר לא קיים.'],
 ];
 
 /** A Hebrew message for the user, for any error coming from HttpClient. */
