@@ -2,6 +2,9 @@
 // a thin divider under the header only.
 
 .table-scroll {
+  // "relative" makes this box the containing block of absolutely positioned children (such as a
+  // .visually-hidden header label), so they scroll with the table instead of widening the page.
+  position: relative;
   overflow-x: auto;
 }
 
