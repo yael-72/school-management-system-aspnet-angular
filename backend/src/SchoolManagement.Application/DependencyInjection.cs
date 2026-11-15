@@ -11,6 +11,7 @@ using SchoolManagement.Application.Profile;
 using SchoolManagement.Application.Students;
 using SchoolManagement.Application.Subjects;
 using SchoolManagement.Application.Tasks;
+using SchoolManagement.Application.TeacherAssignments;
 using SchoolManagement.Application.Users;
 
 namespace SchoolManagement.Application;
@@ -30,6 +31,7 @@ public static class DependencyInjection
         services.AddScoped<IProfileService, ProfileService>();
         services.AddScoped<IStudentService, StudentService>();
         services.AddScoped<ISubjectService, SubjectService>();
+        services.AddScoped<ITeacherAssignmentService, TeacherAssignmentService>();
         services.AddScoped<ITodoTaskService, TodoTaskService>();
         services.AddScoped<IUserService, UserService>();
         return services;
