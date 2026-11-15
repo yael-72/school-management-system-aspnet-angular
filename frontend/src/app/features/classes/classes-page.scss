@@ -1,3 +1,20 @@
+.classes-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 360px;
+  gap: var(--space-5);
+  align-items: start;
+
+  @media (max-width: 1399px) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.classes-side {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
 // Header row like "Trending NFTs" + category tabs in the Horizon NFT Marketplace page.
 .classes-header {
   display: flex;

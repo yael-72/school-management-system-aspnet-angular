@@ -3,10 +3,14 @@ import { rxResource, toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { debounceTime } from 'rxjs';
 import { toErrorMessage } from '../../core/api/api-error';
 import { AuthService } from '../../core/auth/auth.service';
+import { Card } from '../../shared/components/card/card';
 import { Dialog } from '../../shared/components/dialog/dialog';
 import { EmptyState } from '../../shared/components/empty-state/empty-state';
 import { Paginator } from '../../shared/components/paginator/paginator';
 import { Skeleton } from '../../shared/components/skeleton/skeleton';
+import { DashboardService } from '../dashboard/dashboard.service';
+import { RecentActivityList } from '../dashboard/widgets/recent-activity';
+import { TopStudents } from '../dashboard/widgets/top-students';
 import { ClassCard } from './class-card';
 import { ClassFormDialog } from './class-form-dialog';
 import { ClassSummary, GRADE_LEVEL_NAMES } from './classes.models';
@@ -18,15 +22,34 @@ const PAGE_SIZE = 12;
 
 @Component({
   selector: 'app-classes-page',
-  imports: [ClassCard, ClassFormDialog, Dialog, EmptyState, Paginator, Skeleton],
+  imports: [
+    Card,
+    ClassCard,
+    ClassFormDialog,
+    Dialog,
+    EmptyState,
+    Paginator,
+    RecentActivityList,
+    Skeleton,
+    TopStudents,
+  ],
   templateUrl: './classes-page.html',
   styleUrl: './classes-page.scss',
 })
 export class ClassesPage {
   private readonly classesService = inject(ClassesService);
   private readonly authService = inject(AuthService);
+  private readonly dashboardService = inject(DashboardService);
 
   protected readonly isAdmin = computed(() => this.authService.hasRole('Admin'));
+
+  // Side panel – the same data as on the dashboard (scoped by role on the server).
+  protected readonly topStudents = rxResource({
+    stream: () => this.dashboardService.getTopStudents(5),
+  });
+  protected readonly recentActivity = rxResource({
+    stream: () => this.dashboardService.getRecentActivity(5),
+  });
 
   protected readonly gradeTabs = SCHOOL_GRADE_LEVELS.map((value) => ({
     value,
