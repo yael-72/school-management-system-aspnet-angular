@@ -111,3 +111,53 @@ Content-Type: application/json
     { "studentId": 2, "score": null, "comment": "חולה ביום המבחן" }
   ]
 }
+
+### Dashboard KPI cards (an admin sees the school, a teacher her classes)
+GET {{baseUrl}}/api/dashboard/stats
+Authorization: Bearer {{login.response.body.$.accessToken}}
+
+### Dashboard charts and lists
+GET {{baseUrl}}/api/dashboard/grades-trend?months=6
+Authorization: Bearer {{login.response.body.$.accessToken}}
+
+###
+GET {{baseUrl}}/api/dashboard/attendance-weekly
+Authorization: Bearer {{login.response.body.$.accessToken}}
+
+###
+GET {{baseUrl}}/api/dashboard/grade-distribution
+Authorization: Bearer {{login.response.body.$.accessToken}}
+
+###
+GET {{baseUrl}}/api/dashboard/top-students?count=5
+Authorization: Bearer {{login.response.body.$.accessToken}}
+
+###
+GET {{baseUrl}}/api/dashboard/recent-activity?count=8
+Authorization: Bearer {{login.response.body.$.accessToken}}
+
+### My to-do list
+GET {{baseUrl}}/api/tasks
+Authorization: Bearer {{login.response.body.$.accessToken}}
+
+### Add a task
+POST {{baseUrl}}/api/tasks
+Authorization: Bearer {{login.response.body.$.accessToken}}
+Content-Type: application/json
+
+{ "title": "להכין את אסיפת ההורים", "dueDate": "2026-11-20" }
+
+### Mark a task done (or open again)
+PATCH {{baseUrl}}/api/tasks/1/toggle
+Authorization: Bearer {{login.response.body.$.accessToken}}
+
+### Calendar events in a date range
+GET {{baseUrl}}/api/events?from=2026-11-01&to=2026-11-30
+Authorization: Bearer {{login.response.body.$.accessToken}}
+
+### Add an event (classId null = school-wide, admin only)
+POST {{baseUrl}}/api/events
+Authorization: Bearer {{login.response.body.$.accessToken}}
+Content-Type: application/json
+
+{ "title": "טיול שנתי", "startDate": "2026-11-24", "endDate": "2026-11-25", "classId": 1 }
