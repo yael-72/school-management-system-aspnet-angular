@@ -53,6 +53,19 @@ export class AuthService {
     return session?.accessToken ?? null;
   }
 
+  /** Updates the stored user after she edits her profile, so the navbar shows the new name right away. */
+  updateCurrentUser(changes: Partial<Pick<CurrentUser, 'fullName'>>): void {
+    const session = this.session();
+    if (!session) {
+      return;
+    }
+    const updated: StoredSession = { ...session, user: { ...session.user, ...changes } };
+    // Keep it in the same storage the login chose ("keep me logged in" or not).
+    const storage = localStorage.getItem(STORAGE_KEY) ? localStorage : sessionStorage;
+    storage.setItem(STORAGE_KEY, JSON.stringify(updated));
+    this.session.set(updated);
+  }
+
   hasRole(...roles: UserRole[]): boolean {
     const user = this.currentUser();
     return user !== null && roles.includes(user.role);

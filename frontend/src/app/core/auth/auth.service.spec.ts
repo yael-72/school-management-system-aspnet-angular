@@ -18,7 +18,11 @@ describe('AuthService', () => {
 
   function createService(): AuthService {
     TestBed.configureTestingModule({
-      providers: [provideHttpClient(), provideHttpClientTesting(), provideRouter([{ path: '**', children: [] }])],
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        provideRouter([{ path: '**', children: [] }]),
+      ],
     });
     http = TestBed.inject(HttpTestingController);
     return TestBed.inject(AuthService);
@@ -62,12 +66,27 @@ describe('AuthService', () => {
   });
 
   it('ignores an expired saved session', () => {
-    localStorage.setItem('auth_session', JSON.stringify({ ...response(), expiresAt: '2020-01-01T00:00:00Z' }));
+    localStorage.setItem(
+      'auth_session',
+      JSON.stringify({ ...response(), expiresAt: '2020-01-01T00:00:00Z' }),
+    );
 
     const service = createService();
 
     expect(service.isAuthenticated()).toBe(false);
     expect(service.getAccessToken()).toBeNull();
+  });
+
+  it('updates the stored user name after a profile change', () => {
+    const service = createService();
+    service.login({ email: 'teacher@school.demo', password: 'x', rememberMe: true }).subscribe();
+    http.expectOne('/api/auth/login').flush(response());
+
+    service.updateCurrentUser({ fullName: 'משה לוינסון' });
+
+    expect(service.currentUser()?.fullName).toBe('משה לוינסון');
+    expect(localStorage.getItem('auth_session')).toContain('משה לוינסון');
+    expect(sessionStorage.getItem('auth_session')).toBeNull();
   });
 
   it('logout clears the session', () => {

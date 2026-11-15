@@ -31,6 +31,17 @@ describe('toErrorMessage', () => {
     expect(toErrorMessage(error)).toContain('לציון המרבי');
   });
 
+  it('translates an upload over the size limit', () => {
+    const error = httpError(400, {
+      errors: {
+        '': ['Failed to read the request form. Multipart body length limit 6291456 exceeded.'],
+      },
+    });
+
+    expect(toErrorMessage(error)).toContain('גדול מדי');
+    expect(toErrorMessage(httpError(413))).toContain('גדול מדי');
+  });
+
   it('uses a general message for validation errors', () => {
     const error = httpError(400, { errors: { Name: ['Name is required.'] } });
 

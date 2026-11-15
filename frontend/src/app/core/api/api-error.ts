@@ -35,6 +35,10 @@ const KNOWN_MESSAGES: readonly [string, string][] = [
   ['lower than an existing score', 'לא ניתן להוריד את הציון המרבי מתחת לציון שכבר הוזן.'],
   ['cannot be moved to another class', 'לא ניתן להעביר לכיתה אחרת מבחן שכבר הוזנו לו ציונים.'],
   ['Subject with id', 'המקצוע שנבחר לא קיים.'],
+  ['file type is not allowed', 'סוג הקובץ אינו נתמך.'],
+  ['Not enough storage space', 'אין מספיק מקום אחסון. מחקו קבצים ישנים ונסו שוב.'],
+  ['A file can be at most', 'הקובץ גדול מדי (עד 5 MB).'],
+  ['Multipart body length limit', 'הקובץ גדול מדי (עד 5 MB).'],
   ['end date must be on or after', 'תאריך הסיום חייב להיות אחרי תאריך ההתחלה.'],
 ];
 
@@ -53,8 +57,12 @@ export function toErrorMessage(error: unknown): string {
       return 'אין לך הרשאה לצפות או לערוך את המידע הזה.';
     case HttpStatusCode.NotFound:
       return 'הפריט המבוקש לא נמצא. ייתכן שהוא נמחק.';
+    case HttpStatusCode.PayloadTooLarge:
+      return 'הקובץ גדול מדי (עד 5 MB).';
     case HttpStatusCode.BadRequest: {
-      const known = KNOWN_MESSAGES.find(([apiText]) => problem.detail?.includes(apiText));
+      // Look in the business-rule message and in the validation messages.
+      const text = [problem.detail ?? '', ...Object.values(problem.errors ?? {}).flat()].join(' ');
+      const known = KNOWN_MESSAGES.find(([apiText]) => text.includes(apiText));
       if (known) {
         return known[1];
       }
