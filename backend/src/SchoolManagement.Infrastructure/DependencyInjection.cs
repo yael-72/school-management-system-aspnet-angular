@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using SchoolManagement.Application.Common.Interfaces;
+using SchoolManagement.Infrastructure.Files;
 using SchoolManagement.Infrastructure.Identity;
 using SchoolManagement.Infrastructure.Persistence;
 using SchoolManagement.Infrastructure.Persistence.Seed;
@@ -33,6 +34,12 @@ public static class DependencyInjection
 
         services.AddSingleton<IPasswordHasher, PasswordHasher>();
         services.AddSingleton<ITokenService, JwtTokenService>();
+
+        services.AddOptions<FileStorageOptions>()
+            .Bind(configuration.GetSection(FileStorageOptions.SectionName))
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
+        services.AddSingleton<IFileStorage, LocalFileStorage>();
 
         services.AddSingleton(TimeProvider.System);
         services.AddScoped<DbSeeder>();

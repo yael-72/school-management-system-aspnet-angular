@@ -6,6 +6,8 @@ using SchoolManagement.Application.Classes;
 using SchoolManagement.Application.Common.Security;
 using SchoolManagement.Application.Dashboard;
 using SchoolManagement.Application.Events;
+using SchoolManagement.Application.Files;
+using SchoolManagement.Application.Profile;
 using SchoolManagement.Application.Students;
 using SchoolManagement.Application.Subjects;
 using SchoolManagement.Application.Tasks;
@@ -24,6 +26,8 @@ public static class DependencyInjection
         services.AddScoped<IClassService, ClassService>();
         services.AddScoped<IDashboardService, DashboardService>();
         services.AddScoped<IEventService, EventService>();
+        services.AddScoped<IFileService, FileService>();
+        services.AddScoped<IProfileService, ProfileService>();
         services.AddScoped<IStudentService, StudentService>();
         services.AddScoped<ISubjectService, SubjectService>();
         services.AddScoped<ITodoTaskService, TodoTaskService>();

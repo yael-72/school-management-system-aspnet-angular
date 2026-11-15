@@ -23,6 +23,8 @@ public class GlobalExceptionHandler(
             ForbiddenException => (StatusCodes.Status403Forbidden, "Forbidden"),
             AuthenticationFailedException => (StatusCodes.Status401Unauthorized, "Unauthorized"),
             BusinessRuleException => (StatusCodes.Status400BadRequest, "Business rule violation"),
+            // Thrown by the server itself, for example when an upload is bigger than the request size limit (413).
+            BadHttpRequestException badRequest => (badRequest.StatusCode, "Bad request"),
             _ => (StatusCodes.Status500InternalServerError, "Server error")
         };
 
@@ -43,7 +45,9 @@ public class GlobalExceptionHandler(
                 Status = status,
                 Title = title,
                 // Never send internal error details (stack traces, SQL) to the client.
-                Detail = status == StatusCodes.Status500InternalServerError
+                Detail = status == StatusCodes.Status413PayloadTooLarge
+                    ? "The request is too large."
+                    : status == StatusCodes.Status500InternalServerError
                     ? "An unexpected error occurred."
                     : exception.Message
             }

@@ -161,3 +161,41 @@ Authorization: Bearer {{login.response.body.$.accessToken}}
 Content-Type: application/json
 
 { "title": "טיול שנתי", "startDate": "2026-11-24", "endDate": "2026-11-25", "classId": 1 }
+
+### My profile
+GET {{baseUrl}}/api/users/me
+Authorization: Bearer {{login.response.body.$.accessToken}}
+
+### Update my name and phone (email and role cannot be changed here)
+PUT {{baseUrl}}/api/users/me
+Authorization: Bearer {{login.response.body.$.accessToken}}
+Content-Type: application/json
+
+{ "fullName": "אהרן אברמסון", "phone": "050-1234567" }
+
+### My notification settings
+PUT {{baseUrl}}/api/users/me/notification-settings
+Authorization: Bearer {{login.response.body.$.accessToken}}
+Content-Type: application/json
+
+{ "remindBeforeExam": true, "alertOnLowAttendance": true, "weeklySummaryEmail": false }
+
+### My files and storage usage
+GET {{baseUrl}}/api/files
+Authorization: Bearer {{login.response.body.$.accessToken}}
+
+### Upload a file (documents and images, up to 5 MB; 50 MB per user)
+POST {{baseUrl}}/api/files
+Authorization: Bearer {{login.response.body.$.accessToken}}
+Content-Type: multipart/form-data; boundary=boundary
+
+--boundary
+Content-Disposition: form-data; name="file"; filename="notes.txt"
+Content-Type: text/plain
+
+Hello from the .http file
+--boundary--
+
+### Download a file
+GET {{baseUrl}}/api/files/1/download
+Authorization: Bearer {{login.response.body.$.accessToken}}

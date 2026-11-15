@@ -483,3 +483,6 @@ $RECYCLE.BIN/
 
 # Local environment files
 .env
+
+# Files uploaded through the API in development
+**/App_Data/
