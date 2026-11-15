@@ -37,4 +37,38 @@ public class ClassAccessService(IApplicationDbContext db, ICurrentUser currentUs
             throw new ForbiddenException("You do not teach in this class.");
         }
     }
+
+    public async Task<IReadOnlySet<ClassSubject>?> GetGradableSubjectsAsync(CancellationToken cancellationToken = default)
+    {
+        if (currentUser.IsAdmin)
+        {
+            return null;
+        }
+
+        var teacherId = currentUser.Id;
+        var pairs = await db.TeacherAssignments
+            .Where(a => a.TeacherId == teacherId)
+            .Select(a => new { a.ClassId, a.SubjectId })
+            .ToListAsync(cancellationToken);
+
+        return pairs.Select(p => new ClassSubject(p.ClassId, p.SubjectId)).ToHashSet();
+    }
+
+    public async Task EnsureCanGradeAsync(int classId, int subjectId, CancellationToken cancellationToken = default)
+    {
+        if (currentUser.IsAdmin)
+        {
+            return;
+        }
+
+        var teacherId = currentUser.Id;
+        var teachesSubject = await db.TeacherAssignments.AnyAsync(
+            a => a.TeacherId == teacherId && a.ClassId == classId && a.SubjectId == subjectId,
+            cancellationToken);
+
+        if (!teachesSubject)
+        {
+            throw new ForbiddenException("You do not teach this subject in this class.");
+        }
+    }
 }

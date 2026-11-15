@@ -53,4 +53,33 @@ public class ClassAccessServiceTests
         await sut.Invoking(s => s.EnsureCanAccessClassAsync(schoolClass.Id))
             .Should().ThrowAsync<ForbiddenException>();
     }
+
+    [Fact]
+    public async Task Teacher_can_grade_only_the_subjects_she_teaches_in_a_class()
+    {
+        var teacher = await _school.AddTeacherAsync();
+        var math = await _school.AddSubjectAsync("מתמטיקה");
+        var english = await _school.AddSubjectAsync("אנגלית");
+        var schoolClass = await _school.AddClassAsync(homeroomTeacher: teacher);
+        await _school.AssignAsync(teacher, schoolClass, math);
+
+        var sut = new ClassAccessService(_db, FakeCurrentUser.Teacher(teacher.Id));
+
+        (await sut.GetGradableSubjectsAsync()).Should().BeEquivalentTo([new ClassSubject(schoolClass.Id, math.Id)]);
+        await sut.Invoking(s => s.EnsureCanGradeAsync(schoolClass.Id, math.Id)).Should().NotThrowAsync();
+        // Being the homeroom teacher lets her see the class, not grade subjects taught by others.
+        await sut.Invoking(s => s.EnsureCanGradeAsync(schoolClass.Id, english.Id))
+            .Should().ThrowAsync<ForbiddenException>();
+    }
+
+    [Fact]
+    public async Task Admin_can_grade_every_subject()
+    {
+        var schoolClass = await _school.AddClassAsync();
+        var subject = await _school.AddSubjectAsync();
+        var sut = new ClassAccessService(_db, FakeCurrentUser.Admin());
+
+        (await sut.GetGradableSubjectsAsync()).Should().BeNull("null means every subject in every class");
+        await sut.Invoking(s => s.EnsureCanGradeAsync(schoolClass.Id, subject.Id)).Should().NotThrowAsync();
+    }
 }
