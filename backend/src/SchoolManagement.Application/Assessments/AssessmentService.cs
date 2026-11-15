@@ -86,9 +86,11 @@ public class AssessmentService(
             MaxScore = a.MaxScore,
             GradedCount = a.Scores.Count(s => s.Value != null && s.Student.IsActive),
             StudentCount = a.Class.Students.Count(s => s.IsActive),
+            // AVG(score) * 100 / MaxScore, not AVG(score * 100 / MaxScore): SQL Server does not allow an
+            // aggregate that mixes a column of the sub-query with one of the outer query (a.MaxScore).
             AverageScore = a.Scores
                 .Where(s => s.Value != null && s.Student.IsActive)
-                .Average(s => s.Value * 100 / a.MaxScore)
+                .Average(s => s.Value) * 100 / a.MaxScore
         });
 
         var sorted = query.SortBy?.ToLowerInvariant() switch
