@@ -232,7 +232,8 @@ Each milestone should end in a working, committed state.
 - Commit after each meaningful step with a clear message.
 ## Project status (keep this section up to date at the end of every milestone)
 
-Latest work is on branch `claude/ecstatic-knuth-hgil1o` (milestones 1–2 were on `claude/gifted-keller-p6dfi2`).
+Latest work is on branch `claude/vigilant-fermat-rh4wkw` (milestone 5). Earlier branches: `claude/serene-feynman-cx8m35`
+(milestone 4), `claude/ecstatic-knuth-hgil1o` (3), `claude/gifted-keller-p6dfi2` (1–2).
 Start each new session by reading this section.
 
 ### Done
@@ -259,8 +260,18 @@ Start each new session by reading this section.
   rows on phones) and period report. Shared `dates.ts` (`toIsoDate` uses local date parts) and
   `route-params.ts` (`toPositiveId`).
 
+- **Milestone 5 – Assessments & Grades**: `GET/POST/PUT/DELETE /api/assessments` (filters classId, subjectId,
+  type, from, to; default order newest first; each row has `canEdit`), `GET /api/assessments/{id}/scores`
+  (grade sheet: every active student + average/highest/lowest), `PUT /api/assessments/{id}/scores` (bulk
+  upsert), `GET /api/subjects` (any user). Rules: 0 ≤ score ≤ MaxScore, at most 2 decimals, no scores before
+  the assessment date, only active students of the class, MaxScore cannot drop below an existing score,
+  a graded assessment cannot move to another class, delete removes its scores. Angular: `/assessments`
+  table (search, class/subject filters, type tabs, sorting, paging, create/edit/delete dialogs) and
+  `/assessments/:id` (details, stat tiles, grade sheet with live color-coded percentages, read-only mode,
+  stacked rows on phones). Shared `_tabs.scss` (`.pill-tabs`), `AssessmentTypeChip`.
+
 ### Next
-- **Milestone 5 – Assessments & Grades** (see "Build order" above).
+- **Milestone 6 – Dashboard** (see "Build order" above).
 
 ### Open items
 - Classes and Students screens were built from the design tokens without opening their Figma frames
@@ -295,6 +306,12 @@ Start each new session by reading this section.
   teacher). The register sends only rows that have a status; unmarked students stay unrecorded.
   "Today" on the server is the UTC date (same as the birth-date rule), so between midnight and ~02:00
   Israel time the server may still reject "today" as a future date – acceptable for now.
+- **Grading permission** (`IClassAccessService.EnsureCanGradeAsync` / `GetGradableSubjectsAsync`):
+  admin always; a teacher only for a (class, subject) pair in TeacherAssignments. A homeroom teacher
+  *reads* all assessments of her class but edits only her own subjects. Reading needs class access only.
+  Assessments have no Admin-only endpoints – the rule is data-based, so it lives in the service.
+- **Scores**: a row with score null and no comment clears the student's score (row deleted); a null
+  score with a comment is kept ("missed the exam"). The grade sheet sends only the changed rows.
 - **Averages** are percentages: `Score.Value * 100 / Assessment.MaxScore`, ungraded (null) scores and
   inactive students excluded, rounded to 1 decimal in C#. Attendance rate = (Present + Late) / recorded days.
 - **Validation**: DataAnnotations on request DTOs (no FluentValidation). API messages in English,
