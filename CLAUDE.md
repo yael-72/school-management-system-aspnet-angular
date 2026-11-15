@@ -232,7 +232,7 @@ Each milestone should end in a working, committed state.
 - Commit after each meaningful step with a clear message.
 ## Project status (keep this section up to date at the end of every milestone)
 
-Latest work is on branch `claude/vigilant-fermat-rh4wkw` (milestone 5). Earlier branches: `claude/serene-feynman-cx8m35`
+Latest work is on branch `claude/vigilant-fermat-rh4wkw` (milestones 5–6). Earlier branches: `claude/serene-feynman-cx8m35`
 (milestone 4), `claude/ecstatic-knuth-hgil1o` (3), `claude/gifted-keller-p6dfi2` (1–2).
 Start each new session by reading this section.
 
@@ -270,14 +270,23 @@ Start each new session by reading this section.
   `/assessments/:id` (details, stat tiles, grade sheet with live color-coded percentages, read-only mode,
   stacked rows on phones). Shared `_tabs.scss` (`.pill-tabs`), `AssessmentTypeChip`.
 
+- **Milestone 6 – Dashboard**: `GET /api/dashboard/stats | grades-trend?months= | attendance-weekly |
+  grade-distribution | top-students?count= | recent-activity?count=` (all scoped by role, computed in SQL),
+  `GET/POST /api/tasks`, `PUT/DELETE /api/tasks/{id}`, `PATCH /api/tasks/{id}/toggle`,
+  `GET /api/events?from=&to=` (overlapping events, ≤ 366 days), `POST/PUT/DELETE /api/events`.
+  Domain `SchoolCalendar` (Sunday–Thursday school days, week starts Sunday). Angular: dashboard page laid
+  out like the Figma Main Dashboard (6 `StatCard`s, grades-trend area chart, stacked weekly-attendance bars,
+  top students, frequent absences, grade-distribution pie, recent activity, to-do list, mini calendar with an
+  add-event dialog). Charts use ng-apexcharts (lazy-loaded with the dashboard) and `injectChartColors()`
+  (reads the CSS tokens, recalculated on theme change). Classes page got its side panel (top students +
+  recent activity), closing the milestone-3 open item.
+
 ### Next
-- **Milestone 6 – Dashboard** (see "Build order" above).
+- **Milestone 7 – Profile** (see "Build order" above).
 
 ### Open items
 - Classes and Students screens were built from the design tokens without opening their Figma frames
   (`101:10012`, `101:9569`): the Figma MCP Starter-plan call limit was reached. Compare and fine-tune.
-- Classes page side panel (top students + recent activity) is deferred to milestone 6, where the
-  dashboard endpoints that provide this data are built.
 
 ### Decisions already made (do not re-ask)
 - **Design source**: Horizon UI Figma file `YH394Y7LXSOwGdQuhrKoLU` (Figma connector). Match it
@@ -312,6 +321,14 @@ Start each new session by reading this section.
   Assessments have no Admin-only endpoints – the rule is data-based, so it lives in the service.
 - **Scores**: a row with score null and no comment clears the student's score (row deleted); a null
   score with a comment is kept ("missed the exam"). The grade sheet sends only the changed rows.
+- **Dashboard**: "frequent absences" = ≥ 4 absences in the last 30 days (top 5). Grade bands
+  (90/75/55) live in `GradeBands` (API) and `scoreLevel()` (Angular) – keep them equal. Averages, top
+  students and the distribution are all-time (not per school year). Recent activity merges "assessment
+  created" (with the creator) and "scores entered" (latest Score.UpdatedAt; scores do not store who).
+  Charts keep a left-to-right time axis inside `dir="ltr"` also in the RTL layout.
+- **Tasks & events**: tasks are personal; another user's task is 404 (not 403). Tasks and events lists are
+  plain arrays (not paged). School-wide events (ClassId null) are admin-only; a teacher adds events to
+  her accessible classes and edits/deletes only the events she created.
 - **Averages** are percentages: `Score.Value * 100 / Assessment.MaxScore`, ungraded (null) scores and
   inactive students excluded, rounded to 1 decimal in C#. Attendance rate = (Present + Late) / recorded days.
 - **Validation**: DataAnnotations on request DTOs (no FluentValidation). API messages in English,
