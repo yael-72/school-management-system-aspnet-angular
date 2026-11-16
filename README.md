@@ -179,6 +179,9 @@ lazy-loaded folder per feature.
 - **Errors are ProblemDetails.** Services throw `NotFoundException`, `ForbiddenException` or
   `BusinessRuleException`; one global handler turns them into RFC 7807 responses (404 / 403 / 400). The API
   writes messages in English, and the Angular app translates them into Hebrew for the user.
+- **Attendance uses a status picker, not a checkbox.** A checkbox can only say present or absent; a school
+  also needs "late" and "excused", which count differently in the attendance rate. Each row has four
+  status pills (real radio buttons, so the keyboard and screen readers work), plus "mark the rest present".
 - **Upserts for bulk screens.** Attendance and grades are saved in one request for the whole class.
   The service updates the rows that exist and adds the missing ones; unique indexes on
   (student, date) and (assessment, student) guard against duplicates.
@@ -202,7 +205,7 @@ lazy-loaded folder per feature.
 |---|---|---|
 | Backend unit tests | 126 | Business rules per service: permissions, score limits, attendance rules, upserts, dashboard numbers, file rules, user / subject / assignment management |
 | Backend integration tests | 70 | The real API in memory (`WebApplicationFactory`): routing, auth, validation, status codes, JSON |
-| Frontend tests | 87 | Services, guards, interceptors, error messages and the components with logic (attendance register, grade sheet, to-do list, upload, toggles, user form, sidebar per role) |
+| Frontend tests | 89 | Services, guards, interceptors, error messages and the components with logic (attendance register, grade sheet, to-do list, upload, toggles, user form, sidebar per role) |
 
 ```bash
 cd backend && dotnet test
