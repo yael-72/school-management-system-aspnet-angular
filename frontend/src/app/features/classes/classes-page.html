@@ -1,6 +1,22 @@
 <!-- Horizon "NFT Marketplace": the cards on the main side, a narrow side panel next to them. -->
 <div class="classes-layout">
   <div class="classes-main">
+    <!-- The design's hero banner, with shortcuts to the two daily tasks of a teacher. -->
+    <section class="classes-banner" aria-labelledby="classes-banner-title">
+      <div class="classes-banner__text">
+        <h2 id="classes-banner-title" class="classes-banner__title">כל הכיתות שלכם במקום אחד</h2>
+        <p class="classes-banner__subtitle">
+          לכל כיתה רואים את המחנך, מספר התלמידים והממוצע. בחרו כיתה כדי לראות את התלמידים שלה, או
+          רשמו נוכחות להיום.
+        </p>
+        <div class="classes-banner__actions">
+          <a class="classes-banner__primary" routerLink="/attendance">רישום נוכחות</a>
+          <a class="classes-banner__link" routerLink="/assessments">מבחנים וציונים</a>
+        </div>
+      </div>
+      <span class="classes-banner__art" aria-hidden="true"><span class="icon">school</span></span>
+    </section>
+
     <div class="classes-header">
       <h2 class="classes-header__title">הכיתות שלי</h2>
 
@@ -102,6 +118,7 @@
 
   <aside class="classes-side" aria-label="סיכום">
     <app-card title="תלמידים מצטיינים">
+      <a card-action class="see-all" routerLink="/students">הכול</a>
       @if (topStudents.value(); as students) {
         <app-top-students [students]="students" />
       } @else if (topStudents.error()) {
@@ -112,6 +129,7 @@
     </app-card>
 
     <app-card title="פעילות אחרונה">
+      <a card-action class="see-all" routerLink="/assessments">הכול</a>
       @if (recentActivity.value(); as items) {
         <app-recent-activity [items]="items" />
       } @else if (recentActivity.error()) {

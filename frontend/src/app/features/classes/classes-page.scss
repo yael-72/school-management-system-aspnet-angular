@@ -9,6 +9,89 @@
   }
 }
 
+// Hero banner (Horizon NFT Marketplace): brand gradient, white text, a white pill button.
+.classes-banner {
+  position: relative;
+  display: flex;
+  align-items: center;
+  margin-block-end: var(--space-6);
+  padding: 40px 47px;
+  overflow: hidden;
+  color: var(--color-text-on-primary);
+  background: var(--gradient-brand);
+  border-radius: var(--radius-card);
+
+  @media (max-width: 767px) {
+    padding: var(--space-6);
+  }
+}
+
+.classes-banner__text {
+  position: relative; // above the decorative icon
+  max-inline-size: 520px;
+}
+
+.classes-banner__title {
+  font-size: var(--font-size-xl);
+  font-weight: 700;
+  line-height: 1.2;
+
+  @media (max-width: 767px) {
+    font-size: var(--font-size-lg);
+  }
+}
+
+.classes-banner__subtitle {
+  margin-block: var(--space-4) var(--space-6);
+  font-size: var(--font-size-md);
+  line-height: 1.6;
+  opacity: 0.9;
+}
+
+.classes-banner__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-6);
+}
+
+// The banner is the brand gradient in both themes, so its button is always white with navy text.
+.classes-banner__primary {
+  padding: 13px 34px;
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  color: var(--color-primary);
+  background: var(--color-text-on-primary);
+  border-radius: var(--radius-pill);
+}
+
+.classes-banner__link {
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+// A large faded school icon instead of the design's 3D images. The wrapper is positioned, not the
+// icon itself: .icon sets direction: ltr, which would turn its inline-end into the right side.
+.classes-banner__art {
+  position: absolute;
+  inset-inline-end: 40px;
+  inset-block-start: 50%;
+  opacity: 0.18;
+  transform: translateY(-50%) rotate(-12deg);
+
+  .icon {
+    font-size: 200px;
+  }
+
+  @media (max-width: 899px) {
+    display: none;
+  }
+}
+
 .classes-side {
   display: flex;
   flex-direction: column;
