@@ -305,6 +305,12 @@ Start each new session by reading this section.
   with `roles: ['Admin']`) with tabs users / subjects / assignments; assignment filters live in the URL
   (`?teacherId=`), and the users table links each assignment count to them. Verified on real SQL Server
   (43-call admin sweep + browser walk; teacher gets 403 / is redirected).
+- **Requirements audit** (after the admin screens): every endpoint, table, business rule and quality-bar
+  item of this brief checked against the code. Results: shared `StatusBadge` (tones on design tokens) replaced
+  five copies of badge CSS; the Classes page now matches its Figma frame (hero banner, "הכול" links via the
+  new `card-action` slot of `Card`); the Tables frame already matched the Students table. Deliberate deviation
+  documented in the README: attendance uses four status pills instead of checkboxes. Only open requirement:
+  the live demo.
 
 ### Next
 - **Live demo**: needs a hosting account (for example Azure App Service + Azure SQL, or a VPS with Docker
@@ -313,8 +319,7 @@ Start each new session by reading this section.
   SQL Server (ask first).
 
 ### Open items
-- Classes and Students screens were built from the design tokens without opening their Figma frames
-  (`101:10012`, `101:9569`): the Figma MCP Starter-plan call limit was reached. Compare and fine-tune.
+- Live demo (see Next).
 
 ### Decisions already made (do not re-ask)
 - **Design source**: Horizon UI Figma file `YH394Y7LXSOwGdQuhrKoLU` (Figma connector). Match it
@@ -378,7 +383,8 @@ Start each new session by reading this section.
   Angular uses Vitest (`ng test`).
 - **Frontend conventions**: Angular 22 file naming (`login-page.ts`, class `LoginPage`), signals,
   standalone components, logical CSS properties only (RTL), every color from `styles/_tokens.scss`,
-  shared form classes in `styles/_forms.scss`. `/api` is proxied to `http://localhost:5097`
+  shared form classes in `styles/_forms.scss`. Status / label pills use `<app-status-badge tone="...">`
+  (never new pill CSS); a link next to a card title uses `<a card-action class="see-all">`. `/api` is proxied to `http://localhost:5097`
   (`proxy.conf.json`). JWT stored in localStorage ("keep me logged in") or sessionStorage.
   Data loading: feature services return Observables; pages use `rxResource({ params, stream })` driven by
   signals, with search debounced via `toSignal(toObservable(...).pipe(debounceTime(300)))`. Global styles:
