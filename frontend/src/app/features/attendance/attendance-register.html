@@ -29,12 +29,16 @@
   @if (register.hasValue() && rows().length > 0) {
     <ul class="register-counts" aria-label="סיכום">
       @for (status of statuses; track status.value) {
-        <li [class]="'status-chip status-chip--' + status.value">
-          {{ status.label }}: {{ counts()[status.value] }}
+        <li>
+          <app-status-badge [tone]="status.tone"
+            >{{ status.label }}: {{ counts()[status.value] }}</app-status-badge
+          >
         </li>
       }
       @if (counts().unmarked > 0) {
-        <li class="status-chip">לא סומנו: {{ counts().unmarked }}</li>
+        <li>
+          <app-status-badge tone="neutral">לא סומנו: {{ counts().unmarked }}</app-status-badge>
+        </li>
       }
     </ul>
   }

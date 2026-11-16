@@ -12,6 +12,7 @@ import { EmptyState } from '../../shared/components/empty-state/empty-state';
 import { Paginator } from '../../shared/components/paginator/paginator';
 import { ScoreBadge } from '../../shared/components/score-badge/score-badge';
 import { Skeleton } from '../../shared/components/skeleton/skeleton';
+import { StatusBadge } from '../../shared/components/status-badge/status-badge';
 import { todayIsoDate } from '../../shared/utils/dates';
 import { toPositiveId } from '../../shared/utils/route-params';
 import { ClassesService } from '../classes/classes.service';
@@ -45,6 +46,7 @@ const PAGE_SIZE = 15;
     RouterLink,
     ScoreBadge,
     Skeleton,
+    StatusBadge,
   ],
   templateUrl: './assessments-page.html',
   styleUrl: './assessments-page.scss',

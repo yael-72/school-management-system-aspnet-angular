@@ -129,7 +129,7 @@
                   <app-avatar [name]="assignment.teacherName" [size]="30" />
                   {{ assignment.teacherName }}
                   @if (!assignment.teacherIsActive) {
-                    <span class="status-chip status-chip--inactive">מושבת</span>
+                    <app-status-badge tone="neutral">מושבת</app-status-badge>
                   }
                 </span>
               </td>

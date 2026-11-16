@@ -5,6 +5,7 @@ import { toErrorMessage } from '../../core/api/api-error';
 import { Avatar } from '../../shared/components/avatar/avatar';
 import { EmptyState } from '../../shared/components/empty-state/empty-state';
 import { Skeleton } from '../../shared/components/skeleton/skeleton';
+import { StatusBadge } from '../../shared/components/status-badge/status-badge';
 import { toIsoDate, todayIsoDate } from '../../shared/utils/dates';
 import { ATTENDANCE_STATUSES, AttendanceEntry, AttendanceStatus } from './attendance.models';
 import { AttendanceService } from './attendance.service';
@@ -21,7 +22,7 @@ function addDays(isoDate: string, days: number): string {
  */
 @Component({
   selector: 'app-attendance-register',
-  imports: [Avatar, DatePipe, EmptyState, Skeleton],
+  imports: [Avatar, DatePipe, EmptyState, Skeleton, StatusBadge],
   templateUrl: './attendance-register.html',
   styleUrl: './attendance-register.scss',
 })

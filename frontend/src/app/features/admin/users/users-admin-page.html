@@ -120,7 +120,7 @@
                   <app-avatar [name]="user.fullName" [size]="34" />
                   {{ user.fullName }}
                   @if (isSelf) {
-                    <span class="self-chip">אני</span>
+                    <app-status-badge>אני</app-status-badge>
                   }
                 </span>
               </td>
@@ -140,9 +140,9 @@
                 }
               </td>
               <td>
-                <span class="status-chip" [class.status-chip--inactive]="!user.isActive">
+                <app-status-badge [tone]="user.isActive ? 'success' : 'neutral'">
                   {{ user.isActive ? 'פעיל' : 'מושבת' }}
-                </span>
+                </app-status-badge>
               </td>
               <td class="row-actions">
                 <button

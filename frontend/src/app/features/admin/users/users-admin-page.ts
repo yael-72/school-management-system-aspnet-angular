@@ -14,6 +14,7 @@ import { Dialog } from '../../../shared/components/dialog/dialog';
 import { EmptyState } from '../../../shared/components/empty-state/empty-state';
 import { Paginator } from '../../../shared/components/paginator/paginator';
 import { Skeleton } from '../../../shared/components/skeleton/skeleton';
+import { StatusBadge } from '../../../shared/components/status-badge/status-badge';
 import { UserFormDialog } from './user-form-dialog';
 
 const PAGE_SIZE = 15;
@@ -23,7 +24,16 @@ type StatusFilter = 'all' | 'active' | 'inactive';
 /** /admin/users – staff members: add, edit, activate / deactivate and delete. */
 @Component({
   selector: 'app-users-admin-page',
-  imports: [Avatar, Dialog, EmptyState, Paginator, RouterLink, Skeleton, UserFormDialog],
+  imports: [
+    Avatar,
+    Dialog,
+    EmptyState,
+    Paginator,
+    RouterLink,
+    Skeleton,
+    StatusBadge,
+    UserFormDialog,
+  ],
   templateUrl: './users-admin-page.html',
   styleUrl: './users-admin-page.scss',
 })

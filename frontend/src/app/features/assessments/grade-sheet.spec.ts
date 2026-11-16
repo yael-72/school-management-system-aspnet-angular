@@ -71,9 +71,9 @@ describe('GradeSheet', () => {
   it('shows each score as a color-coded percentage', async () => {
     const { element } = await render();
 
-    const badges = element.querySelectorAll('app-score-badge span');
+    const badges = element.querySelectorAll('app-score-badge app-status-badge');
     expect(badges[0].textContent?.trim()).toBe('90');
-    expect(badges[0].className).toContain('score--excellent');
+    expect(badges[0].getAttribute('data-tone')).toBe('success');
     expect(saveButton(element).disabled).toBe(true); // nothing changed yet
   });
 

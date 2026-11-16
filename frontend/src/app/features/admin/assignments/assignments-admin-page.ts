@@ -11,6 +11,7 @@ import { Dialog } from '../../../shared/components/dialog/dialog';
 import { EmptyState } from '../../../shared/components/empty-state/empty-state';
 import { Paginator } from '../../../shared/components/paginator/paginator';
 import { Skeleton } from '../../../shared/components/skeleton/skeleton';
+import { StatusBadge } from '../../../shared/components/status-badge/status-badge';
 import { toPositiveId } from '../../../shared/utils/route-params';
 import { ClassesService } from '../../classes/classes.service';
 import { AssignmentFormDialog } from './assignment-form-dialog';
@@ -25,7 +26,7 @@ const PAGE_SIZE = 20;
  */
 @Component({
   selector: 'app-assignments-admin-page',
-  imports: [AssignmentFormDialog, Avatar, Dialog, EmptyState, Paginator, Skeleton],
+  imports: [AssignmentFormDialog, Avatar, Dialog, EmptyState, Paginator, Skeleton, StatusBadge],
   templateUrl: './assignments-admin-page.html',
   styleUrl: './assignments-admin-page.scss',
 })

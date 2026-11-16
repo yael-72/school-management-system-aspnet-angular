@@ -1,30 +1,21 @@
 import { Component, computed, input } from '@angular/core';
+import { BadgeTone, StatusBadge } from '../../shared/components/status-badge/status-badge';
 import { AssessmentType, assessmentTypeLabel } from './assessments.models';
 
-/** "מבחן" / "בוחן" / "עבודה" in a small colored pill. */
+const TYPE_TONES: Readonly<Record<AssessmentType, BadgeTone>> = {
+  Exam: 'primary',
+  Quiz: 'info',
+  Assignment: 'success',
+};
+
+/** "מבחן" / "בוחן" / "עבודה" as a colored badge. */
 @Component({
   selector: 'app-assessment-type-chip',
-  template: `<span [class]="'type-chip type-chip--' + type()">{{ label() }}</span>`,
-  styles: `
-    .type-chip {
-      --chip-color: var(--color-primary);
-      display: inline-block;
-      padding: 2px 10px;
-      font-size: var(--font-size-xs);
-      font-weight: 700;
-      color: var(--chip-color);
-      background: color-mix(in srgb, var(--chip-color) 12%, transparent);
-      border-radius: var(--radius-pill);
-    }
-    .type-chip--Quiz {
-      --chip-color: var(--color-info);
-    }
-    .type-chip--Assignment {
-      --chip-color: var(--color-success);
-    }
-  `,
+  imports: [StatusBadge],
+  template: `<app-status-badge [tone]="tone()">{{ label() }}</app-status-badge>`,
 })
 export class AssessmentTypeChip {
   readonly type = input.required<AssessmentType>();
   protected readonly label = computed(() => assessmentTypeLabel(this.type()));
+  protected readonly tone = computed(() => TYPE_TONES[this.type()]);
 }
