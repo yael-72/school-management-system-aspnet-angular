@@ -3,6 +3,7 @@ import { rxResource } from '@angular/core/rxjs-interop';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { toErrorMessage } from '../../../core/api/api-error';
 import { AuthService } from '../../../core/auth/auth.service';
+import { PASSWORD_PATTERN } from '../../../core/auth/password-rules';
 import { ROLE_LABELS } from '../../../core/auth/role-labels';
 import { UserDetails } from '../../../core/users/users.models';
 import { UsersService } from '../../../core/users/users.service';
@@ -10,7 +11,6 @@ import { Dialog } from '../../../shared/components/dialog/dialog';
 
 /** Same rules as the API. */
 const PHONE_PATTERN = /^[0-9+\-\s]{7,20}$/;
-const PASSWORD_PATTERN = /^(?=.*[A-Za-z])(?=.*\d).{8,100}$/;
 
 /**
  * Add a staff member (with a first password) or edit one (pass `userId`). The password field exists

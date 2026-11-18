@@ -48,6 +48,8 @@ const KNOWN_MESSAGES: readonly [string, string][] = [
     'למשתמש יש כיתות, שיבוצים או רישומים בבית הספר, ולכן אי אפשר למחוק אותו. אפשר להשבית אותו במקום.',
   ],
   ['a letter and a digit', 'הסיסמה חייבת להכיל 8 תווים לפחות, ובהם אות וספרה.'],
+  ['current password is incorrect', 'הסיסמה הנוכחית שגויה.'],
+  ['must be different from the current one', 'הסיסמה החדשה חייבת להיות שונה מהנוכחית.'],
   ['A subject named', 'כבר קיים מקצוע בשם הזה.'],
   ['subject that has assessments', 'לא ניתן למחוק מקצוע שיש לו מבחנים.'],
   [

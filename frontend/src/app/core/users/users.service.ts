@@ -45,6 +45,11 @@ export class UsersService {
     return this.http.patch<UserDetails>(`${this.baseUrl}/${id}/status`, { isActive });
   }
 
+  /** Sets a new password for a user who forgot hers. */
+  resetPassword(id: number, newPassword: string): Observable<void> {
+    return this.http.put<void>(`${this.baseUrl}/${id}/password`, { newPassword });
+  }
+
   deleteUser(id: number): Observable<void> {
     return this.http.delete<void>(`${this.baseUrl}/${id}`);
   }
