@@ -312,10 +312,17 @@ Start each new session by reading this section.
   documented in the README: attendance uses four status pills instead of checkboxes. Only open requirement:
   the live demo.
 
+- **Password change** (after the audit): `PUT /api/users/me/password` (current + new password) and admin-only
+  `PUT /api/users/{id}/password` (reset; there is no email, so the admin tells the user the new password). Shared
+  `PasswordRules` (API) / `PASSWORD_PATTERN` + `matchingPasswords()` (Angular). Profile: "שינוי סיסמה" dialog;
+  admin users table: key button → reset dialog. The real-stack check found two bugs, both fixed: forms with only
+  `[formControl]` never fire `(ngSubmit)` (subjects add/rename, reset dialog), and client-cancelled requests were
+  logged as 500 errors (now an info log + 499).
+
 ### Next
 - **Live demo**: needs a hosting account (for example Azure App Service + Azure SQL, or a VPS with Docker
   Compose) – ask Yael which one; she has to create the account and give access.
-- Optional: change password / admin password reset; Testcontainers-based integration tests on real
+- Optional: Testcontainers-based integration tests on real
   SQL Server (ask first).
 
 ### Open items
@@ -373,7 +380,15 @@ Start each new session by reading this section.
   cannot be deleted – deactivate instead (deactivated users cannot log in). A subject with assignments or
   assessments cannot be deleted. Several teachers may share a (class, subject); the same triple twice is refused.
 - **Profile**: after saving, `AuthService.updateCurrentUser()` updates the stored session so the navbar shows
-  the new name. Changing the password is not implemented yet.
+  the new name.
+- **Passwords**: same rule everywhere (8–100 chars, a letter and a digit). Changing your own password needs the
+  current one; a wrong current password is a 400 BusinessRule (not 401, which would log the user out), and the new
+  one must differ. Admin reset needs no current password. Existing JWTs stay valid until they expire (no token
+  revocation – acceptable for this project). Passwords are never logged.
+- **Reactive forms**: a `<form (ngSubmit)>` needs `[formGroup]` – `(ngSubmit)` comes from FormGroupDirective;
+  a form with only `[formControl]` inputs does a native submit. Always use a FormGroup.
+- **Errors**: a request the client cancelled (`RequestAborted`) is logged at information level and answered 499,
+  not treated as a server error.
 - **Averages** are percentages: `Score.Value * 100 / Assessment.MaxScore`, ungraded (null) scores and
   inactive students excluded, rounded to 1 decimal in C#. Attendance rate = (Present + Late) / recorded days.
 - **Validation**: DataAnnotations on request DTOs (no FluentValidation). API messages in English,
