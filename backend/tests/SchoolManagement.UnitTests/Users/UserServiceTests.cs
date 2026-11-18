@@ -30,8 +30,21 @@ public class UserServiceTests
         _db.SaveChanges();
     }
 
-    private UserService CreateService(ICurrentUser? user = null) => new(
-        _db, new FakePasswordHasher(), user ?? FakeCurrentUser.Admin(_admin.Id), new FixedTimeProvider(Now), NullLogger<UserService>.Instance);
+    private UserService CreateService(ICurrentUser? user = null, bool demoMode = false) => new(
+        _db,
+        new FakePasswordHasher(),
+        user ?? FakeCurrentUser.Admin(_admin.Id),
+        new FixedTimeProvider(Now),
+        demoMode ? DemoGuards.On : DemoGuards.Off,
+        NullLogger<UserService>.Instance);
+
+    private async Task<User> AddDemoTeacherAsync()
+    {
+        var teacher = await _school.AddTeacherAsync("משה לוינסון");
+        teacher.Email = "teacher@school.demo";
+        await _db.SaveChangesAsync();
+        return teacher;
+    }
 
     private static CreateUserRequest NewTeacher(string email = "David.Hirsch@School.Test") => new()
     {
@@ -126,5 +139,49 @@ public class UserServiceTests
         var act = () => CreateService().ResetPasswordAsync(9999, "Reset1234");
 
         await act.Should().ThrowAsync<NotFoundException>();
+    }
+
+    [Fact]
+    public async Task In_the_live_demo_a_demo_account_cannot_be_locked_out()
+    {
+        var teacher = await AddDemoTeacherAsync();
+        var service = CreateService(demoMode: true);
+
+        var reset = () => service.ResetPasswordAsync(teacher.Id, "Reset1234");
+        var deactivate = () => service.SetStatusAsync(teacher.Id, isActive: false);
+        var delete = () => service.DeleteUserAsync(teacher.Id);
+        var changeRole = () => service.UpdateUserAsync(teacher.Id, new UpdateUserRequest
+        {
+            FullName = teacher.FullName, Email = teacher.Email, RoleId = RoleIds.Admin
+        });
+
+        foreach (var act in new[] { reset, deactivate, delete, changeRole })
+        {
+            await act.Should().ThrowAsync<BusinessRuleException>().WithMessage("*live demo*");
+        }
+        (await _db.Users.SingleAsync(u => u.Id == teacher.Id)).IsActive.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task In_the_live_demo_the_name_of_a_demo_account_can_still_be_edited()
+    {
+        var teacher = await AddDemoTeacherAsync();
+
+        var updated = await CreateService(demoMode: true).UpdateUserAsync(teacher.Id, new UpdateUserRequest
+        {
+            FullName = "משה לוינסון-כץ", Email = "Teacher@School.Demo", RoleId = RoleIds.Teacher
+        });
+
+        updated.FullName.Should().Be("משה לוינסון-כץ");
+    }
+
+    [Fact]
+    public async Task Outside_the_live_demo_demo_accounts_are_ordinary_accounts()
+    {
+        var teacher = await AddDemoTeacherAsync();
+
+        await CreateService().ResetPasswordAsync(teacher.Id, "Reset1234");
+
+        (await _db.Users.SingleAsync(u => u.Id == teacher.Id)).PasswordHash.Should().Be("hashed:Reset1234");
     }
 }

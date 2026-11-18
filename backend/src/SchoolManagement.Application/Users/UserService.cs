@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using SchoolManagement.Application.Common.Demo;
 using SchoolManagement.Application.Common.Exceptions;
 using SchoolManagement.Application.Common.Extensions;
 using SchoolManagement.Application.Common.Interfaces;
@@ -14,6 +15,7 @@ public class UserService(
     IPasswordHasher passwordHasher,
     ICurrentUser currentUser,
     TimeProvider timeProvider,
+    DemoAccountGuard demoGuard,
     ILogger<UserService> logger) : IUserService
 {
     public Task<PagedResult<UserListItemDto>> GetUsersAsync(UserListQuery query, CancellationToken cancellationToken = default)
@@ -94,6 +96,12 @@ public class UserService(
             throw new BusinessRuleException("You cannot change your own role.");
         }
 
+        // Name and phone stay editable; login email and role of a demo account do not.
+        if (request.RoleId != user.RoleId || !string.Equals(request.Email.Trim(), user.Email, StringComparison.OrdinalIgnoreCase))
+        {
+            demoGuard.EnsureCanChange(user.Email);
+        }
+
         await ApplyAsync(user, request, cancellationToken);
         await db.SaveChangesAsync(cancellationToken);
 
@@ -108,6 +116,11 @@ public class UserService(
         if (id == currentUser.Id && !isActive)
         {
             throw new BusinessRuleException("You cannot deactivate your own account.");
+        }
+
+        if (!isActive)
+        {
+            demoGuard.EnsureCanChange(user.Email);
         }
 
         user.IsActive = isActive;
@@ -125,6 +138,8 @@ public class UserService(
         {
             throw new BusinessRuleException("You cannot delete your own account.");
         }
+
+        demoGuard.EnsureCanChange(user.Email);
 
         // Grades, attendance, classes and events point to the user who created them; that history
         // must stay, so such a user is deactivated instead. (The database would refuse anyway:
@@ -151,6 +166,7 @@ public class UserService(
     public async Task ResetPasswordAsync(int id, string newPassword, CancellationToken cancellationToken = default)
     {
         var user = await FindUserAsync(id, cancellationToken);
+        demoGuard.EnsureCanChange(user.Email);
 
         user.PasswordHash = passwordHasher.Hash(newPassword);
         await db.SaveChangesAsync(cancellationToken);

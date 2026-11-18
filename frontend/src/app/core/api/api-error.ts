@@ -50,6 +50,7 @@ const KNOWN_MESSAGES: readonly [string, string][] = [
   ['a letter and a digit', 'הסיסמה חייבת להכיל 8 תווים לפחות, ובהם אות וספרה.'],
   ['current password is incorrect', 'הסיסמה הנוכחית שגויה.'],
   ['must be different from the current one', 'הסיסמה החדשה חייבת להיות שונה מהנוכחית.'],
+  ['cannot be changed in the live demo', 'בגרסת ההדגמה אי אפשר לשנות את חשבונות ההדגמה (סיסמה, תפקיד, אימייל או סטטוס).'],
   ['A subject named', 'כבר קיים מקצוע בשם הזה.'],
   ['subject that has assessments', 'לא ניתן למחוק מקצוע שיש לו מבחנים.'],
   [

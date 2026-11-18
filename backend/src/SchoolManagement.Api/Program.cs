@@ -3,6 +3,7 @@ using System.Text.Json.Serialization;
 using SchoolManagement.Api.Extensions;
 using SchoolManagement.Api.Infrastructure;
 using SchoolManagement.Application;
+using SchoolManagement.Application.Common.Demo;
 using SchoolManagement.Application.Common.Interfaces;
 using SchoolManagement.Infrastructure;
 using SchoolManagement.Infrastructure.Persistence;
@@ -18,6 +19,7 @@ if (builder.Environment.IsDevelopment() && string.IsNullOrEmpty(builder.Configur
 }
 
 builder.Services.AddApplication();
+builder.Services.Configure<DemoOptions>(builder.Configuration.GetSection(DemoOptions.SectionName));
 builder.Services.AddInfrastructure(builder.Configuration);
 
 builder.Services.AddHttpContextAccessor();

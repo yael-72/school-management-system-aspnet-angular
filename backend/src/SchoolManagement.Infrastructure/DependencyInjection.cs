@@ -46,6 +46,7 @@ public static class DependencyInjection
 
         services.AddSingleton(TimeProvider.System);
         services.AddScoped<DbSeeder>();
+        services.AddScoped<DemoDataReset>();
 
         return services;
     }
