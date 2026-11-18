@@ -235,3 +235,17 @@ Authorization: Bearer {{login.response.body.$.accessToken}}
 Content-Type: application/json
 
 { "teacherId": 2, "classId": 5, "subjectId": 1 }
+
+### Change my password (a wrong current password is a 400, so the user stays logged in)
+PUT {{baseUrl}}/api/users/me/password
+Authorization: Bearer {{login.response.body.$.accessToken}}
+Content-Type: application/json
+
+{ "currentPassword": "Demo123!", "newPassword": "NewPassword1" }
+
+### Admin: set a new password for a user who forgot hers
+PUT {{baseUrl}}/api/users/2/password
+Authorization: Bearer {{login.response.body.$.accessToken}}
+Content-Type: application/json
+
+{ "newPassword": "Welcome123" }

@@ -75,4 +75,23 @@
     </div>
   </dl>
   <p class="details-note">את האימייל והתפקיד ניתן לשנות רק דרך הנהלת בית הספר.</p>
+
+  <div class="details-password">
+    <button type="button" class="button button--secondary" (click)="openPasswordDialog()">
+      <span class="icon" aria-hidden="true">key</span>
+      שינוי סיסמה
+    </button>
+    @if (passwordChanged()) {
+      <p class="details-password__done" role="status">
+        <span class="icon" aria-hidden="true">check_circle</span>
+        הסיסמה שונתה
+      </p>
+    }
+  </div>
 }
+
+<app-change-password-dialog
+  [open]="passwordDialogOpen()"
+  (changed)="onPasswordChanged()"
+  (closed)="passwordDialogOpen.set(false)"
+/>

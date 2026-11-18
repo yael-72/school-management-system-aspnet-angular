@@ -12,11 +12,24 @@ public class GlobalExceptionHandler(
     IProblemDetailsService problemDetailsService,
     ILogger<GlobalExceptionHandler> logger) : IExceptionHandler
 {
+    /// <summary>Non-standard "client closed request" code (from nginx), used only in logs and metrics.</summary>
+    public const int StatusCodeClientClosedRequest = 499;
+
     public async ValueTask<bool> TryHandleAsync(
         HttpContext httpContext,
         Exception exception,
         CancellationToken cancellationToken)
     {
+        if (httpContext.RequestAborted.IsCancellationRequested)
+        {
+            // The client went away (closed the tab, navigated elsewhere) and the query was cancelled.
+            // Nobody is waiting for an answer and nothing is broken, so this is not a server error.
+            logger.LogInformation("Request {Method} {Path} was cancelled by the client",
+                httpContext.Request.Method, httpContext.Request.Path);
+            httpContext.Response.StatusCode = StatusCodeClientClosedRequest;
+            return true;
+        }
+
         var (status, title) = exception switch
         {
             NotFoundException => (StatusCodes.Status404NotFound, "Not found"),

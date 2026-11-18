@@ -64,6 +64,17 @@ public class UsersController(IUserService userService) : ControllerBase
         return Ok(await userService.SetStatusAsync(id, request.IsActive!.Value, cancellationToken));
     }
 
+    /// <summary>Sets a new password for a user who forgot hers. Admin only.</summary>
+    [HttpPut("{id:int}/password")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType<ValidationProblemDetails>(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> ResetPassword(int id, ResetPasswordRequest request, CancellationToken cancellationToken)
+    {
+        await userService.ResetPasswordAsync(id, request.NewPassword, cancellationToken);
+        return NoContent();
+    }
+
     /// <summary>Deletes a user without school history; others must be deactivated instead.</summary>
     [HttpDelete("{id:int}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]

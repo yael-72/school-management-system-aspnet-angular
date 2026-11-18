@@ -12,12 +12,13 @@ namespace SchoolManagement.UnitTests.Profile;
 public class ProfileServiceTests
 {
     private readonly AppDbContext _db = TestDbContextFactory.Create();
+    private readonly FakePasswordHasher _hasher = new();
     private readonly SchoolBuilder _school;
 
     public ProfileServiceTests() => _school = new SchoolBuilder(_db);
 
     private ProfileService CreateService(ICurrentUser user) =>
-        new(_db, new ClassAccessService(_db, user), user, NullLogger<ProfileService>.Instance);
+        new(_db, new ClassAccessService(_db, user), user, _hasher, NullLogger<ProfileService>.Instance);
 
     [Fact]
     public async Task Teacher_profile_counts_her_classes_students_and_assessments()
@@ -70,5 +71,48 @@ public class ProfileServiceTests
         defaults.Should().Be(new NotificationSettingsDto { RemindBeforeExam = true, AlertOnLowAttendance = true, WeeklySummaryEmail = false });
         var saved = await _db.NotificationSettings.SingleAsync();
         (saved.UserId, saved.WeeklySummaryEmail, saved.RemindBeforeExam).Should().Be((teacher.Id, true, false));
+    }
+
+    [Fact]
+    public async Task Password_change_checks_the_current_password_and_stores_the_new_hash()
+    {
+        var teacher = await _school.AddTeacherAsync();
+        teacher.PasswordHash = _hasher.Hash("OldPassword1");
+        await _db.SaveChangesAsync();
+        var service = CreateService(FakeCurrentUser.Teacher(teacher.Id));
+
+        await service.ChangePasswordAsync(new ChangePasswordRequest { CurrentPassword = "OldPassword1", NewPassword = "NewPassword2" });
+
+        (await _db.Users.SingleAsync(u => u.Id == teacher.Id)).PasswordHash.Should().Be(_hasher.Hash("NewPassword2"));
+    }
+
+    [Fact]
+    public async Task A_wrong_current_password_is_a_business_rule_error_not_an_authentication_error()
+    {
+        var teacher = await _school.AddTeacherAsync();
+        teacher.PasswordHash = _hasher.Hash("OldPassword1");
+        await _db.SaveChangesAsync();
+
+        var act = () => CreateService(FakeCurrentUser.Teacher(teacher.Id))
+            .ChangePasswordAsync(new ChangePasswordRequest { CurrentPassword = "Wrong1234", NewPassword = "NewPassword2" });
+
+        // 400 keeps the user logged in; a 401 would make the app log her out.
+        await act.Should().ThrowAsync<SchoolManagement.Application.Common.Exceptions.BusinessRuleException>()
+            .WithMessage("*current password is incorrect*");
+        (await _db.Users.SingleAsync(u => u.Id == teacher.Id)).PasswordHash.Should().Be(_hasher.Hash("OldPassword1"));
+    }
+
+    [Fact]
+    public async Task The_new_password_must_differ_from_the_current_one()
+    {
+        var teacher = await _school.AddTeacherAsync();
+        teacher.PasswordHash = _hasher.Hash("SamePassword1");
+        await _db.SaveChangesAsync();
+
+        var act = () => CreateService(FakeCurrentUser.Teacher(teacher.Id))
+            .ChangePasswordAsync(new ChangePasswordRequest { CurrentPassword = "SamePassword1", NewPassword = "SamePassword1" });
+
+        await act.Should().ThrowAsync<SchoolManagement.Application.Common.Exceptions.BusinessRuleException>()
+            .WithMessage("*must be different*");
     }
 }

@@ -148,6 +148,17 @@ public class UserService(
         logger.LogInformation("User {UserId} deleted by admin {AdminId}", id, currentUser.Id);
     }
 
+    public async Task ResetPasswordAsync(int id, string newPassword, CancellationToken cancellationToken = default)
+    {
+        var user = await FindUserAsync(id, cancellationToken);
+
+        user.PasswordHash = passwordHasher.Hash(newPassword);
+        await db.SaveChangesAsync(cancellationToken);
+
+        // Never log the password itself – only who reset whose.
+        logger.LogInformation("Password of user {UserId} reset by admin {AdminId}", id, currentUser.Id);
+    }
+
     public async Task<IReadOnlyList<RoleDto>> GetRolesAsync(CancellationToken cancellationToken = default) =>
         await db.Roles
             .AsNoTracking()

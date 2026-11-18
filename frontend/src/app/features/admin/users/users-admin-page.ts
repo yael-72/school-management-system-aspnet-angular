@@ -15,6 +15,7 @@ import { EmptyState } from '../../../shared/components/empty-state/empty-state';
 import { Paginator } from '../../../shared/components/paginator/paginator';
 import { Skeleton } from '../../../shared/components/skeleton/skeleton';
 import { StatusBadge } from '../../../shared/components/status-badge/status-badge';
+import { ResetPasswordDialog } from './reset-password-dialog';
 import { UserFormDialog } from './user-form-dialog';
 
 const PAGE_SIZE = 15;
@@ -29,6 +30,7 @@ type StatusFilter = 'all' | 'active' | 'inactive';
     Dialog,
     EmptyState,
     Paginator,
+    ResetPasswordDialog,
     RouterLink,
     Skeleton,
     StatusBadge,
@@ -78,6 +80,8 @@ export class UsersAdminPage {
   protected readonly userToDelete = signal<UserListItem | null>(null);
   protected readonly busyUserId = signal<number | null>(null);
   protected readonly actionError = signal<string | null>(null);
+  protected readonly actionDone = signal<string | null>(null);
+  protected readonly userToReset = signal<UserListItem | null>(null);
 
   protected onSearch(text: string): void {
     this.searchText.set(text);
@@ -146,6 +150,19 @@ export class UsersAdminPage {
         this.actionError.set(toErrorMessage(error));
       },
     });
+  }
+
+  protected askResetPassword(user: UserListItem): void {
+    this.actionError.set(null);
+    this.actionDone.set(null);
+    this.userToReset.set(user);
+  }
+
+  protected onPasswordReset(): void {
+    this.actionDone.set(
+      `הסיסמה של ${this.userToReset()?.fullName} אופסה. מסרו לו את הסיסמה החדשה.`,
+    );
+    this.userToReset.set(null);
   }
 
   protected askDelete(user: UserListItem): void {

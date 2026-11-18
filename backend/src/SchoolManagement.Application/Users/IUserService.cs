@@ -23,5 +23,8 @@ public interface IUserService
     /// <summary>Deletes a user who has no history in the school; otherwise asks to deactivate instead.</summary>
     Task DeleteUserAsync(int id, CancellationToken cancellationToken = default);
 
+    /// <summary>Sets a new password for a user (admin reset).</summary>
+    Task ResetPasswordAsync(int id, string newPassword, CancellationToken cancellationToken = default);
+
     Task<IReadOnlyList<RoleDto>> GetRolesAsync(CancellationToken cancellationToken = default);
 }

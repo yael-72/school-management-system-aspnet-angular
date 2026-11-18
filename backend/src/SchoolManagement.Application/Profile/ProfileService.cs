@@ -11,6 +11,7 @@ public class ProfileService(
     IApplicationDbContext db,
     IClassAccessService classAccess,
     ICurrentUser currentUser,
+    IPasswordHasher passwordHasher,
     ILogger<ProfileService> logger) : IProfileService
 {
     public async Task<ProfileDto> GetProfileAsync(CancellationToken cancellationToken = default)
@@ -56,6 +57,29 @@ public class ProfileService(
 
         logger.LogInformation("User {UserId} updated the profile", user.Id);
         return await GetProfileAsync(cancellationToken);
+    }
+
+    public async Task ChangePasswordAsync(ChangePasswordRequest request, CancellationToken cancellationToken = default)
+    {
+        var user = await db.Users.SingleOrDefaultAsync(u => u.Id == currentUser.Id, cancellationToken)
+            ?? throw new NotFoundException("User", currentUser.Id);
+
+        // 400, not 401: the user is logged in; a 401 would make the app log her out.
+        if (!passwordHasher.Verify(user.PasswordHash, request.CurrentPassword))
+        {
+            logger.LogWarning("Wrong current password in a password change by user {UserId}", user.Id);
+            throw new BusinessRuleException("The current password is incorrect.");
+        }
+
+        if (request.NewPassword == request.CurrentPassword)
+        {
+            throw new BusinessRuleException("The new password must be different from the current one.");
+        }
+
+        user.PasswordHash = passwordHasher.Hash(request.NewPassword);
+        await db.SaveChangesAsync(cancellationToken);
+
+        logger.LogInformation("User {UserId} changed the password", user.Id);
     }
 
     public async Task<NotificationSettingsDto> GetNotificationSettingsAsync(CancellationToken cancellationToken = default)
