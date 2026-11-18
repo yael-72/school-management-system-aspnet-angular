@@ -42,6 +42,11 @@
 
 @if (actionError(); as message) {
   <p class="form-alert action-error" role="alert">{{ message }}</p>
+} @else if (actionDone(); as message) {
+  <p class="action-done" role="status">
+    <span class="icon" aria-hidden="true">check_circle</span>
+    {{ message }}
+  </p>
 }
 
 @if (errorMessage(); as message) {
@@ -156,6 +161,15 @@
                 <button
                   type="button"
                   class="icon-button"
+                  [attr.aria-label]="'איפוס הסיסמה של ' + user.fullName"
+                  title="איפוס סיסמה"
+                  (click)="askResetPassword(user)"
+                >
+                  <span class="icon" aria-hidden="true">key</span>
+                </button>
+                <button
+                  type="button"
+                  class="icon-button"
                   [disabled]="isSelf || busyUserId() === user.id"
                   [attr.aria-label]="(user.isActive ? 'השבתת ' : 'הפעלת ') + user.fullName"
                   [title]="user.isActive ? 'השבתה' : 'הפעלה'"
@@ -194,6 +208,12 @@
   [userId]="editedUserId()"
   (saved)="onSaved()"
   (closed)="formOpen.set(false)"
+/>
+
+<app-reset-password-dialog
+  [user]="userToReset()"
+  (done)="onPasswordReset()"
+  (closed)="userToReset.set(null)"
 />
 
 <app-dialog [open]="userToDelete() !== null" title="מחיקת משתמש" (closed)="userToDelete.set(null)">
