@@ -15,7 +15,7 @@ import { Dialog } from '../../../shared/components/dialog/dialog';
   imports: [Dialog, ReactiveFormsModule],
   template: `
     <app-dialog [open]="user() !== null" title="איפוס סיסמה" (closed)="closed.emit()">
-      <form class="form-grid" (ngSubmit)="submit()" novalidate>
+      <form class="form-grid" [formGroup]="form" (ngSubmit)="submit()" novalidate>
         @if (user(); as target) {
           <p>
             סיסמה חדשה עבור <strong>{{ target.fullName }}</strong
@@ -34,10 +34,10 @@ import { Dialog } from '../../../shared/components/dialog/dialog';
             class="form-input"
             dir="ltr"
             autocomplete="off"
-            [formControl]="password"
-            [class.is-invalid]="password.invalid && password.touched"
+            formControlName="newPassword"
+            [class.is-invalid]="isInvalid()"
           />
-          @if (password.invalid && password.touched) {
+          @if (isInvalid()) {
             <span class="form-error">8 תווים לפחות, ובהם אות וספרה.</span>
           } @else {
             <span class="form-hint">8 תווים לפחות, ובהם אות וספרה.</span>
@@ -65,30 +65,35 @@ export class ResetPasswordDialog {
 
   protected readonly submitting = signal(false);
   protected readonly errorMessage = signal<string | null>(null);
-  protected readonly password = inject(NonNullableFormBuilder).control('', [
-    Validators.required,
-    Validators.pattern(PASSWORD_PATTERN),
-  ]);
+  // A form group (not a lone control) so that (ngSubmit) works: it comes from [formGroup].
+  protected readonly form = inject(NonNullableFormBuilder).group({
+    newPassword: ['', [Validators.required, Validators.pattern(PASSWORD_PATTERN)]],
+  });
 
   constructor() {
     effect(() => {
       if (this.user()) {
-        this.password.reset();
+        this.form.reset();
         this.errorMessage.set(null);
       }
     });
   }
 
+  protected isInvalid(): boolean {
+    const field = this.form.controls.newPassword;
+    return field.invalid && field.touched;
+  }
+
   protected submit(): void {
     const user = this.user();
-    if (!user || this.password.invalid) {
-      this.password.markAsTouched();
+    if (!user || this.form.invalid) {
+      this.form.markAllAsTouched();
       return;
     }
 
     this.submitting.set(true);
     this.errorMessage.set(null);
-    this.usersService.resetPassword(user.id, this.password.value).subscribe({
+    this.usersService.resetPassword(user.id, this.form.controls.newPassword.value).subscribe({
       next: () => {
         this.submitting.set(false);
         this.done.emit();

@@ -1,12 +1,12 @@
-<form class="add-form" (ngSubmit)="add()">
+<form class="add-form" [formGroup]="addForm" (ngSubmit)="add()">
   <label class="add-form__field">
     <span class="visually-hidden">מקצוע חדש</span>
     <input
       class="form-input"
-      [formControl]="newName"
+      formControlName="name"
       maxlength="50"
       placeholder="שם מקצוע חדש, לדוגמה: ספרות"
-      [class.is-invalid]="newName.invalid && newName.touched"
+      [class.is-invalid]="addForm.invalid && addForm.touched"
     />
   </label>
   <button type="submit" class="button" [disabled]="busy()">
@@ -44,13 +44,13 @@
             ><span class="icon">menu_book</span></span
           >
           @if (editingId() === subject.id) {
-            <form class="subject-item__edit" (ngSubmit)="saveEdit(subject)">
+            <form class="subject-item__edit" [formGroup]="editForm" (ngSubmit)="saveEdit(subject)">
               <input
                 class="form-input"
-                [formControl]="editName"
+                formControlName="name"
                 maxlength="50"
                 [attr.aria-label]="'שם חדש עבור ' + subject.name"
-                [class.is-invalid]="editName.invalid && editName.touched"
+                [class.is-invalid]="editForm.invalid && editForm.touched"
               />
               <button type="submit" class="icon-button" aria-label="שמירה" [disabled]="busy()">
                 <span class="icon" aria-hidden="true">check</span>

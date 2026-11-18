@@ -28,14 +28,13 @@ export class SubjectsAdminPage {
     this.subjects.error() ? toErrorMessage(this.subjects.error()) : null,
   );
 
-  protected readonly newName = this.formBuilder.control('', [
-    Validators.required,
-    Validators.maxLength(50),
-  ]);
-  protected readonly editName = this.formBuilder.control('', [
-    Validators.required,
-    Validators.maxLength(50),
-  ]);
+  // Form groups (not lone controls) so that (ngSubmit) works: it comes from [formGroup].
+  protected readonly addForm = this.formBuilder.group({
+    name: ['', [Validators.required, Validators.maxLength(50)]],
+  });
+  protected readonly editForm = this.formBuilder.group({
+    name: ['', [Validators.required, Validators.maxLength(50)]],
+  });
 
   protected readonly editingId = signal<number | null>(null);
   protected readonly subjectToDelete = signal<Subject | null>(null);
@@ -43,24 +42,24 @@ export class SubjectsAdminPage {
   protected readonly actionError = signal<string | null>(null);
 
   protected add(): void {
-    const name = this.newName.value.trim();
-    if (!name || this.newName.invalid) {
-      this.newName.markAsTouched();
+    const name = this.addForm.controls.name.value.trim();
+    if (!name || this.addForm.invalid) {
+      this.addForm.markAllAsTouched();
       return;
     }
-    this.run(this.subjectsService.createSubject(name), () => this.newName.reset());
+    this.run(this.subjectsService.createSubject(name), () => this.addForm.reset());
   }
 
   protected startEdit(subject: Subject): void {
     this.actionError.set(null);
-    this.editName.reset(subject.name);
+    this.editForm.reset({ name: subject.name });
     this.editingId.set(subject.id);
   }
 
   protected saveEdit(subject: Subject): void {
-    const name = this.editName.value.trim();
-    if (!name || this.editName.invalid) {
-      this.editName.markAsTouched();
+    const name = this.editForm.controls.name.value.trim();
+    if (!name || this.editForm.invalid) {
+      this.editForm.markAllAsTouched();
       return;
     }
     if (name === subject.name) {
