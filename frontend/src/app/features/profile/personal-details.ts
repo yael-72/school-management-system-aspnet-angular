@@ -2,6 +2,7 @@ import { DatePipe } from '@angular/common';
 import { Component, inject, input, output, signal } from '@angular/core';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { toErrorMessage } from '../../core/api/api-error';
+import { ChangePasswordDialog } from './change-password-dialog';
 import { Profile } from './profile.models';
 import { ProfileService } from './profile.service';
 import { ROLE_LABELS } from '../../core/auth/role-labels';
@@ -15,7 +16,7 @@ const PHONE_PATTERN = /^[0-9+\-\s]{7,20}$/;
  */
 @Component({
   selector: 'app-personal-details',
-  imports: [DatePipe, ReactiveFormsModule],
+  imports: [ChangePasswordDialog, DatePipe, ReactiveFormsModule],
   templateUrl: './personal-details.html',
   styleUrl: './personal-details.scss',
 })
@@ -27,6 +28,8 @@ export class PersonalDetails {
 
   protected readonly roleLabels = ROLE_LABELS;
   protected readonly editing = signal(false);
+  protected readonly passwordDialogOpen = signal(false);
+  protected readonly passwordChanged = signal(false);
   protected readonly submitting = signal(false);
   protected readonly errorMessage = signal<string | null>(null);
 
@@ -34,6 +37,16 @@ export class PersonalDetails {
     fullName: ['', [Validators.required, Validators.maxLength(100)]],
     phone: ['', [Validators.pattern(PHONE_PATTERN)]],
   });
+
+  protected openPasswordDialog(): void {
+    this.passwordChanged.set(false);
+    this.passwordDialogOpen.set(true);
+  }
+
+  protected onPasswordChanged(): void {
+    this.passwordDialogOpen.set(false);
+    this.passwordChanged.set(true);
+  }
 
   protected startEditing(): void {
     const profile = this.profile();

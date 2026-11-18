@@ -52,3 +52,20 @@
   font-size: var(--font-size-xs);
   color: var(--color-text-secondary);
 }
+
+.details-password {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  margin-block-start: var(--space-4);
+}
+
+.details-password__done {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  color: var(--color-success);
+}

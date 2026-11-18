@@ -20,6 +20,12 @@ export interface UpdateProfileRequest {
   phone: string | null;
 }
 
+/** Body of PUT /api/users/me/password. */
+export interface ChangePasswordRequest {
+  currentPassword: string;
+  newPassword: string;
+}
+
 /** GET/PUT /api/users/me/notification-settings. */
 export interface NotificationSettings {
   remindBeforeExam: boolean;

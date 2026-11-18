@@ -1,7 +1,12 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
-import { NotificationSettings, Profile, UpdateProfileRequest } from './profile.models';
+import {
+  ChangePasswordRequest,
+  NotificationSettings,
+  Profile,
+  UpdateProfileRequest,
+} from './profile.models';
 
 /** The logged-in user's own profile (/api/users/me). */
 @Injectable({ providedIn: 'root' })
@@ -15,6 +20,11 @@ export class ProfileService {
 
   updateProfile(request: UpdateProfileRequest): Observable<Profile> {
     return this.http.put<Profile>(this.baseUrl, request);
+  }
+
+  /** A wrong current password comes back as 400 (the user stays logged in). */
+  changePassword(request: ChangePasswordRequest): Observable<void> {
+    return this.http.put<void>(`${this.baseUrl}/password`, request);
   }
 
   getNotificationSettings(): Observable<NotificationSettings> {
