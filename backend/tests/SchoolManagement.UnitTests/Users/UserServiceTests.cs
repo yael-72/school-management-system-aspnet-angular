@@ -109,4 +109,22 @@ public class UserServiceTests
 
         page.Items.Should().ContainSingle().Which.AssignmentCount.Should().Be(1);
     }
+
+    [Fact]
+    public async Task Admin_resets_a_users_password()
+    {
+        var teacher = await _school.AddTeacherAsync();
+
+        await CreateService().ResetPasswordAsync(teacher.Id, "Reset1234");
+
+        (await _db.Users.SingleAsync(u => u.Id == teacher.Id)).PasswordHash.Should().Be("hashed:Reset1234");
+    }
+
+    [Fact]
+    public async Task Resetting_the_password_of_a_missing_user_is_not_found()
+    {
+        var act = () => CreateService().ResetPasswordAsync(9999, "Reset1234");
+
+        await act.Should().ThrowAsync<NotFoundException>();
+    }
 }
