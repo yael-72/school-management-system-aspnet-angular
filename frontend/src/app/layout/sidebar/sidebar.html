@@ -7,7 +7,7 @@
 
 <nav class="sidebar__nav" aria-label="ניווט ראשי">
   <ul>
-    @for (item of navItems; track item.path) {
+    @for (item of navItems(); track item.path) {
       <li>
         <a
           [routerLink]="item.path"

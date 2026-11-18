@@ -1,0 +1,84 @@
+<app-dialog [open]="open()" title="שיבוץ מורה" (closed)="closed.emit()">
+  <form
+    class="form-grid"
+    [formGroup]="form"
+    (ngSubmit)="submit()"
+    [attr.aria-busy]="options.isLoading()"
+    novalidate
+  >
+    @if (errorMessage(); as message) {
+      <p class="form-alert" role="alert">{{ message }}</p>
+    }
+    @let lists = options.value();
+
+    <div class="form-field">
+      <label class="form-label" for="assignment-teacher"
+        >מורה<span class="form-label__required">*</span></label
+      >
+      <select
+        id="assignment-teacher"
+        class="form-input form-select"
+        formControlName="teacherId"
+        [class.is-invalid]="isInvalid('teacherId')"
+      >
+        <option [ngValue]="null" disabled>בחרו מורה</option>
+        @for (teacher of lists?.teachers ?? []; track teacher.id) {
+          <option [ngValue]="teacher.id">{{ teacher.fullName }}</option>
+        }
+      </select>
+      @if (isInvalid('teacherId')) {
+        <span class="form-error">יש לבחור מורה.</span>
+      }
+    </div>
+
+    <div class="form-row">
+      <div class="form-field">
+        <label class="form-label" for="assignment-class"
+          >כיתה<span class="form-label__required">*</span></label
+        >
+        <select
+          id="assignment-class"
+          class="form-input form-select"
+          formControlName="classId"
+          [class.is-invalid]="isInvalid('classId')"
+        >
+          <option [ngValue]="null" disabled>בחרו כיתה</option>
+          @for (schoolClass of lists?.classes?.items ?? []; track schoolClass.id) {
+            <option [ngValue]="schoolClass.id">{{ schoolClass.name }}</option>
+          }
+        </select>
+        @if (isInvalid('classId')) {
+          <span class="form-error">יש לבחור כיתה.</span>
+        }
+      </div>
+      <div class="form-field">
+        <label class="form-label" for="assignment-subject"
+          >מקצוע<span class="form-label__required">*</span></label
+        >
+        <select
+          id="assignment-subject"
+          class="form-input form-select"
+          formControlName="subjectId"
+          [class.is-invalid]="isInvalid('subjectId')"
+        >
+          <option [ngValue]="null" disabled>בחרו מקצוע</option>
+          @for (subject of lists?.subjects ?? []; track subject.id) {
+            <option [ngValue]="subject.id">{{ subject.name }}</option>
+          }
+        </select>
+        @if (isInvalid('subjectId')) {
+          <span class="form-error">יש לבחור מקצוע.</span>
+        }
+      </div>
+    </div>
+
+    <p class="form-hint">המורה יוכל לצפות בכיתה, לרשום בה נוכחות ולהזין ציונים במקצוע הזה.</p>
+
+    <div class="form-actions">
+      <button type="submit" class="button" [disabled]="submitting() || options.isLoading()">
+        {{ submitting() ? 'שומר...' : 'שיבוץ' }}
+      </button>
+      <button type="button" class="button button--secondary" (click)="closed.emit()">ביטול</button>
+    </div>
+  </form>
+</app-dialog>

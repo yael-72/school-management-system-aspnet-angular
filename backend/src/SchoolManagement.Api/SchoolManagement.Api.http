@@ -199,3 +199,39 @@ Hello from the .http file
 ### Download a file
 GET {{baseUrl}}/api/files/1/download
 Authorization: Bearer {{login.response.body.$.accessToken}}
+
+### Add a staff member (admin only; the admin gives the first password to the new user)
+POST {{baseUrl}}/api/users
+Authorization: Bearer {{login.response.body.$.accessToken}}
+Content-Type: application/json
+
+{ "fullName": "יצחק פרידמן", "email": "teacher7@school.demo", "phone": null, "roleId": 2, "password": "Welcome123" }
+
+### Deactivate a user (they can no longer log in; their history is kept)
+PATCH {{baseUrl}}/api/users/8/status
+Authorization: Bearer {{login.response.body.$.accessToken}}
+Content-Type: application/json
+
+{ "isActive": false }
+
+### Roles for the user form
+GET {{baseUrl}}/api/roles
+Authorization: Bearer {{login.response.body.$.accessToken}}
+
+### Add a subject (admin only)
+POST {{baseUrl}}/api/subjects
+Authorization: Bearer {{login.response.body.$.accessToken}}
+Content-Type: application/json
+
+{ "name": "ספרות" }
+
+### Who teaches what, filtered by class
+GET {{baseUrl}}/api/teacher-assignments?classId=1&sortBy=subjectName
+Authorization: Bearer {{login.response.body.$.accessToken}}
+
+### Assign a teacher to a subject in a class (gives the teacher access to that class)
+POST {{baseUrl}}/api/teacher-assignments
+Authorization: Bearer {{login.response.body.$.accessToken}}
+Content-Type: application/json
+
+{ "teacherId": 2, "classId": 5, "subjectId": 1 }

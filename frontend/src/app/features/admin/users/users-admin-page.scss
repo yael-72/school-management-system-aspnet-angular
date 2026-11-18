@@ -1,0 +1,17 @@
+@use '../admin-table';
+
+.user-name {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.count-link {
+  color: var(--color-primary);
+  text-decoration: underline;
+}
+
+// A deactivated user is shown faded.
+.is-inactive td:not(.row-actions) {
+  opacity: 0.55;
+}

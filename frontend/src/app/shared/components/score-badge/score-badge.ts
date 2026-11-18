@@ -1,9 +1,10 @@
-import { Component, computed, input } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
+import { Component, computed, input } from '@angular/core';
+import { BadgeTone, StatusBadge } from '../status-badge/status-badge';
 
 export type ScoreLevel = 'excellent' | 'good' | 'fair' | 'low';
 
-/** Grade bands used for color-coding scores everywhere in the app. */
+/** Grade bands used for color-coding scores everywhere in the app (same numbers as GradeBands in the API). */
 export function scoreLevel(score: number): ScoreLevel {
   if (score >= 90) return 'excellent';
   if (score >= 75) return 'good';
@@ -11,44 +12,28 @@ export function scoreLevel(score: number): ScoreLevel {
   return 'low';
 }
 
-/** A score (0–100) in a small pill colored by its grade band; "—" when there is no score yet. */
+const LEVEL_TONES: Readonly<Record<ScoreLevel, BadgeTone>> = {
+  excellent: 'success',
+  good: 'info',
+  fair: 'warning',
+  low: 'danger',
+};
+
+/** A score (0–100) in a pill colored by its grade band; "—" when there is no score yet. */
 @Component({
   selector: 'app-score-badge',
-  imports: [DecimalPipe],
+  imports: [DecimalPipe, StatusBadge],
   template: `
     @if (score() === null) {
-      <span class="score score--empty">—</span>
+      <span class="score-empty">—</span>
     } @else {
-      <span [class]="'score score--' + level()">{{ score() | number: '1.0-1' }}</span>
+      <app-status-badge size="md" [tone]="tone()" [attr.data-level]="level()">
+        {{ score() | number: '1.0-1' }}
+      </app-status-badge>
     }
   `,
   styles: `
-    .score {
-      display: inline-block;
-      min-inline-size: 48px;
-      padding: 4px 10px;
-      font-size: var(--font-size-sm);
-      font-weight: 700;
-      text-align: center;
-      border-radius: var(--radius-pill);
-    }
-    .score--excellent {
-      color: var(--color-success);
-      background: color-mix(in srgb, var(--color-success) 12%, transparent);
-    }
-    .score--good {
-      color: var(--color-info);
-      background: color-mix(in srgb, var(--color-info) 12%, transparent);
-    }
-    .score--fair {
-      color: var(--color-warning);
-      background: color-mix(in srgb, var(--color-warning) 14%, transparent);
-    }
-    .score--low {
-      color: var(--color-danger);
-      background: color-mix(in srgb, var(--color-danger) 12%, transparent);
-    }
-    .score--empty {
+    .score-empty {
       color: var(--color-text-secondary);
     }
   `,
@@ -56,4 +41,5 @@ export function scoreLevel(score: number): ScoreLevel {
 export class ScoreBadge {
   readonly score = input.required<number | null>();
   protected readonly level = computed(() => scoreLevel(this.score() ?? 0));
+  protected readonly tone = computed(() => LEVEL_TONES[this.level()]);
 }

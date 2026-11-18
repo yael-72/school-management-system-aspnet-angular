@@ -1,5 +1,6 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { rxResource, toObservable, toSignal } from '@angular/core/rxjs-interop';
+import { RouterLink } from '@angular/router';
 import { debounceTime } from 'rxjs';
 import { toErrorMessage } from '../../core/api/api-error';
 import { AuthService } from '../../core/auth/auth.service';
@@ -30,6 +31,7 @@ const PAGE_SIZE = 12;
     EmptyState,
     Paginator,
     RecentActivityList,
+    RouterLink,
     Skeleton,
     TopStudents,
   ],

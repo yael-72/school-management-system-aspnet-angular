@@ -24,40 +24,25 @@
   list-style: none;
 }
 
-// One color per status, shared by the summary chips and the selected status option.
-// --status-color is set per status below and read by both.
-.status-chip,
+// One color per status for the selected status option (the summary uses <app-status-badge>).
 .status-option {
   --status-color: var(--color-text-secondary);
 }
 
-.status-chip--Present,
 .status-option--Present {
   --status-color: var(--color-success);
 }
 
-.status-chip--Absent,
 .status-option--Absent {
   --status-color: var(--color-danger);
 }
 
-.status-chip--Late,
 .status-option--Late {
   --status-color: var(--color-warning);
 }
 
-.status-chip--Excused,
 .status-option--Excused {
   --status-color: var(--color-info);
-}
-
-.status-chip {
-  padding: 4px 12px;
-  font-size: var(--font-size-xs);
-  font-weight: 700;
-  color: var(--status-color);
-  background: color-mix(in srgb, var(--status-color) 12%, transparent);
-  border-radius: var(--radius-pill);
 }
 
 .register-skeleton {

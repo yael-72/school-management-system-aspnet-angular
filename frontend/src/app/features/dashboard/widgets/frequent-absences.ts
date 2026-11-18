@@ -2,12 +2,13 @@ import { Component, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { Avatar } from '../../../shared/components/avatar/avatar';
 import { EmptyState } from '../../../shared/components/empty-state/empty-state';
+import { StatusBadge } from '../../../shared/components/status-badge/status-badge';
 import { FrequentAbsence } from '../dashboard.models';
 
 /** Students who were absent often in the last 30 days – a list the homeroom teacher should act on. */
 @Component({
   selector: 'app-frequent-absences',
-  imports: [Avatar, EmptyState, RouterLink],
+  imports: [Avatar, EmptyState, RouterLink, StatusBadge],
   template: `
     @if (students().length === 0) {
       <app-empty-state
@@ -25,7 +26,9 @@ import { FrequentAbsence } from '../dashboard.models';
                 {{ student.firstName }} {{ student.lastName }}
                 <span class="absences__class">כיתה {{ student.className }}</span>
               </span>
-              <span class="absences__count">{{ student.absenceCount }} היעדרויות</span>
+              <app-status-badge tone="danger"
+                >{{ student.absenceCount }} היעדרויות</app-status-badge
+              >
             </a>
           </li>
         }
@@ -63,15 +66,6 @@ import { FrequentAbsence } from '../dashboard.models';
       font-size: var(--font-size-xs);
       font-weight: 500;
       color: var(--color-text-secondary);
-    }
-    .absences__count {
-      padding: 4px 10px;
-      font-size: var(--font-size-xs);
-      font-weight: 700;
-      white-space: nowrap;
-      color: var(--color-danger);
-      background: color-mix(in srgb, var(--color-danger) 12%, transparent);
-      border-radius: var(--radius-pill);
     }
   `,
 })

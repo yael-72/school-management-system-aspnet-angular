@@ -4,7 +4,7 @@ import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angula
 import { toErrorMessage } from '../../core/api/api-error';
 import { Profile } from './profile.models';
 import { ProfileService } from './profile.service';
-import { ROLE_LABELS } from './role-labels';
+import { ROLE_LABELS } from '../../core/auth/role-labels';
 
 /** Same rule as the API: digits, spaces, "+" and "-", 7–20 characters. */
 const PHONE_PATTERN = /^[0-9+\-\s]{7,20}$/;

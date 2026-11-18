@@ -164,7 +164,7 @@
                 <td>{{ assessment.date | date: 'dd.MM.yyyy' }}</td>
                 <td>
                   @if (assessment.date > today) {
-                    <span class="upcoming-chip">מתוכנן</span>
+                    <app-status-badge tone="neutral">מתוכנן</app-status-badge>
                   } @else {
                     <!-- dir="ltr" so "6 / 7" is not mirrored into "7 / 6" in the RTL layout -->
                     <span class="graded-count" dir="ltr">

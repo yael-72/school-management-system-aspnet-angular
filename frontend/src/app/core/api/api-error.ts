@@ -39,6 +39,23 @@ const KNOWN_MESSAGES: readonly [string, string][] = [
   ['Not enough storage space', 'אין מספיק מקום אחסון. מחקו קבצים ישנים ונסו שוב.'],
   ['A file can be at most', 'הקובץ גדול מדי (עד 5 MB).'],
   ['Multipart body length limit', 'הקובץ גדול מדי (עד 5 MB).'],
+  ['A user with the email', 'כבר קיים משתמש עם כתובת האימייל הזאת.'],
+  ['cannot change your own role', 'לא ניתן לשנות את התפקיד של עצמך.'],
+  ['cannot deactivate your own account', 'לא ניתן להשבית את החשבון של עצמך.'],
+  ['cannot delete your own account', 'לא ניתן למחוק את החשבון של עצמך.'],
+  [
+    'Deactivate the user instead',
+    'למשתמש יש כיתות, שיבוצים או רישומים בבית הספר, ולכן אי אפשר למחוק אותו. אפשר להשבית אותו במקום.',
+  ],
+  ['a letter and a digit', 'הסיסמה חייבת להכיל 8 תווים לפחות, ובהם אות וספרה.'],
+  ['A subject named', 'כבר קיים מקצוע בשם הזה.'],
+  ['subject that has assessments', 'לא ניתן למחוק מקצוע שיש לו מבחנים.'],
+  [
+    'subject that is still taught',
+    'לא ניתן למחוק מקצוע שמלמדים אותו. יש להסיר קודם את שיבוצי המורים שלו.',
+  ],
+  ['already teaches this subject', 'המורה כבר משובץ למקצוע הזה בכיתה הזאת.'],
+  ['Teacher with id', 'המורה שנבחר לא קיים או שאינו פעיל.'],
   ['end date must be on or after', 'תאריך הסיום חייב להיות אחרי תאריך ההתחלה.'],
 ];
 

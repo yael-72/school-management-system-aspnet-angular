@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { authGuard, guestGuard } from './core/auth/auth.guards';
+import { authGuard, guestGuard, roleGuard } from './core/auth/auth.guards';
 import { MainLayout } from './layout/main-layout/main-layout';
 
 // Every feature page is lazy-loaded (loadComponent), so its code is downloaded only
@@ -60,6 +60,12 @@ export const routes: Routes = [
           import('./features/assessments/assessment-details-page').then(
             (m) => m.AssessmentDetailsPage,
           ),
+      },
+      {
+        path: 'admin',
+        title: 'ניהול',
+        canActivate: [roleGuard('Admin')],
+        loadChildren: () => import('./features/admin/admin.routes').then((m) => m.ADMIN_ROUTES),
       },
       {
         path: 'profile',
