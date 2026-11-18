@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using SchoolManagement.Application.Common.Models;
+using SchoolManagement.Application.Common.Security;
 
 namespace SchoolManagement.Application.Users;
 
@@ -65,10 +66,8 @@ public abstract record SaveUserRequestBase
 /// <summary>Body of POST /api/users. The admin sets a first password and gives it to the new user.</summary>
 public record CreateUserRequest : SaveUserRequestBase
 {
-    // At least 8 characters with a letter and a digit – the same rule the Angular form shows.
     [Required(ErrorMessage = "Password is required.")]
-    [RegularExpression(@"^(?=.*[A-Za-z])(?=.*\d).{8,100}$",
-        ErrorMessage = "Password must be 8–100 characters and contain a letter and a digit.")]
+    [RegularExpression(PasswordRules.Pattern, ErrorMessage = PasswordRules.ErrorMessage)]
     public string Password { get; init; } = string.Empty;
 }
 
@@ -80,6 +79,17 @@ public record UpdateUserStatusRequest
 {
     [Required(ErrorMessage = "IsActive is required.")]
     public bool? IsActive { get; init; }
+}
+
+/// <summary>
+/// Body of PUT /api/users/{id}/password: the admin sets a new password for a user who forgot hers
+/// (the app sends no emails, so this is how access is restored).
+/// </summary>
+public record ResetPasswordRequest
+{
+    [Required(ErrorMessage = "Password is required.")]
+    [RegularExpression(PasswordRules.Pattern, ErrorMessage = PasswordRules.ErrorMessage)]
+    public string NewPassword { get; init; } = string.Empty;
 }
 
 public record RoleDto(int Id, string Name);

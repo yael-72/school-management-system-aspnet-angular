@@ -7,6 +7,9 @@ public interface IProfileService
 
     Task<ProfileDto> UpdateProfileAsync(UpdateProfileRequest request, CancellationToken cancellationToken = default);
 
+    /// <summary>Changes the user's own password after checking the current one.</summary>
+    Task ChangePasswordAsync(ChangePasswordRequest request, CancellationToken cancellationToken = default);
+
     Task<NotificationSettingsDto> GetNotificationSettingsAsync(CancellationToken cancellationToken = default);
 
     Task<NotificationSettingsDto> UpdateNotificationSettingsAsync(

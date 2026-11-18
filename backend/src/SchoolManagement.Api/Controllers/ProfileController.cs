@@ -30,6 +30,16 @@ public class ProfileController(IProfileService profileService) : ControllerBase
         return Ok(await profileService.UpdateProfileAsync(request, cancellationToken));
     }
 
+    /// <summary>Changes the user's own password. A wrong current password is a 400, not a 401.</summary>
+    [HttpPut("password")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType<ValidationProblemDetails>(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> ChangePassword(ChangePasswordRequest request, CancellationToken cancellationToken)
+    {
+        await profileService.ChangePasswordAsync(request, cancellationToken);
+        return NoContent();
+    }
+
     [HttpGet("notification-settings")]
     [ProducesResponseType<NotificationSettingsDto>(StatusCodes.Status200OK)]
     public async Task<ActionResult<NotificationSettingsDto>> GetNotificationSettings(CancellationToken cancellationToken)

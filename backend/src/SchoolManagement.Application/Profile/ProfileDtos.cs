@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using SchoolManagement.Application.Common.Security;
 
 namespace SchoolManagement.Application.Profile;
 
@@ -37,4 +38,16 @@ public record NotificationSettingsDto
     public bool RemindBeforeExam { get; init; }
     public bool AlertOnLowAttendance { get; init; }
     public bool WeeklySummaryEmail { get; init; }
+}
+
+/// <summary>Body of PUT /api/users/me/password. The current password proves it is really the user.</summary>
+public record ChangePasswordRequest
+{
+    [Required(ErrorMessage = "Current password is required.")]
+    [MaxLength(100)]
+    public string CurrentPassword { get; init; } = string.Empty;
+
+    [Required(ErrorMessage = "New password is required.")]
+    [RegularExpression(PasswordRules.Pattern, ErrorMessage = PasswordRules.ErrorMessage)]
+    public string NewPassword { get; init; } = string.Empty;
 }
