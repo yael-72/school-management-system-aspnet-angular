@@ -91,6 +91,13 @@ Open **http://localhost:8080**. The first start creates the database and fills i
 Other teachers: `teacher2@school.demo` … `teacher6@school.demo`, same password. Log in as the teacher and as
 the admin to see how the same screens show different data.
 
+### Live demo on Azure
+
+The live demo runs on Azure's free tiers (App Service F1 + Azure SQL free offer) and is deployed by
+GitHub Actions after every push to `main`. One App Service serves both the API and the Angular site.
+In the live demo the demo accounts cannot be locked out (no password, role or status changes) and the
+data is reset every time the app starts. Setup and limits: [docs/deployment.md](docs/deployment.md).
+
 ### For development
 
 Requirements: .NET 10 SDK, Node.js 24 (or 22.22+), and SQL Server (LocalDB on Windows, or the
@@ -199,6 +206,10 @@ lazy-loaded folder per feature.
   only redefines the variables, and the charts read the same variables, so they follow the theme too.
   All layout uses logical properties (`margin-inline-start`, …), which makes RTL work without
   separate styles.
+- **A demo mode for the public site** (`Demo:Enabled`, off by default). Everyone shares the same demo
+  accounts, so in demo mode they cannot get a new password, be deactivated or change role, and each start
+  of the app clears the data and seeds a fresh school (undoing visitors' changes and keeping the dates
+  current). It is one setting and one small guard class, not a separate code path.
 - **Demo data is generated at runtime**, not in a migration, because thousands of score and attendance
   rows have dates relative to "today". A fixed random seed makes every run produce the same school.
 
@@ -206,8 +217,8 @@ lazy-loaded folder per feature.
 
 | Suite | Count | What it covers |
 |---|---|---|
-| Backend unit tests | 131 | Business rules per service: permissions, score limits, attendance rules, upserts, dashboard numbers, file rules, user / subject / assignment management |
-| Backend integration tests | 77 | The real API in memory (`WebApplicationFactory`): routing, auth, validation, status codes, JSON, error handling |
+| Backend unit tests | 135 | Business rules per service: permissions, score limits, attendance rules, upserts, dashboard numbers, file rules, user / subject / assignment management |
+| Backend integration tests | 81 | The real API in memory (`WebApplicationFactory`): routing, auth, validation, status codes, JSON, error handling |
 | Frontend tests | 98 | Services, guards, interceptors, error messages and the components with logic (attendance register, grade sheet, to-do list, upload, toggles, user form, password dialogs, subjects, sidebar per role) |
 
 ```bash
@@ -215,7 +226,8 @@ cd backend && dotnet test
 cd frontend && npx ng test --watch=false
 ```
 
-GitHub Actions runs all of them, plus a build of both Docker images, on every push.
+GitHub Actions runs all of them, plus a build of both Docker images, on every push. A second workflow
+(`deploy.yml`) runs the backend tests again and deploys `main` to Azure.
 
 ## API
 

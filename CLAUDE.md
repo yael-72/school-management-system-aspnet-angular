@@ -319,14 +319,24 @@ Start each new session by reading this section.
   `[formControl]` never fire `(ngSubmit)` (subjects add/rename, reset dialog), and client-cancelled requests were
   logged as 500 errors (now an info log + 499).
 
+- **Live demo – code side** (after the password change): Yael chose **Azure free tiers**. One App Service
+  (Linux F1) serves the API and the Angular build: when `wwwroot` exists, `Program.cs` serves static files,
+  falls back to `index.html` for Angular routes and keeps unknown `/api/*` a 404 (`WebAppFiles` = nginx
+  caching rules). `.github/workflows/deploy.yml` (push to main / manual; skipped until the repo variable
+  `AZURE_WEBAPP_NAME` exists; secret `AZURE_WEBAPP_PUBLISH_PROFILE`) tests, builds, copies the Angular build into
+  `publish/wwwroot` and deploys. Demo mode `Demo:Enabled`: `DemoAccountGuard` blocks password change/reset,
+  deactivate, delete and email/role change of `@school.demo` accounts; `DemoDataReset` clears all data
+  (ExecuteDelete per table, files too) before seeding on every start. Portal steps: `docs/deployment.md`.
+  Verified locally with an Azure-like container (API serving wwwroot, demo mode, real SQL Server).
+
 ### Next
-- **Live demo**: needs a hosting account (for example Azure App Service + Azure SQL, or a VPS with Docker
-  Compose) – ask Yael which one; she has to create the account and give access.
+- **Live demo – Azure side**: Yael follows `docs/deployment.md` (her account), then the first deploy run;
+  check the site, then put the URL at the top of the README.
 - Optional: Testcontainers-based integration tests on real
   SQL Server (ask first).
 
 ### Open items
-- Live demo (see Next).
+- Live demo URL (waiting for the Azure setup, see Next).
 
 ### Decisions already made (do not re-ask)
 - **Design source**: Horizon UI Figma file `YH394Y7LXSOwGdQuhrKoLU` (Figma connector). Match it
@@ -387,6 +397,10 @@ Start each new session by reading this section.
   revocation – acceptable for this project). Passwords are never logged.
 - **Reactive forms**: a `<form (ngSubmit)>` needs `[formGroup]` – `(ngSubmit)` comes from FormGroupDirective;
   a form with only `[formControl]` inputs does a native submit. Always use a FormGroup.
+- **Live demo**: Azure free tiers, one App Service for API + site (no CORS, no Static Web Apps). Settings only
+  in App Service (never in the repo): `ConnectionStrings__DefaultConnection`, `Jwt__SigningKey`,
+  `Database__InitializeOnStartup=true`, `Demo__Enabled=true`, `Swagger__Enabled=true`,
+  `FileStorage__RootPath=/home/data/uploads`. Demo mode is off everywhere else (dev, Docker, tests).
 - **Errors**: a request the client cancelled (`RequestAborted`) is logged at information level and answered 499,
   not treated as a server error.
 - **Averages** are percentages: `Score.Value * 100 / Assessment.MaxScore`, ungraded (null) scores and
