@@ -38,6 +38,9 @@ public class ApiFactory : WebApplicationFactory<Program>
     /// <summary>Uploaded files go to a temporary folder that is deleted with the factory.</summary>
     private readonly string _uploadsPath = Path.Combine(Path.GetTempPath(), $"api-tests-uploads-{Guid.NewGuid():N}");
 
+    /// <summary>Extra configuration for one test (for example demo mode). Set before the first request.</summary>
+    public Dictionary<string, string?> Settings { get; } = [];
+
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         builder.UseEnvironment("Testing");
@@ -47,6 +50,10 @@ public class ApiFactory : WebApplicationFactory<Program>
         builder.UseSetting("ConnectionStrings:DefaultConnection", "not-used-in-tests");
         builder.UseSetting("Jwt:SigningKey", "integration-tests-signing-key-that-is-long-enough-0123456789");
         builder.UseSetting("FileStorage:RootPath", _uploadsPath);
+        foreach (var (key, value) in Settings)
+        {
+            builder.UseSetting(key, value);
+        }
 
         builder.ConfigureTestServices(services =>
         {

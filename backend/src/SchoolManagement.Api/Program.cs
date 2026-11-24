@@ -3,6 +3,7 @@ using System.Text.Json.Serialization;
 using SchoolManagement.Api.Extensions;
 using SchoolManagement.Api.Infrastructure;
 using SchoolManagement.Application;
+using SchoolManagement.Application.Common.Demo;
 using SchoolManagement.Application.Common.Interfaces;
 using SchoolManagement.Infrastructure;
 using SchoolManagement.Infrastructure.Persistence;
@@ -18,6 +19,7 @@ if (builder.Environment.IsDevelopment() && string.IsNullOrEmpty(builder.Configur
 }
 
 builder.Services.AddApplication();
+builder.Services.Configure<DemoOptions>(builder.Configuration.GetSection(DemoOptions.SectionName));
 builder.Services.AddInfrastructure(builder.Configuration);
 
 builder.Services.AddHttpContextAccessor();
@@ -51,10 +53,27 @@ if (app.Configuration.GetValue<bool>("Database:InitializeOnStartup"))
     await app.Services.InitializeDatabaseAsync();
 }
 
+// The Azure deployment copies the Angular build into wwwroot, so one App Service serves both the
+// site and the API from the same origin (no CORS). Locally and in Docker there is no wwwroot:
+// `ng serve` or nginx serve the site there. WebRootPath is null when the folder does not exist.
+var servesWebApp = Directory.Exists(app.Environment.WebRootPath);
+if (servesWebApp)
+{
+    app.UseDefaultFiles();
+    app.UseStaticFiles(WebAppFiles.Options);
+}
+
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+if (servesWebApp)
+{
+    // Unknown API paths stay a 404 (ProblemDetails); every other path is an Angular route.
+    app.MapFallback("/api/{**path}", () => Results.NotFound()).AllowAnonymous();
+    app.MapFallbackToFile("index.html", WebAppFiles.Options).AllowAnonymous();
+}
 
 // Liveness check for Docker and hosting platforms (no login needed).
 app.MapGet("/health", () => Results.Ok(new { status = "ok" })).AllowAnonymous();

@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using SchoolManagement.Application.Common.Demo;
 using SchoolManagement.Application.Common.Exceptions;
 using SchoolManagement.Application.Common.Interfaces;
 using SchoolManagement.Application.Common.Security;
@@ -12,6 +13,7 @@ public class ProfileService(
     IClassAccessService classAccess,
     ICurrentUser currentUser,
     IPasswordHasher passwordHasher,
+    DemoAccountGuard demoGuard,
     ILogger<ProfileService> logger) : IProfileService
 {
     public async Task<ProfileDto> GetProfileAsync(CancellationToken cancellationToken = default)
@@ -63,6 +65,7 @@ public class ProfileService(
     {
         var user = await db.Users.SingleOrDefaultAsync(u => u.Id == currentUser.Id, cancellationToken)
             ?? throw new NotFoundException("User", currentUser.Id);
+        demoGuard.EnsureCanChange(user.Email);
 
         // 400, not 401: the user is logged in; a 401 would make the app log her out.
         if (!passwordHasher.Verify(user.PasswordHash, request.CurrentPassword))

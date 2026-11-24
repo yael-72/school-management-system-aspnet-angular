@@ -17,8 +17,13 @@ public class ProfileServiceTests
 
     public ProfileServiceTests() => _school = new SchoolBuilder(_db);
 
-    private ProfileService CreateService(ICurrentUser user) =>
-        new(_db, new ClassAccessService(_db, user), user, _hasher, NullLogger<ProfileService>.Instance);
+    private ProfileService CreateService(ICurrentUser user, bool demoMode = false) => new(
+        _db,
+        new ClassAccessService(_db, user),
+        user,
+        _hasher,
+        demoMode ? DemoGuards.On : DemoGuards.Off,
+        NullLogger<ProfileService>.Instance);
 
     [Fact]
     public async Task Teacher_profile_counts_her_classes_students_and_assessments()
@@ -114,5 +119,21 @@ public class ProfileServiceTests
 
         await act.Should().ThrowAsync<SchoolManagement.Application.Common.Exceptions.BusinessRuleException>()
             .WithMessage("*must be different*");
+    }
+
+    [Fact]
+    public async Task In_the_live_demo_a_demo_account_keeps_its_published_password()
+    {
+        var teacher = await _school.AddTeacherAsync();
+        teacher.Email = "teacher@school.demo";
+        teacher.PasswordHash = _hasher.Hash("Demo123!");
+        await _db.SaveChangesAsync();
+
+        var act = () => CreateService(FakeCurrentUser.Teacher(teacher.Id), demoMode: true)
+            .ChangePasswordAsync(new ChangePasswordRequest { CurrentPassword = "Demo123!", NewPassword = "NewPassword2" });
+
+        await act.Should().ThrowAsync<SchoolManagement.Application.Common.Exceptions.BusinessRuleException>()
+            .WithMessage("*live demo*");
+        (await _db.Users.SingleAsync(u => u.Id == teacher.Id)).PasswordHash.Should().Be(_hasher.Hash("Demo123!"));
     }
 }
